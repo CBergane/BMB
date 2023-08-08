@@ -7,11 +7,13 @@
     </div>
 
     <div class="information w-full lg:w-2/5 lg:p-6">
-        <h1 class="text-2xl">Produktens namn</h1>
+        <h1 class="text-2xl">{{produkt.namn}}</h1>
 
-        <p class="mt-1 text-gray-400">120 kr</p>
+        <p class="mt-1 text-gray-400">{{produkt.pris}} kr</p>
 
-        <p class="pt-6 text-gray-700">Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui laborum, soluta mollitia repudiandae reprehenderit nulla dolorem unde laudantium labore molestiae, optio, assumenda nesciunt saepe id aspernatur sed illo est inventore.</p>
+        {% if produkt.beskrivning %}
+            <p class="pt-6 text-gray-700">{{produkt.beskrivning}}</p>
+        {% endif %}
 
         <a href="#" class="mt-6 inline-block px-8 py-4 rounded-xl bg-emerald-400 text-gray-200 hover:bg-emerald-800">
             Lägg i kundvagn

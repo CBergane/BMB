@@ -27,6 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['https://8000-cbergane-bmb-hwfowlqnoyb.ws-eu102.gitpod.io', '8000-cbergane-bmb-hwfowlqnoyb.ws-eu102.gitpod.io', 'localhost', '127.0.0.1', ]
 
+SESSION_COOKIE_AGE = 86400
+CART_SESSION_ID = 'cart'
 
 # Application definition
 
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core',
     'products',
+    'cart',
 ]
 
 MIDDLEWARE = [
@@ -64,6 +67,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'cart.context_processors.cart',
             ],
         },
     },

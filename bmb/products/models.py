@@ -1,8 +1,9 @@
 from django.db import models
+from autoslug import AutoSlugField
 
 class Category(models.Model):
     namn = models.CharField(max_length=255)
-    slug = models.SlugField()
+    slug = AutoSlugField(populate_from='namn', unique=True)
     
     class Meta:
         ordering = ('namn',)
@@ -13,7 +14,7 @@ class Category(models.Model):
 class Produkt(models.Model):
     category = models.ForeignKey(Category, related_name='produkt', on_delete=models.CASCADE)
     namn = models.CharField(max_length=255)
-    slug = models.SlugField()
+    slug = AutoSlugField(populate_from='namn', unique=True)
     bredd = models.IntegerField(blank=True, null=True)
     vikt = models.IntegerField(blank=True, null=True)
     blandning = models.CharField(max_length=255)
