@@ -3,7 +3,7 @@
 
 <div class="max-w-6xl mx-auto flex flex-wrap py-6 px-6 xl:px-0">
     <div class="images w-full mb-6. lg:mb-0 lg:w-3/5">
-        <img class="rounded-xl" src="" alt="">
+        <img class="rounded-xl" src="{{ produkt.get_thumbnail }}" alt="">
     </div>
 
     <div class="information w-full lg:w-2/5 lg:p-6">
@@ -15,7 +15,12 @@
             <p class="pt-6 text-gray-700">{{produkt.beskrivning}}</p>
         {% endif %}
 
-        <a href="#" class="mt-6 inline-block px-8 py-4 rounded-xl bg-emerald-400 text-gray-200 hover:bg-emerald-800">
+        <a href="#" 
+        class="mt-6 inline-block px-8 py-4 rounded-xl bg-emerald-400 text-gray-200 hover:bg-emerald-800"
+        hx-get="{% url 'add_to_cart' produkt.id %}"
+        hx-target="#menu-cart-btn"
+        hx-swap="outerHTML"
+        >
             Lägg i kundvagn
         </a>
 

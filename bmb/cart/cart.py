@@ -26,7 +26,7 @@ class Cart(object):
     def add(self, produkt_id, quantity=1, update_quantity=False):
         produkt_id = str(produkt_id)
 
-        if produkt_idnot in self.cart:
+        if produkt_id not in self.cart:
             self.cart[produkt_id] = {'quantity': 1, 'id': produkt_id,}
 
         if update_quantity:
