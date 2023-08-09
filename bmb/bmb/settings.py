@@ -27,6 +27,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['https://8000-cbergane-bmb-hwfowlqnoyb.ws-eu102.gitpod.io', '8000-cbergane-bmb-hwfowlqnoyb.ws-eu102.gitpod.io', 'localhost', '127.0.0.1', ]
 
+LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/'
+
 SESSION_COOKIE_AGE = 86400
 CART_SESSION_ID = 'cart'
 
