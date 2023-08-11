@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-7onhk**ijbx=g7r8+l#*9g!q8+5hn@769^#3mka0x&!$*8qojh
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://8000-cbergane-bmb-hwfowlqnoyb.ws-eu102.gitpod.io', '8000-cbergane-bmb-hwfowlqnoyb.ws-eu102.gitpod.io', 'localhost', '127.0.0.1', ]
+ALLOWED_HOSTS = ['8000-cbergane-bmb-hwfowlqnoyb.ws-eu103.gitpod.io', '8000-cbergane-bmb-hwfowlqnoyb.ws-eu102.gitpod.io', 'localhost', '127.0.0.1', ]
 
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_REDIRECT_URL = '/'

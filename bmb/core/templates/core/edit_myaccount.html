@@ -1,0 +1,35 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Redigera Profil{% endblock %}
+
+{% block content%}
+
+<div class="max-w-6xl mx-auto p-6">
+    <h1 class="mb-5 text-3xl">Redigera Min Profil</h1>
+
+    <form action="." method="post" class="space-y-3">
+        {% csrf_token %}
+        <div>
+            <label for="">Förnamn</label>
+            <input name="first_name" value="{{ request.user.first_name}}" type="text" class="w-full mt-2 py-4 px-4 bg-gray-100 rounded-xl">
+        </div>
+        <div>
+            <label for="">Efternamn</label>
+            <input name="last_name" value="{{ request.user.last_name}}" type="text" class="w-full mt-2 py-4 px-4 bg-gray-100 rounded-xl">
+        </div>
+        <div>
+            <label for="">Användarman</label>
+            <input name="username" value="{{ request.user.username}}" type="text" class="w-full mt-2 py-4 px-4 bg-gray-100 rounded-xl">
+        </div>
+        <div>
+            <label for="">E-mail</label>
+            <input name="email" value="{{ request.user.email}}" type="email" class="w-full mt-2 py-4 px-4 bg-gray-100 rounded-xl">
+        </div>
+
+        <div>
+            <button class="py-4 px-6 rounded-xl text-gray-800 bg-lime-500 hover:bg-lime-700">Skicka</button>
+        </div>
+    </form>
+</div>
+
+{% endblock%}

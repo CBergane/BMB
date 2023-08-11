@@ -1,0 +1,86 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Min Profil{% endblock %}
+
+{% block content%}
+
+<div class="max-w-6xl mx-auto p-6">
+    <h1 class="mb-5 text-3xl">Min Profil</h1>
+
+    <div class="mb-6">
+        <strong>Namn: </strong>{{ request.user.get_full_name }} <br>
+        <strong>Användarnamn: </strong>{{ request.user.username }} <br>
+        <strong>E-mail: </strong>{{ request.user.email }} <br>
+
+        <a href="{% url 'edit_myaccount' %}" class="inline-block mt-4 py-4 px-6 rounded-xl text-gray-800 bg-lime-500 hover:bg-lime-700">Redigera</a>
+    </div>
+
+    <hr>
+
+    <h2 class="my-6 text-xl">Mina beställningar</h2>
+
+    <div class="w-full mb-6 p-6 flex flex-wrap bg-gray-100 rounded-xl">
+        <div class="mb-6 flex justify-between">
+            <a href="#">Beställnings id:1</a>
+        </div>
+        <div class="w-full mb-6">
+            <div class="produkt mb-6 flex pr-6">
+                <a href="#" class="w-1/4">
+                    <img src="1.jpg" alt="" class="hover:shadow-lg rounded-xl">
+                </a>
+                <div class="w-3/4 pl-6">
+                    <div class="flex justify-between">
+                        <a href="#" class="text-lg">Produkt namn</a>
+                        <p class="mb-6 pt-1 text-gray-400">200 kr</p>
+                    </div>
+
+                    <hr>
+
+                    <div class="mt-6">
+                        Kvantitet: 1
+                    </div>
+                </div>
+            </div>
+            <div class="produkt mb-6 flex pr-6">
+                <a href="#" class="w-1/4">
+                    <img src="1.jpg" alt="" class="hover:shadow-lg rounded-xl">
+                </a>
+                <div class="w-3/4 pl-6">
+                    <div class="flex justify-between">
+                        <a href="#" class="text-lg">Produkt namn</a>
+                        <p class="mb-6 pt-1 text-gray-400">200 kr</p>
+                    </div>
+
+                    <hr>
+
+                    <div class="mt-6">
+                        Kvantitet: 1
+                    </div>
+                </div>
+            </div>
+            <div class="produkt mb-6 flex pr-6">
+                <a href="#" class="w-1/4">
+                    <img src="1.jpg" alt="" class="hover:shadow-lg rounded-xl">
+                </a>
+                <div class="w-3/4 pl-6">
+                    <div class="flex justify-between">
+                        <a href="#" class="text-lg">Produkt namn</a>
+                        <p class="mb-6 pt-1 text-gray-400">200 kr</p>
+                    </div>
+
+                    <hr>
+
+                    <div class="mt-6">
+                        Kvantitet: 1
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="">
+            <p class="text-lg">Datum:</p>
+            <p class="text-lg">Total summa: 200 kr</p>
+        </div>
+    </div>
+</div>
+
+{% endblock%}
