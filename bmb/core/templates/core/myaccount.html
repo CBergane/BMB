@@ -19,68 +19,55 @@
 
     <h2 class="my-6 text-xl">Mina beställningar</h2>
 
-    <div class="w-full mb-6 p-6 flex flex-wrap bg-gray-100 rounded-xl">
-        <div class="mb-6 flex justify-between">
-            <a href="#">Beställnings id:1</a>
-        </div>
-        <div class="w-full mb-6">
-            <div class="produkt mb-6 flex pr-6">
-                <a href="#" class="w-1/4">
-                    <img src="1.jpg" alt="" class="hover:shadow-lg rounded-xl">
-                </a>
-                <div class="w-3/4 pl-6">
-                    <div class="flex justify-between">
-                        <a href="#" class="text-lg">Produkt namn</a>
-                        <p class="mb-6 pt-1 text-gray-400">200 kr</p>
+    {% for order in request.user.orders.all %}
+        <div class="w-full mb-6 p-6 flex flex-wrap bg-gray-100 rounded-xl">
+            <div class="mb-6 flex justify-between">
+                <a href="#">Beställnings id: {{ order.id }}</a>
+            </div>
+            <div class="w-full mb-6">
+                {% for item in order.items.all %}
+                <div class="produkt mb-6 flex pr-6">
+                    <a href="#" class="w-1/4">
+                        <img src="{{ item.produkt.get_thumbnail }}" alt="" class="hover:shadow-lg rounded-xl">
+                    </a>
+                    <div class="w-3/4 pl-6">
+                        <div class="flex justify-between">
+                            <a href="#" class="text-lg">{{ item.produkt.namn }}</a>
+                            <p class="mb-6 pt-1 text-gray-400">{{ item.produkt.pris }} kr</p>
+                        </div>
+
+                        <hr>
+
+                        <div class="mt-6">
+                            Kvantitet: {{ item.quantity }}
+                        </div>
                     </div>
+                </div>
+                {% endfor %}
+                <div class="produkt mb-6 flex pr-6">
+                    <a href="#" class="w-1/4">
+                        <img src="1.jpg" alt="" class="hover:shadow-lg rounded-xl">
+                    </a>
+                    <div class="w-3/4 pl-6">
+                        <div class="flex justify-between">
+                            <a href="#" class="text-lg">Produkt namn</a>
+                            <p class="mb-6 pt-1 text-gray-400">200 kr</p>
+                        </div>
 
-                    <hr>
+                        <hr>
 
-                    <div class="mt-6">
-                        Kvantitet: 1
+                        <div class="mt-6">
+                            Kvantitet: 1
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="produkt mb-6 flex pr-6">
-                <a href="#" class="w-1/4">
-                    <img src="1.jpg" alt="" class="hover:shadow-lg rounded-xl">
-                </a>
-                <div class="w-3/4 pl-6">
-                    <div class="flex justify-between">
-                        <a href="#" class="text-lg">Produkt namn</a>
-                        <p class="mb-6 pt-1 text-gray-400">200 kr</p>
-                    </div>
-
-                    <hr>
-
-                    <div class="mt-6">
-                        Kvantitet: 1
-                    </div>
-                </div>
-            </div>
-            <div class="produkt mb-6 flex pr-6">
-                <a href="#" class="w-1/4">
-                    <img src="1.jpg" alt="" class="hover:shadow-lg rounded-xl">
-                </a>
-                <div class="w-3/4 pl-6">
-                    <div class="flex justify-between">
-                        <a href="#" class="text-lg">Produkt namn</a>
-                        <p class="mb-6 pt-1 text-gray-400">200 kr</p>
-                    </div>
-
-                    <hr>
-
-                    <div class="mt-6">
-                        Kvantitet: 1
-                    </div>
-                </div>
+            <div class="">
+                <p class="text-lg">Datum: {{ order.created_at }}</p>
+                <p class="text-lg">Total summa: 200 kr</p>
             </div>
         </div>
-        <div class="">
-            <p class="text-lg">Datum:</p>
-            <p class="text-lg">Total summa: 200 kr</p>
-        </div>
-    </div>
+    {% endfor %}
 </div>
 
 {% endblock%}
