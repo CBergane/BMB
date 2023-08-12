@@ -52,3 +52,6 @@ class Cart(object):
             self.cart[str(p)]['produkt'] = Produkt.objects.get(pk=p)
 
         return int(sum(item['produkt'].pris * item['quantity'] for item in self.cart.values()))
+
+    def get_item(self, produkt_id):
+        return self.cart[str(produkt_id)]
