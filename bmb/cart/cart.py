@@ -32,14 +32,14 @@ class Cart(object):
         produkt_id = str(produkt_id)
 
         if produkt_id not in self.cart:
-            self.cart[produkt_id] = {'quantity': 1, 'id': produkt_id,}
-
+            self.cart[produkt_id] = {'quantity': 1, 'id': produkt_id}
+        
         if update_quantity:
             self.cart[produkt_id]['quantity'] += int(quantity)
 
             if self.cart[produkt_id]['quantity'] == 0:
                 self.remove(produkt_id)
-        
+            
         self.save()
 
     def remove(self, produkt_id):
@@ -54,4 +54,8 @@ class Cart(object):
         return int(sum(item['produkt'].pris * item['quantity'] for item in self.cart.values()))
 
     def get_item(self, produkt_id):
+        if str(produkt_id) in self.cart:
+            return self.cart[str(produkt_id)]
+        else:
+            return None
         return self.cart[str(produkt_id)]
