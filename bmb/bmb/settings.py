@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7onhk**ijbx=g7r8+l#*9g!q8+5hn@769^#3mka0x&!$*8qojh'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -32,9 +37,9 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
 SESSION_COOKIE_AGE = 86400
-CART_SESSION_ID = 'cart'
-STRIPE_API_KEY_PUBLISHABLE = ''
-STRIPE_API_KEY_HIDDEN = ''
+CART_SESSION_ID = os.environ.get('CART_SESSION')
+STRIPE_API_KEY_PUBLISHABLE = os.environ.get('STRIPE_API_KEY')
+STRIPE_API_KEY_HIDDEN = os.environ.get('STRIPE_API_KEY_HIDDEN')
 
 # Application definition
 

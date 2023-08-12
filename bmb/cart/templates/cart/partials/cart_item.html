@@ -21,6 +21,7 @@
                     hx-get="{% url 'update_cart' item.produkt.id 'decrement' %}"
                     hx-target="#cart-item-{{ item.produkt.id }}"
                     hx-swap="outerHTML"
+                    style="cursor:pointer;"
                 >
                     -
                 </a>
@@ -30,6 +31,7 @@
                     hx-get="{% url 'update_cart' item.produkt.id 'increment' %}"
                     hx-target="#cart-item-{{ item.produkt.id }}"
                     hx-swap="outerHTML"
+                    style="cursor:pointer;"
                 >
                     +
                 </a>
