@@ -9,6 +9,7 @@ class Category(models.Model):
     slug = AutoSlugField(populate_from='namn', unique=True)
     
     class Meta:
+        verbose_name_plural = 'Kategorier'
         ordering = ('namn',)
 
     def __str__(self):
@@ -32,6 +33,7 @@ class Produkt(models.Model):
     image_url = models.CharField(max_length=500, blank=True, null=True)
 
     class Meta:
+        verbose_name_plural = 'Produkter'
         ordering = ('-skapad',)
 
     def __str__(self):

@@ -43,11 +43,8 @@ def shop(request):
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
-        print("Form is valid:", form.is_valid()) # Debugging line
-        print("Form errors:", form.errors)       # Debugging line
         if form.is_valid():
             user = form.save()
-            print("User created:", user)         # Debugging line
             login(request, user)
             return redirect('/')
     else:
