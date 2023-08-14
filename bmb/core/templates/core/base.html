@@ -6,7 +6,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <title>{% block title %}{% endblock %} | BMB</title>
 </head>
-<body>
+<body class="flex flex-col min-h-screen">
     <nav class="border-b border-gray-300">
         <div class="max-w-6xl mx-auto py-2 px-6 xl:px-0 items-center flex justify-between">
             <div class="menu-left flex items-center space-x-6">
@@ -40,9 +40,8 @@
         </div>
     </nav>
 
-    <main>
+    <main class="flex-grow">
         {% block content%}
-        
         {% endblock%}
     </main>
 
