@@ -13,7 +13,7 @@
         hx-get="{% url 'add_to_cart' produkt.id %}"
         hx-target="#menu-cart-btn"
         hx-swap="outerHTML"
-        class="text-emerald-500 hover:text-emerald-800"
+        class="green-color"
         >
 
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -22,5 +22,5 @@
         </a>
 
     </div>
-    <p class="pt-1 text-gray-400">{{ produkt.pris}} kr/m</p>
+    <p class="pt-1 text-gray-400">{{ produkt.pris}} kr/dm</p>
 </div>

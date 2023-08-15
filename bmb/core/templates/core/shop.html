@@ -26,9 +26,9 @@
         <h3 class="mt-6 mb-3 text-xl uppercase">Kategorier</h3>
 
         <ul class="space-y-2">
-            <li><a href="{% url 'shop' %}" class="{% if not active_category %} text-emerald-500 {% else %} text-gray-500 {% endif %}">Alla kategorier</a></li>
+            <li><a href="{% url 'shop' %}" class="{% if not active_category %} green-color {% else %} text-gray-500 {% endif %}">Alla kategorier</a></li>
             {% for category in categories %}
-            <li><a href="{% url 'shop' %}?category={{category.slug}}" class="{% if category.slug == active_category %} text-emerald-500 {% else %} text-gray-500 {% endif %}">{{category.namn}}</a></li>
+            <li><a href="{% url 'shop' %}?category={{category.slug}}" class="{% if category.slug == active_category %} green-color {% else %} text-gray-500 {% endif %}">{{category.namn}}</a></li>
             {% endfor %}
         </ul>
 
