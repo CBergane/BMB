@@ -2,7 +2,7 @@
     color: #97d700;
 }
 
-.green-color:hover {
+.green-color-hover:hover {
     color: #729b11;
 }
 
@@ -10,6 +10,6 @@
     background-color: #97d700;
 }
 
-.green-bg:hover {
+.green-bg-hover:hover {
     background-color: #729b11;
 }
