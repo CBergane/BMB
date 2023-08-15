@@ -211,6 +211,14 @@
                 window.location.href = "/success/";
                 // You may also want to display the payment instructions if they're not in the email.
             })
+            .then(function(response) {
+                if (!response.ok) {
+                    // Handle the error and possibly return to exit from the promise chain.
+                    console.log('Error status', response.status);
+                    return;
+                }
+                return response.json();
+            })
             .catch(function(error) {
                 console.log('Errors', error)
             })

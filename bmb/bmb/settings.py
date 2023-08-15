@@ -31,7 +31,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['8000-cbergane-bmb-hwfowlqnoyb.ws-eu103.gitpod.io', 'https://bmb-annelie-e3fc68fd7d04.herokuapp.com', 'localhost', 'bmb-annelie-e3fc68fd7d04.herokuapp.com', ]
+ALLOWED_HOSTS = ['8000-cbergane-bmb-hwfowlqnoyb.ws-eu103.gitpod.io', 'localhost', 'bmb-annelie-e3fc68fd7d04.herokuapp.com', ]
 
 SITE_ID = 1
 
