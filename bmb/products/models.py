@@ -1,5 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
+
+from cloudinary.models import CloudinaryField
+
 from django.core.files import File
 from autoslug import AutoSlugField
 from PIL import Image
@@ -31,8 +34,8 @@ class Produkt(models.Model):
     is_active = models.BooleanField(default=True, help_text="Är denna produkt i lager?")
     pris = models.IntegerField()
     skapad = models.DateTimeField(auto_now_add=True)
-    image = models.ImageField(upload_to='uploads/', blank=True, null=True)
-    thumbnail = models.ImageField(upload_to='uploads/', blank=True, null=True)
+    image = CloudinaryField('image', blank=True, null=True)
+    thumbnail = CloudinaryField('image', blank=True, null=True)
     image_url = models.CharField(max_length=500, blank=True, null=True)
 
     class Meta:

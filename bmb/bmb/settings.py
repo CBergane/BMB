@@ -15,6 +15,10 @@ from dotenv import load_dotenv
 import dj_database_url
 import os
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 load_dotenv()
 
 
@@ -57,6 +61,7 @@ INSTALLED_APPS = [
     'products',
     'cart',
     'order',
+    'cloudinary'
 ]
 
 MIDDLEWARE = [
@@ -166,3 +171,9 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = os.environ.get('EMAIL')
 EMAIL_HOST_PASSWORD = os.environ.get('EPASSWORD')
+
+cloudinary.config( 
+  cloud_name = os.environ.get('CLOUD_NAME'), 
+  api_key = os.environ.get('API_KEY'), 
+  api_secret = os.environ.get('API_SECRET')
+)
