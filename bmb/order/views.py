@@ -66,7 +66,7 @@ def start_order(request):
             )
 
         for item in cart:
-            produkt = item['produkt'].select_for_update()  # Lock the product row
+            produkt = Produkt.objects.filter(id=item['produkt'].id).select_for_update().first()
             quantity = int(item['quantity'])
             price = produkt.pris * quantity
             item = OrderItem.objects.create(order=order, produkt=produkt, price=price, quantity=quantity)
