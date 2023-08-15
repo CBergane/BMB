@@ -27,7 +27,7 @@ def update_cart(request, produkt_id, action):
     
     produkt = Produkt.objects.get(pk=produkt_id)
     quantity = cart.get_item(produkt_id)
-    
+
     if quantity:
         quantity = quantity['quantity']
 
@@ -38,6 +38,7 @@ def update_cart(request, produkt_id, action):
                 'image': produkt.image,
                 'get_thumbnail': produkt.get_thumbnail(),
                 'pris': produkt.pris,
+                'slug': produkt.slug,
             },
             'total_price': (quantity * produkt.pris),
             'quantity': quantity,

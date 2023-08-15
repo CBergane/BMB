@@ -27,6 +27,8 @@ class Produkt(models.Model):
     färg = models.CharField(max_length=255)
     motiv = models.CharField(max_length=255)
     beskrivning = models.TextField(blank=True, null=True)
+    inventory = models.IntegerField(default=0, help_text="Mängd tyg kvar")
+    is_active = models.BooleanField(default=True, help_text="Är denna produkt i lager?")
     pris = models.IntegerField()
     skapad = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='uploads/', blank=True, null=True)
@@ -75,6 +77,13 @@ class Produkt(models.Model):
             return reviews_total / self.reviews.count()
 
         return 0
+    
+    def save(self, *args, **kwargs):
+        if self.inventory <= 0:
+            self.is_active = False
+        else:
+            self.is_active = True
+        super(Produkt, self).save(*args, **kwargs)
 
 
 class Review(models.Model):

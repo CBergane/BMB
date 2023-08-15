@@ -17,7 +17,9 @@
                     <li class=""><a href="#">Om oss</a></li>
 
                     {% if request.user.is_authenticated %}
-                    <li class=""><a href="{% url 'logout' %}">Logga ut</a></li>
+                        <li class=""><a href="{% url 'logout' %}">Logga ut</a></li>
+                    {% else %}
+                        <li class=""><a href="{% url 'signup' %}">Gå med</a></li>
                     {% endif %}
                 </ul>
             </div>
