@@ -3,6 +3,7 @@ import stripe
 
 from django.conf import settings
 from django.http import JsonResponse
+from django.core.mail import send_mail
 
 from cart.cart import Cart
 
@@ -65,3 +66,80 @@ def start_order(request):
     cart.clear()
 
     return JsonResponse({'session': session, 'order': payment_intent})
+
+
+def start_swish_order(request):
+    cart = Cart(request)
+    data = json.loads(request.body)
+    total_price = 0
+
+    # Similar processing for cart items as in your Stripe checkout
+    for item in cart:
+        produkt = item['produkt']
+        quantity = int(item['quantity'])
+        total_price += produkt.pris * quantity
+
+    # Create the order in your database
+    order = Order.objects.create(
+        user=request.user,
+        first_name=data['first_name'],
+        last_name=data['last_name'],
+        email=data['email'],
+        phone=data['phone'],
+        address=data['address'],
+        zipcode=data['zipcode'],
+        city=data['city'],
+        paid_amount=total_price,
+        paid=False
+    )
+
+    # Creating OrderItems
+    for item in cart:
+        produkt = item['produkt']
+        quantity = int(item['quantity'])
+        price = produkt.pris * quantity
+        item = OrderItem.objects.create(order=order, produkt=produkt, price=price, quantity=quantity)
+
+    cart.clear()
+
+    # Creating a string with order details
+    order_details = f"Order ID: {order.id}\n"
+    order_details += f"Name: {order.first_name} {order.last_name}\n"
+    order_details += f"Email: {order.email}\n"
+    order_details += f"Phone: {order.phone}\n"
+    order_details += f"Address: {order.address}, {order.zipcode}, {order.city}\n"
+    order_details += "Items:\n"
+    for item in order.items.all():
+        order_details += f"\tProduct: {item.produkt.namn}, Quantity: {item.quantity}, Price: {item.price}\n"
+    order_details += f"Total Amount: {order.paid_amount}"
+
+    # Email order details to yourself
+    send_mail(
+        'New Swish Order Received',
+        order_details,  # This contains the order details
+        settings.EMAIL_HOST_USER,
+        ['christian.bergane@gmail.com'],
+        fail_silently=False,
+    )
+
+    instructions = """
+        Please make your payment using Swish by following these instructions:
+        1. Öppna din Swish app.
+        2. Betala till numer: 123-456-789.
+        3. Summan du skall betala: {} SEK.
+        4. Bekräfta din att du vill göra din betalning.
+        5. Du kommer få ett meddelande att betalningen har skett.
+
+        Har du några frågor så kontakta oss på support@example.com.
+        """.format(total_price)
+
+    # Email payment instructions to the customer
+    send_mail(
+        'Payment Instructions',
+        instructions,
+        settings.EMAIL_HOST_USER,
+        [data['email']],
+        fail_silently=False,
+    )
+
+    return JsonResponse({'order_id': order.id})
