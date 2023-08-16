@@ -47,7 +47,7 @@
                 
             </div>
             <div class="">
-                <p class="text-lg">Datum: {{ order.created_at }}</p>
+                <p class="text-lg">Datum: {{ order.created_at|date:"Y-m-d"  }}</p>
                 <p class="text-lg">Total summa: {{ order.get_total_price }} kr</p>
             </div>
         </div>

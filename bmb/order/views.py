@@ -135,18 +135,18 @@ def start_swish_order(request):
 
         # Creating a string with order details
         order_details = f"Order ID: {order.id}\n"
-        order_details += f"Name: {order.first_name} {order.last_name}\n"
+        order_details += f"Namn: {order.first_name} {order.last_name}\n"
         order_details += f"Email: {order.email}\n"
-        order_details += f"Phone: {order.phone}\n"
+        order_details += f"Telefon: {order.phone}\n"
         order_details += f"Address: {order.address}, {order.zipcode}, {order.city}\n"
-        order_details += "Items:\n"
+        order_details += "Beställning:\n"
         for item in order.items.all():
-            order_details += f"\tProduct: {item.produkt.namn}, Quantity: {item.quantity}, Price: {item.price}\n"
-        order_details += f"Total Amount: {order.paid_amount}"
+            order_details += f"\tProdukt: {item.produkt.namn}, Mängd: {item.quantity}, Pris: {item.price}\n"
+        order_details += f"Totalt: {order.paid_amount}"
 
         # Email order details to yourself
         send_mail(
-            'New Swish Order Received',
+            'Ny order inkommen',
             order_details,  # This contains the order details
             settings.EMAIL_HOST_USER,
             ['christian.bergane@gmail.com'],
@@ -154,7 +154,7 @@ def start_swish_order(request):
         )
 
         instructions = """
-            Please make your payment using Swish by following these instructions:
+            Var vänlig betala din order via Swish på följande sätt:
             1. Öppna din Swish app.
             2. Betala till numer: 123-456-789.
             3. Summan du skall betala: {} SEK.
@@ -166,7 +166,7 @@ def start_swish_order(request):
 
         # Email payment instructions to the customer
         send_mail(
-            'Payment Instructions',
+            'Betalnings instruktioner',
             instructions,
             settings.EMAIL_HOST_USER,
             [data['email']],

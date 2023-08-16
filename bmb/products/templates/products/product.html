@@ -21,6 +21,14 @@
             <p class="mt-1 text-gray-400">Omdömme: {{ produkt.get_rating }}/6</p>
         {% endif %}
 
+        <p class="mt-1"><strong>Bredd:</strong> {{ produkt.bredd }} cm</p>
+        <p class="mt-1"><strong>Vikt:</strong> {{ produkt.vikt }} g</p>
+        <p class="mt-1"><strong>Blandning:</strong> {{ produkt.blandning }}</p>
+        <p class="mt-1"><strong>Kvalitet:</strong> {{ produkt.kvalitet }}</p>
+        <p class="mt-1"><strong>Färg:</strong> {{ produkt.färg }}</p>
+        <p class="mt-1"><strong>Motiv:</strong> {{ produkt.motiv }}</p>
+        <p class="mt-1"><strong>Lager:</strong> {{ produkt.inventory }} enheter kvar</p>
+
         {% if produkt.beskrivning %}
             <p class="pt-6 text-gray-700">{{produkt.beskrivning}}</p>
         {% endif %}
