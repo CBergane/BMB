@@ -43,7 +43,7 @@ class Produkt(models.Model):
     färg = models.CharField(max_length=255, blank=True, null=True)
     motiv = models.CharField(max_length=255, blank=True, null=True)
     beskrivning = models.TextField(blank=True, null=True)
-    inventory = models.IntegerField(default=0, help_text="Mängd tyg kvar")
+    inventory = models.IntegerField(default=0, help_text="Mängd kvar i lager")
     is_active = models.BooleanField(default=True, help_text="Är denna produkt i lager?")
     pris = models.IntegerField()
     skapad = models.DateTimeField(auto_now_add=True)
