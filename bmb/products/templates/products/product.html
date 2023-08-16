@@ -15,7 +15,7 @@
     <div class="information w-full lg:w-2/5 lg:p-6">
         <h1 class="text-2xl">{{produkt.namn}}</h1>
 
-        <p class="mt-1 text-gray-400">{{produkt.pris}} kr</p>
+        <p class="mt-1 text-gray-400">{{produkt.pris}} kr/{{ produkt.get_unit_display }}</p>
 
         {% if produkt.get_rating > 0 %}
             <p class="mt-1 text-gray-400">Omdömme: {{ produkt.get_rating }}/6</p>

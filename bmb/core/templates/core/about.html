@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Om oss| BMB{% endblock %}
+
+{% block content%}
+<header class="px-6 py-10 lg:py-20 bg-gray-900">
+    <div class="max-w-3xl mx-auto text-center">
+        <p class="mb-2 text-3xl lg:text-5xl green-color font-bold">Välkommen!</p>
+        <p class="mb-10 green-color font-bold">Kul att ni hittat till oss!</p>
+
+        <a href="{% url 'shop' %}" class="inline-block px-8 py-4 rounded-xl bg-gray-200 uppercase text-lime-600 hover:bg-gray-300">Till Butiken</a>
+    </div>
+    
+</header>
+    <div class="w-full lg:flex lg:flex-wrap px-1 my-6">
+        <div class="w-2/4 mx-auto py-2 px-2 xl:px-0">
+            <h2 class="mb-5 text-3xl">Någon titel här</h2>
+            <p class="mb-10">Lorem ipsum dolor sit amet consectetur adipisicing elit. Eligendi atque illum, eveniet commodi ea corporis, quaerat, accusamus enim reprehenderit nemo laudantium? Esse voluptate officiis impedit, inventore iusto accusantium ea ratione.</p>
+        </div>
+        <div class="w-2/4 mx-auto py-2 px-2 xl:px-0">
+            <h2 class="mb-5 text-3xl">Någon ny titel här som förklarar nått</h2>
+            <p class="mb-10">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Expedita sequi earum ullam quaerat velit iusto similique? Dolore consequatur voluptatem quisquam, magni suscipit cupiditate ducimus fugit numquam molestias et nemo necessitatibus.</p>
+        </div>
+    </div>
+
+
+{% endblock%}

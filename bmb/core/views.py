@@ -15,6 +15,9 @@ def frontpage(request):
     {'produkt': produkt},
     )
 
+def about(request):
+    return render(request, 'core/about.html', )
+
 def shop(request):
     categories = Category.objects.all()
     produkt = Produkt.objects.all()

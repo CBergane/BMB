@@ -10,7 +10,7 @@
             <div class="flex justify-between">
                 <a href="{% url 'produkt' item.produkt.slug %}" class="text-lg">{{ item.produkt.namn }}</a>
 
-                <span class="mb-6 pt-1 text-gray-400">{{ item.total_price }}kr</span>
+                <span class="mb-6 pt-1 text-gray-400">{{ item.total_price }}kr/{{ item.produkt.get_unit_display }}</span>
             </div>
 
             <hr>

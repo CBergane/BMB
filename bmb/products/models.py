@@ -21,9 +21,21 @@ class Category(models.Model):
         return self.namn
 
 class Produkt(models.Model):
+
+    UNIT_CHOICES = [
+        ('dm', 'Decimeter'),
+        ('st', 'St'),
+    ]
+
     category = models.ForeignKey(Category, related_name='produkt', on_delete=models.CASCADE)
     namn = models.CharField(max_length=255)
     slug = AutoSlugField(populate_from='namn', unique=True)
+    unit = models.CharField(
+        max_length=4,
+        choices=UNIT_CHOICES,
+        default='st',
+        help_text="Enhet för denna produkt"
+    )
     bredd = models.IntegerField(blank=True, null=True)
     vikt = models.IntegerField(blank=True, null=True)
     blandning = models.CharField(max_length=255)
