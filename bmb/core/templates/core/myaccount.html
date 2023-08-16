@@ -22,17 +22,17 @@
     {% for order in request.user.orders.all %}
         <div class="w-full mb-6 p-6 flex flex-wrap bg-gray-100 rounded-xl">
             <div class="mb-6 flex justify-between">
-                <a href="#">Beställnings id: {{ order.id }}</a>
+                <p>Beställnings id: {{ order.id }}</p>
             </div>
             <div class="w-full mb-6">
                 {% for item in order.items.all %}
                 <div class="produkt mb-6 flex pr-6">
-                    <a href="#" class="w-1/4">
+                    <a href="{% url 'produkt' item.produkt.slug %}" class="w-1/4">
                         <img src="{{ item.produkt.get_thumbnail }}" alt="" class="hover:shadow-lg rounded-xl">
                     </a>
                     <div class="w-3/4 pl-6">
                         <div class="flex justify-between">
-                            <a href="#" class="text-lg">{{ item.produkt.namn }}</a>
+                            <a href="{% url 'produkt' item.produkt.slug %}" class="text-lg">{{ item.produkt.namn }}</a>
                             <p class="mb-6 pt-1 text-gray-400">{{ item.get_total_price }} kr</p>
                         </div>
 
