@@ -7,6 +7,11 @@ def produkt(request, slug):
 
     produkt = get_object_or_404(Produkt, slug=slug)
 
+    if produkt.is_fabric:
+        produkt.inventory_in_meters = produkt.inventory / 10
+    else:
+        produkt.inventory_in_meters = produkt.inventory
+
     if request.method == 'POST':
         rating = request.POST.get('rating', 3)
         content = request.POST.get('content', '')
@@ -21,7 +26,7 @@ def produkt(request, slug):
                 review.save()
             else:
                 review = Review.objects.create(
-                    product=product,
+                    product=produkt,
                     rating=rating,
                     content=content,
                     created_by=request.user

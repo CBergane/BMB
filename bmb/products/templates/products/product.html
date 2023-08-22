@@ -26,7 +26,7 @@
         {% endif %}
 
         {% if produkt.vikt %}
-            <p class="mt-1"><strong>Vikt:</strong> {{ produkt.vikt }} g</p>
+            <p class="mt-1"><strong>Vikt:</strong> {{ produkt.vikt }} gram</p>
         {% endif %}
 
         {% if produkt.blandning %}
@@ -37,34 +37,46 @@
             <p class="mt-1"><strong>Kvalitet:</strong> {{ produkt.kvalitet }}</p>
         {% endif %}
 
-        {% if produkt.kvalitet %}
+        {% if produkt.färg %}
             <p class="mt-1"><strong>Färg:</strong> {{ produkt.färg }}</p>
         {% endif %}
 
-        {% if produkt.kvalitet %}
+        {% if produkt.motiv %}
             <p class="mt-1"><strong>Motiv:</strong> {{ produkt.motiv }}</p>
         {% endif %}
 
-        {% if produkt.kvalitet %}
-            <p class="mt-1"><strong>Lager:</strong> {{ produkt.inventory }} enheter kvar</p>
+        {% if produkt.inventory %}
+            <p class="mt-1"><strong>Lager:</strong> {{ produkt.inventory_in_meters }} {% if produkt.is_fabric %} m {% else %} st{% endif %}</p>
         {% endif %}
+    
 
         {% if produkt.beskrivning %}
             <p class="pt-6 text-gray-700">{{produkt.beskrivning}}</p>
         {% endif %}
-
         {% if produkt.is_active %}
-            <a href="#" 
-            class="mt-6 inline-block px-8 py-4 rounded-xl green-bg green-bg-hover text-gray-200"
-            hx-get="{% url 'add_to_cart' produkt.id %}"
-            hx-target="#menu-cart-btn"
-            hx-swap="outerHTML"
-            >
-                Lägg i kundvagn
-            </a>
+            {% if produkt.is_fabric %}
+                <a href="#" 
+                class="mt-6 inline-block px-8 py-4 rounded-xl green-bg green-bg-hover text-gray-200"
+                hx-get="{% url 'add_to_cart' produkt.id %}"
+                hx-target="#menu-cart-btn"
+                hx-swap="outerHTML"
+                >
+                    Lägg i kundvagn ny
+                </a>
+            {% else %}
+                <a href="#" 
+                class="mt-6 inline-block px-8 py-4 rounded-xl green-bg green-bg-hover text-gray-200"
+                hx-get="{% url 'add_to_cart' produkt.id %}"
+                hx-target="#menu-cart-btn"
+                hx-swap="outerHTML"
+                >
+                    Lägg i kundvagn
+                </a>
+            {% endif %}
         {% else %}
-            <span class="mt-6 inline-block px-8 py-4 rounded-xl text-gray-400">Slut i lager</span>
+                    <span class="mt-6 inline-block px-8 py-4 rounded-xl text-gray-400">Slut i lager</span>
         {% endif %}
+
 
     </div>
 

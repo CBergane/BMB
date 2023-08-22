@@ -36,6 +36,7 @@ class Produkt(models.Model):
         default='st',
         help_text="Enhet för denna produkt"
     )
+    is_fabric = models.BooleanField(default=False, help_text="Är denna produkt ett tyg?")
     bredd = models.IntegerField(blank=True, null=True)
     vikt = models.IntegerField(blank=True, null=True)
     blandning = models.CharField(max_length=255, blank=True, null=True)
@@ -43,7 +44,7 @@ class Produkt(models.Model):
     färg = models.CharField(max_length=255, blank=True, null=True)
     motiv = models.CharField(max_length=255, blank=True, null=True)
     beskrivning = models.TextField(blank=True, null=True)
-    inventory = models.IntegerField(default=0, help_text="Mängd kvar i lager")
+    inventory = models.IntegerField(default=0, help_text="Mängd kvar i lager, st eller decimeter")
     is_active = models.BooleanField(default=True, help_text="Är denna produkt i lager?")
     pris = models.IntegerField()
     skapad = models.DateTimeField(auto_now_add=True)
