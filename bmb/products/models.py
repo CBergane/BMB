@@ -8,6 +8,7 @@ from django.core.files import File
 from autoslug import AutoSlugField
 from PIL import Image
 from io import BytesIO
+from ckeditor.fields import RichTextField
 
 class Category(models.Model):
     namn = models.CharField(max_length=255)
@@ -43,10 +44,11 @@ class Produkt(models.Model):
     kvalitet = models.CharField(max_length=255, blank=True, null=True)
     färg = models.CharField(max_length=255, blank=True, null=True)
     motiv = models.CharField(max_length=255, blank=True, null=True)
-    beskrivning = models.TextField(blank=True, null=True)
+    beskrivning = RichTextField(blank=True, null=True)
     inventory = models.IntegerField(default=0, help_text="Mängd kvar i lager, st eller decimeter")
     is_active = models.BooleanField(default=True, help_text="Är denna produkt i lager?")
-    pris = models.IntegerField()
+    pris = models.DecimalField(max_digits=10, decimal_places=2)
+    discount_percentage = models.IntegerField(blank=True, null=True, help_text="Rabatt i procent", default=0)
     skapad = models.DateTimeField(auto_now_add=True)
     image = CloudinaryField('image', blank=True, null=True)
     thumbnail = CloudinaryField('image', blank=True, null=True)
@@ -83,6 +85,17 @@ class Produkt(models.Model):
             self.is_active = False
         else:
             self.is_active = True
+        super(Produkt, self).save(*args, **kwargs)
+
+    def get_discounted_price(self):
+        """
+        Return the price after the discount.
+        """
+        return self.pris - (self.pris * self.discount_percentage / 100)
+
+    def save(self, *args, **kwargs):
+        if self.discount_percentage is None:
+            self.discount_percentage = 0
         super(Produkt, self).save(*args, **kwargs)
 
 

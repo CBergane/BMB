@@ -43,6 +43,14 @@ def shop(request):
     context,
     )
 
+def discounted_products(request):
+    # Get all products with a discount_percentage greater than 0
+    discounted_products = Produkt.objects.filter(discount_percentage__gt=0, is_active=True)
+
+    return render(request, 'core/discounted_products.html', {
+        'discounted_products': discounted_products
+    })
+
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)

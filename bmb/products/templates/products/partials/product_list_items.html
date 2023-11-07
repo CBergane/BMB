@@ -6,7 +6,7 @@
     </a>
     <div class="pt-3 flex items-center justify-between">
 
-        <a href="{% url 'produkt' produkt.slug %}">{{ produkt.namn }}</a>
+        <a href="{% url 'produkt' produkt.slug %}">{{ produkt.namn }} {% if produkt.discount_percentage > 0 %}<strong>REA</strong>{% endif %}</a>
 
         {% if produkt.is_active %}
             <a 
@@ -26,5 +26,11 @@
         {% endif %}
 
     </div>
-    <p class="pt-1 text-gray-400">{{ produkt.pris}} kr / <strong>{{ produkt.get_unit_display }}</strong></p>
+    {% if produkt.discount_percentage > 0 %}
+    <p class="pt-1 text-gray-400">
+        {{ produkt.get_discounted_price }} kr / <strong>{{ produkt.get_unit_display }}</strong>
+    </p>
+    {% else %}
+        <p class="pt-1 text-gray-400">{{ produkt.pris}} kr / <strong>{{ produkt.get_unit_display }}</strong></p>
+    {% endif %}
 </div>

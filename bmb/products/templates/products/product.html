@@ -14,8 +14,15 @@
 
     <div class="information w-full lg:w-2/5 lg:p-6">
         <h1 class="text-2xl">{{produkt.namn}}</h1>
-
-        <p class="mt-1 text-gray-400">{{produkt.pris}} kr / <strong>{{ produkt.get_unit_display }}</strong></p>
+        {% if produkt.discount_percentage > 0 %}
+        <p class="pt-1 text-gray-400">
+            <del>{{ produkt.pris }} kr / <strong>{{ produkt.get_unit_display }}</strong></del> <br>
+            {{ produkt.get_discounted_price }} kr / <strong>{{ produkt.get_unit_display }}</strong>
+        </p>
+        {% else %}
+            <p class="pt-1 text-gray-400">{{ produkt.pris}} kr / <strong>{{ produkt.get_unit_display }}</strong></p>
+        {% endif %}
+        
 
         {% if produkt.get_rating > 0 %}
             <p class="mt-1 text-gray-400">Omdömme: {{ produkt.get_rating }}/6</p>
@@ -51,7 +58,7 @@
     
 
         {% if produkt.beskrivning %}
-            <p class="pt-6 text-gray-700">{{produkt.beskrivning}}</p>
+            <p class="pt-6 text-gray-700">{{produkt.beskrivning | safe}}</p>
         {% endif %}
         {% if produkt.is_active %}
             {% if produkt.is_fabric %}
