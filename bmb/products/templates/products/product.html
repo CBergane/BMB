@@ -62,14 +62,17 @@
         {% endif %}
         {% if produkt.is_active %}
             {% if produkt.is_fabric %}
-                <a href="#" 
-                class="mt-6 inline-block px-8 py-4 rounded-xl green-bg green-bg-hover text-gray-200"
-                hx-get="{% url 'add_to_cart' produkt.id %}"
-                hx-target="#menu-cart-btn"
-                hx-swap="outerHTML"
-                >
-                    Lägg i kundvagn ny
-                </a>
+                <form class="mt-6" action="{% url 'add_to_cart' produkt.id %}" method="post" hx-post="{% url 'add_to_cart' produkt.id %}" hx-target="#menu-cart-btn" hx-swap="outerHTML">
+                    {% csrf_token %}
+                    <div class="mb-2"> <!-- Margin bottom for spacing -->
+                        <label for="quantity">Antal ({{ produkt.get_unit_display }}):</label>
+                        <input type="number" id="quantity" name="quantity" value="1" min="1" class="quantity-input bg-gray-100 block w-1/2"/> <!-- Block level with full width -->
+                    </div>
+                    <button type="submit" class="btn-green mt-2 inline-block px-8 py-4 rounded-xl text-gray-200"> <!-- Margin top for spacing -->
+                        Lägg i kundvagn
+                    </button>
+                </form>
+            
             {% else %}
                 <a href="#" 
                 class="mt-6 inline-block px-8 py-4 rounded-xl green-bg green-bg-hover text-gray-200"

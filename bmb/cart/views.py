@@ -1,15 +1,26 @@
 from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 from .cart import Cart
 from products.models import Produkt
 
 def add_to_cart(request, produkt_id):
-    cart = Cart(request)
-    cart.add(produkt_id)
+    if request.method == 'POST':
+        quantity = int(request.POST.get('quantity', 1))  # Default to 1 if no quantity was specified
+        cart = Cart(request)
+        cart.add(produkt_id, quantity)
+        if request.headers.get('HX-Request') == 'true':  # Check if the request is coming from htmx
+            return render(request, 'cart/partials/menu_cart.html')
+        else:
+            # Redirect to the cart page or wherever you want
+            return HttpResponseRedirect(reverse('cart'))
+    else:
+        # Handle the case for GET request or return an error
+        return HttpResponseRedirect(reverse('product_detail', args=(produkt_id,)))
 
-    return render(request, 'cart/partials/menu_cart.html')
 
 def cart(request):
     return render(request, 'cart/cart.html')

@@ -24,7 +24,7 @@ class Category(models.Model):
 class Produkt(models.Model):
 
     UNIT_CHOICES = [
-        ('m', 'Meter'),
+        ('dm', 'Decimeter'),
         ('st', 'St'),
     ]
 
