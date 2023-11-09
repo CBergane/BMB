@@ -3,25 +3,30 @@
 {% block title %}REA{% endblock %}
 
 {% block content%}
+<div class="px-6 py-10 lg:py-20 bg-gray-100">
+<p class="mb-2 text-3xl lg:text-5xl green-color-text font-bold text-center">REA</p>
 
-<h2>REA</h2>
-
-<div class="products">
-  {% for product in discounted_products %}
+<div class="max-w-6xl mx-auto flex flex-wrap items-start py-6 px-6 xl:px-0">
+  {% for produkt in discounted_products %}
   <div class="product">
     <h3>{{ product.namn }}</h3>
     <!-- If you have an image field -->
-    <img src="{{ product.get_thumbnail }}" alt="{{ prodckt.namn }}">
+    <a href="{% url 'produkt' produkt.slug %}">
+        <img src="{{ produkt.get_thumbnail }}" 
+        class="w-full rounded-xl shadow-lg" 
+        alt="">
+    </a>
 
-    <p>Original Price: <s>{{ product.pris }}</s></p>
-    <p>Discounted Price: {{ product.get_discounted_price }}</p>
+    <p>Ordinarie Pris: <s>{{ produkt.pris }}</s></p>
+    <p>Rabatterat Pris: {{ produkt.get_discounted_price }}</p>
     
     <!-- Display the discount percentage if you want -->
-    <p>Discount: {{ product.discount_percentage }}%</p>
+    <p>Rabatt: {{ produkt.discount_percentage }}%</p>
   </div>
   {% empty %}
   <p>No discounted products right now.</p>
   {% endfor %}
+</div>
 </div>
 
 <div class="max-w-6xl mx-auto flex flex-wrap items-start py-6 px-6 xl:px-0">

@@ -158,7 +158,7 @@ def start_swish_order(request):
             1. Öppna din Swish app.
             2. Betala till numer: 123-456-789.
             3. Summan du skall betala: {} SEK.
-            4. Bekräfta din att du vill göra din betalning.
+            4. Bekräfta att du vill göra din betalning.
             5. Du kommer få ett meddelande att betalningen har skett.
 
             Har du några frågor så kontakta oss på support@example.com.

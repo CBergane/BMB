@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap');
+    </style>
     <link href="{% static 'style.css' %}" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <title>{% block title %}{% endblock %} | BMB</title>
@@ -17,16 +20,16 @@
                 </a>
 
                 <ul class="flex items-center space-x-4">
-                    <li class=""><a href="{% url 'shop' %}">Shop</a></li>
-                    <li class=""><a href="{% url 'shop' %}">Nyheter</a></li>
-                    <li class=""><a href="{% url 'discounted_products' %}">Rea</a></li>
-                    <li class=""><a href="{% url 'shop' %}">Stupbitar</a></li>
+                    <li><a href="{% url 'shop' %}" class="nav-link {% if request.resolver_match.url_name == 'shop' %}active{% endif %}">Shop</a></li>
+                    <li><a href="{% url 'shop' %}" class="nav-link ">Nyheter</a></li>
+                    <li><a href="{% url 'discounted_products' %}" class="nav-link {% if request.resolver_match.url_name == 'discounted_products' %}active{% endif %}">Rea</a></li>
+                    <li><a href="{% url 'shop' %}" class="nav-link">Stuvbitar</a></li>
                     {% if request.user.is_authenticated %}
-                        <li class=""><a href="{% url 'logout' %}">Logga ut</a></li>
+                        <li><a href="{% url 'logout' %}" class="nav-link {% if request.resolver_match.url_name == 'logout' %}active{% endif %}">Logga ut</a></li>
                     {% else %}
-                        <li class=""><a href="{% url 'signup' %}">Gå med</a></li>
+                        <li><a href="{% url 'signup' %}" class="nav-link {% if request.resolver_match.url_name == 'signup' %}active{% endif %}">Gå med</a></li>
                     {% endif %}
-                    <li class=""><a href="{% url 'about' %}">Om oss</a></li>
+                    <li><a href="{% url 'about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">Om oss</a></li>
                 </ul>
             </div>
 
@@ -67,12 +70,25 @@
                 <h2 class="mb-5 uppercase text-lg">Social länkar</h2>
 
                 <ul class="space-y-2">
-                    <li><a href="#" target="_blank" class="green-color">Facebook</a></li>
-                    <li><a href="#" target="_blank" class="green-color">Instagram</a></li>
+                    <li><a href="#" target="_blank" class="green-color font-bold uppercase">Facebook</a></li>
+                    <li><a href="#" target="_blank" class="green-color font-bold uppercase">Instagram</a></li>
                 </ul>
             </div>
         </div>
     </footer>
+    <script>
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('mouseenter', (e) => {
+                e.target.style.setProperty('--underlineWidth', '100%');
+            });
+            link.addEventListener('mouseleave', (e) => {
+                if (!e.target.classList.contains('active')) {
+                e.target.style.setProperty('--underlineWidth', '0%');
+                }
+            });
+            });
+
+    </script>
     <script src="https://unpkg.com/htmx.org@1.9.4" integrity="sha384-zUfuhFKKZCbHTY6aRR46gxiqszMk5tcHjsVFxnUo8VMus4kHGVdIYVbOYYNlKmHV" crossorigin="anonymous"></script>
     {% block scripts %}
     {% endblock %}
