@@ -21,7 +21,7 @@
 
                 <ul class="flex items-center space-x-4">
                     <li><a href="{% url 'shop' %}" class="nav-link {% if request.resolver_match.url_name == 'shop' %}active{% endif %}">Shop</a></li>
-                    <li><a href="{% url 'shop' %}" class="nav-link ">Nyheter</a></li>
+                    <li><a href="{% url 'news' %}" class="nav-link ">Nyheter</a></li>
                     <li><a href="{% url 'discounted_products' %}" class="nav-link {% if request.resolver_match.url_name == 'discounted_products' %}active{% endif %}">Rea</a></li>
                     <li><a href="{% url 'shop' %}" class="nav-link">Stuvbitar</a></li>
                     {% if request.user.is_authenticated %}

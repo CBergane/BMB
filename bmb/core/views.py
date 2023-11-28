@@ -15,6 +15,13 @@ def frontpage(request):
     {'produkt': produkt},
     )
 
+def news(request):
+    produkt = Produkt.objects.all()[0:10]
+    return render(request,
+    'core/news.html',
+    {'produkt': produkt},
+    )
+
 def about(request):
     return render(request, 'core/about.html', )
 

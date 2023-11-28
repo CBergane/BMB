@@ -1,0 +1,21 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Nyheter{% endblock %}
+
+{% block content%}
+
+<div class="max-w-6xl mx-auto py-2 px-6 xl:px-0">
+    <div>
+        <p class="mb-2 text-3xl lg:text-5xl text-center green-color-text font-bold">Nyheter</p>
+        <p class="mb-10 text-center green-color-text font-bold">Här är våra senaste nyheter.</p>
+    </div>
+
+    <div class="products flex items-center flex-wrap">
+        {% for produkt in produkt %}
+            {% include 'products/partials/product_list_items.html'%}
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock%}
