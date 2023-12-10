@@ -38,6 +38,7 @@ class Produkt(models.Model):
         help_text="Enhet för denna produkt"
     )
     is_fabric = models.BooleanField(default=False, help_text="Är denna produkt ett tyg?")
+    is_stubbie = models.BooleanField(default=False, help_text="Markera om denna produkt är en stuvbit.")
     bredd = models.IntegerField(blank=True, null=True)
     vikt = models.IntegerField(blank=True, null=True)
     blandning = models.CharField(max_length=255, blank=True, null=True)

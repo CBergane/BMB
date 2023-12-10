@@ -5,13 +5,25 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from .cart import Cart
+from django.shortcuts import get_object_or_404, HttpResponseRedirect
+from django.urls import reverse
+from django.contrib import messages
 from products.models import Produkt
 
 def add_to_cart(request, produkt_id):
+    produkt = get_object_or_404(Produkt, pk=produkt_id)
+
     if request.method == 'POST':
         quantity = int(request.POST.get('quantity', 1))  # Default to 1 if no quantity was specified
+        
+        # Check if the desired quantity is available
+        if quantity > produkt.inventory:
+            quantity = produkt.inventory  # Adjust to the max available quantity
+            messages.warning(request, "Quantity adjusted to max available stock.")  # Optional: Inform the user
+
         cart = Cart(request)
         cart.add(produkt_id, quantity)
+
         if request.headers.get('HX-Request') == 'true':  # Check if the request is coming from htmx
             return render(request, 'cart/partials/menu_cart.html')
         else:

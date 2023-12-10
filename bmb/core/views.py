@@ -58,6 +58,10 @@ def discounted_products(request):
         'discounted_products': discounted_products
     })
 
+def stubbie_view(request):
+    stubbies = Produkt.objects.filter(is_stubbie=True, is_active=True)
+    return render(request, 'core/stubbie_template.html', {'stubbies': stubbies})
+
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)

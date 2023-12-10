@@ -1,0 +1,32 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Stuvbitar{% endblock %}
+
+{% block content%}
+
+<div class="max-w-6xl mx-auto py-2 px-6 xl:px-0">
+    <div class="products flex items-center flex-wrap">
+        <h1 class="text-2xl font-bold mb-4">Stuvbitar</h1>
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {% for produkt in stubbies %}
+            <div class="border rounded-lg overflow-hidden shadow-lg">
+                <a href="{% url 'product_detail' produkt.id %}">
+                    <img src="{{ produkt.get_thumbnail }}" alt="{{ produkt.namn }}" class="w-full h-48 object-cover">
+                </a>
+                <div class="p-4">
+                    <h2 class="font-bold text-lg mb-2">
+                        <a href="{% url 'product_detail' produkt.id %}">{{ produkt.namn }}</a>
+                    </h2>
+                    <p class="mb-2">{{ produkt.beskrivning|truncatewords:20 }}</p>
+                    <p class="text-lg font-bold">{{ produkt.pris }} kr</p>
+                </div>
+            </div>
+        {% empty %}
+            <p>Inga stuvbitar tillgängliga för tillfället.</p>
+        {% endfor %}
+    </div>
+    </div>
+</div>
+
+{% endblock %}
