@@ -156,12 +156,12 @@ def start_swish_order(request):
         instructions = """
             Var vänlig betala din order via Swish på följande sätt:
             1. Öppna din Swish app.
-            2. Betala till numer: 123-456-789.
+            2. Betala till numer: 0766492532.
             3. Summan du skall betala: {} SEK.
             4. Bekräfta att du vill göra din betalning.
             5. Du kommer få ett meddelande att betalningen har skett.
 
-            Har du några frågor så kontakta oss på support@example.com.
+            Har du några frågor så kontakta oss på bmb@bramycketbattre.com.
             """.format(total_price)
 
         # Email payment instructions to the customer
