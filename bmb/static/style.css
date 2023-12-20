@@ -65,3 +65,84 @@
     font-weight: bold; /* optional, for active page styling */
     --underlineWidth: 100%;
 }
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.9);
+}
+
+.modal-content {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+}
+
+.close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Hamburger Menu */
+.hamburger {
+    cursor: pointer;
+    display: none; /* Hidden by default, shown in mobile view */
+}
+
+/* Navigation Menu */
+.menu ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: inherit; /* or your desired color */
+}
+
+.nav-link.active {
+    font-weight: bold; /* Style for active link */
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .hamburger {
+        display: block;
+    }
+
+    .menu {
+        display: none; /* Hide on small screens */
+    }
+
+    .menu.lg:hidden {
+        display: block; /* Show when hamburger is clicked */
+        flex-direction: column;
+    }
+
+    .menu ul {
+        padding: 0;
+    }
+
+    .menu ul li {
+        padding: 10px 0; /* Spacing for mobile menu items */
+    }
+
+    .menu-right {
+        display: none; /* Hide right menu on small screens */
+    }
+}

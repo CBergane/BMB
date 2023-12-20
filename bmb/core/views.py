@@ -2,6 +2,8 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.db.models import Q
+from django.utils import timezone
+from datetime import timedelta
 
 from products.models import Produkt, Category
 
@@ -16,11 +18,13 @@ def frontpage(request):
     )
 
 def news(request):
-    produkt = Produkt.objects.all()[0:10]
-    return render(request,
-    'core/news.html',
-    {'produkt': produkt},
-    )
+    # Calculate the date two months ago from now
+    two_months_ago = timezone.now() - timedelta(days=60)
+
+    # Filter products added in the last two months
+    recent_products = Produkt.objects.filter(skapad__gte=two_months_ago)[:8]
+
+    return render(request, 'core/news.html', {'produkt': recent_products})
 
 def about(request):
     return render(request, 'core/about.html', )

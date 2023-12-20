@@ -52,6 +52,7 @@ class Produkt(models.Model):
     discount_percentage = models.IntegerField(blank=True, null=True, help_text="Rabatt i procent", default=0)
     skapad = models.DateTimeField(auto_now_add=True)
     image = CloudinaryField('image', blank=True, null=True)
+    image2 = CloudinaryField('image2', blank=True, null=True, help_text="Valfri: Lägg till en andra bild av produkten.")
     thumbnail = CloudinaryField('image', blank=True, null=True)
     image_url = models.CharField(max_length=500, blank=True, null=True)
 

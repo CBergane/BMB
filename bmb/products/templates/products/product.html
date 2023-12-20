@@ -5,12 +5,15 @@
 {% block content%}
 
 <div class="max-w-6xl mx-auto flex flex-wrap py-6 px-6 xl:px-0">
-    <div class="images w-full mb-6. lg:mb-0 lg:w-3/5">
-        <img 
-        class="rounded-xl" 
-        src="{% if produkt.image %} {{ produkt.get_thumbnail }} {% else %} https://placehold.co/240x240 {% endif %}" 
-        alt="">
-    </div>
+    <div class="max-w-6xl mx-auto flex flex-wrap py-6 px-6 xl:px-0">
+        <div class="images w-full mb-6. lg:mb-0 lg:w-3/5">
+            <img class="rounded-xl cursor-pointer" src="{% if produkt.image %}{{ produkt.get_thumbnail }}{% else %}https://placehold.co/240x240{% endif %}" alt="" onclick="openModal('modal1')">
+            {% if produkt.image2 %}
+                <img class="rounded-xl cursor-pointer" src="{{ produkt.image2.url }}" alt="" onclick="openModal('modal2')">
+            {% endif %}
+        </div>
+
+    
 
     <div class="information w-full lg:w-2/5 lg:p-6">
         <h1 class="text-2xl">{{produkt.namn}}</h1>
@@ -127,4 +130,30 @@
         {% endfor %}
     </div>
 </div>
+
+<!-- Modal for first image -->
+<div id="modal1" class="modal">
+    <span class="close cursor-pointer" onclick="closeModal('modal1')">&times;</span>
+    <img class="modal-content" id="img01" src="{% if produkt.image %}{{ produkt.image.url }}{% else %}https://placehold.co/240x240{% endif %}">
+</div>
+
+<!-- Modal for second image -->
+{% if produkt.image2 %}
+<div id="modal2" class="modal">
+    <span class="close cursor-pointer" onclick="closeModal('modal2')">&times;</span>
+    <img class="modal-content" id="img02" src="{{ produkt.image2.url }}">
+</div>
+{% endif %}
+
+<script>
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = "block";
+    }
+    
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    }
+</script>
+    
+
 {% endblock%}
