@@ -93,9 +93,9 @@
     </div>
 
     <div class="w-full">
-        <h2 class="text-xl">Omdömen</h2>
-
         {% if request.user.is_authenticated %}
+        <h2 class="text-xl mt-6">Omdömen!</h2>
+
             <form action="." method="post" class="mt-6 mb-6 p-6 bg-gray-100 rounded-xl">
                 {% csrf_token %}
 
