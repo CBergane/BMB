@@ -9,7 +9,7 @@
         <div class="images w-full mb-6. lg:mb-0 lg:w-3/5">
             <img class="rounded-xl cursor-pointer" src="{% if produkt.image %}{{ produkt.get_thumbnail }}{% else %}https://placehold.co/240x240{% endif %}" alt="" onclick="openModal('modal1')">
             {% if produkt.image2 %}
-                <img class="rounded-xl cursor-pointer" src="{{ produkt.get_thumbnail_image2 }}" alt="" onclick="openModal('modal2')">
+                <img class="rounded-xl cursor-pointer mt-4" src="{{ produkt.get_thumbnail_image2 }}" alt="" onclick="openModal('modal2')">
             {% endif %}
         </div>
 
