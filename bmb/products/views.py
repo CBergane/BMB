@@ -2,9 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 
 from .models import Produkt, Review
 
-
-def produkt(request, slug):
-
+def produkt(request, category_slug=None, subcategory_slug=None, slug=None):
     produkt = get_object_or_404(Produkt, slug=slug)
 
     if produkt.is_fabric:
@@ -32,6 +30,7 @@ def produkt(request, slug):
                     created_by=request.user
                 )
 
-            return redirect('produkt', slug=slug)
+            return redirect('produkt', category_slug=category_slug, subcategory_slug=subcategory_slug, slug=slug)
 
-    return render(request, 'products/product.html', {'produkt':produkt,})
+    return render(request, 'products/product.html', {'produkt': produkt})
+

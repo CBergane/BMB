@@ -30,29 +30,30 @@ def about(request):
     return render(request, 'core/about.html', )
 
 def shop(request):
-    categories = Category.objects.all()
-    produkt = Produkt.objects.all()
+    categories = Category.objects.filter(parent__isnull=True)  # Endast överordnade kategorier
+    active_category_slug = request.GET.get('category', None)
+    products = Produkt.objects.none()  # Starta med en tom QuerySet
 
-    active_category = request.GET.get('category', '')
-
-    if active_category:
-        produkt = produkt.filter(category__slug=active_category)
+    if active_category_slug:
+        active_category = Category.objects.filter(slug=active_category_slug).first()
+        if active_category:
+            if active_category.parent:  # Om det är en underkategori
+                products = Produkt.objects.filter(category=active_category, is_stubbie=False)
+            else:  # Om det är en överkategori
+                subcategories = active_category.children.all()
+                products = Produkt.objects.filter(category__in=subcategories, is_stubbie=False)
 
     query = request.GET.get('query', '')
-
     if query:
-        produkt = produkt.filter(Q(namn__icontains=query) | Q(beskrivning__icontains=query))
+        products = products.filter(Q(namn__icontains=query) | Q(beskrivning__icontains=query))
 
     context = {
         'categories': categories,
-        'produkt': produkt,
-        'active_category': active_category,
-        }
+        'products': products,
+        'active_category': active_category_slug,
+    }
 
-    return render(request, 
-    'core/shop.html',
-    context,
-    )
+    return render(request, 'core/shop.html', context)
 
 def discounted_products(request):
     # Get all products with a discount_percentage greater than 0

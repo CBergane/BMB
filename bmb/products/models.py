@@ -13,7 +13,8 @@ from ckeditor.fields import RichTextField
 class Category(models.Model):
     namn = models.CharField(max_length=255)
     slug = AutoSlugField(populate_from='namn', unique=True)
-    
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+
     class Meta:
         verbose_name_plural = 'Kategorier'
         ordering = ('namn',)
@@ -21,6 +22,11 @@ class Category(models.Model):
     def __str__(self):
         return self.namn
 
+    def is_parent(self):
+        return self.children.exists()
+    
+    def get_children(self):
+        return self.children.all()
 class Produkt(models.Model):
 
     UNIT_CHOICES = [
