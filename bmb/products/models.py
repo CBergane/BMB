@@ -41,6 +41,12 @@ class Produkt(models.Model):
     is_stubbie = models.BooleanField(default=False, help_text="Markera om denna produkt är en stuvbit.")
     bredd = models.IntegerField(blank=True, null=True)
     vikt = models.IntegerField(blank=True, null=True)
+    length = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text="Length of the stubbie product (in decimeters)",)
     blandning = models.CharField(max_length=255, blank=True, null=True)
     kvalitet = models.CharField(max_length=255, blank=True, null=True)
     färg = models.CharField(max_length=255, blank=True, null=True)
@@ -53,6 +59,8 @@ class Produkt(models.Model):
     skapad = models.DateTimeField(auto_now_add=True)
     image = CloudinaryField('image', blank=True, null=True)
     image2 = CloudinaryField('image2', blank=True, null=True, help_text="Valfri: Lägg till en andra bild av produkten.")
+    image3 = CloudinaryField('image3', blank=True, null=True, help_text="Valfri: Lägg till en andra bild av produkten.")
+    image4 = CloudinaryField('image4', blank=True, null=True, help_text="Valfri: Lägg till en andra bild av produkten.")
     thumbnail = CloudinaryField('image', blank=True, null=True)
     image_url = models.CharField(max_length=500, blank=True, null=True)
 
@@ -89,10 +97,14 @@ class Produkt(models.Model):
         return 0
     
     def save(self, *args, **kwargs):
+        if self.is_stubbie and self.length is None:
+            raise ValueError("Please specify the length for the stubbie product.")
+        
         if self.inventory <= 0:
             self.is_active = False
         else:
             self.is_active = True
+
         super(Produkt, self).save(*args, **kwargs)
 
     def get_discounted_price(self):

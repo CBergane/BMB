@@ -18,7 +18,7 @@
                     <h2 class="font-bold text-lg mb-2">
                         <a href="{% url 'produkt' produkt.id %}">{{ produkt.namn }}</a>
                     </h2>
-                    <p class="mb-2">{{ produkt.beskrivning|safe }}</p>
+                    <p class="mb-2">{{ produkt.beskrivning| truncatechars:100 | safe }}</p>
                     <p class="text-lg font-bold">{{ produkt.pris }} kr</p>
                     <a href="#" 
                         class="mt-6 inline-block px-8 py-4 rounded-xl green-bg green-bg-hover text-gray-200"

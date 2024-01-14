@@ -11,6 +11,12 @@
             {% if produkt.image2 %}
                 <img class="rounded-xl cursor-pointer mt-4" src="{{ produkt.get_thumbnail_image2 }}" alt="" onclick="openModal('modal2')">
             {% endif %}
+            {% if produkt.image3 %}
+                <img class="rounded-xl cursor-pointer mt-4" src="{{ produkt.get_thumbnail_image3 }}" alt="" onclick="openModal('modal3')">
+            {% endif %}
+            {% if produkt.image4 %}
+                <img class="rounded-xl cursor-pointer mt-4" src="{{ produkt.get_thumbnail_image4 }}" alt="" onclick="openModal('modal4')">
+            {% endif %}
         </div>
 
     
@@ -37,6 +43,11 @@
 
         {% if produkt.vikt %}
             <p class="mt-1"><strong>Vikt:</strong> {{ produkt.vikt }} gram</p>
+        {% endif %}
+        {% if produkt.is_stubbie %}
+            {% if produkt.length %}
+                <p class="mt-1"><strong>Längd:</strong> {{ produkt.length }} decimeters</p>
+            {% endif %}
         {% endif %}
 
         {% if produkt.blandning %}
@@ -142,6 +153,20 @@
 <div id="modal2" class="modal">
     <span class="close cursor-pointer" onclick="closeModal('modal2')">&times;</span>
     <img class="modal-content" id="img02" src="{{ produkt.image2.url }}">
+</div>
+{% endif %}
+<!-- Modal for third image -->
+{% if produkt.image3 %}
+<div id="modal2" class="modal">
+    <span class="close cursor-pointer" onclick="closeModal('modal3')">&times;</span>
+    <img class="modal-content" id="img03" src="{{ produkt.image3.url }}">
+</div>
+{% endif %}
+<!-- Modal for 4th image -->
+{% if produkt.image2 %}
+<div id="modal4" class="modal">
+    <span class="close cursor-pointer" onclick="closeModal('modal4')">&times;</span>
+    <img class="modal-content" id="img04" src="{{ produkt.image4.url }}">
 </div>
 {% endif %}
 
