@@ -11,16 +11,24 @@
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {% for produkt in stubbies %}
             <div class="border rounded-lg overflow-hidden shadow-lg">
-                <a href="{% url 'product_detail' produkt.id %}">
+                <a href="{% url 'produkt' produkt.slug %}">
                     <img src="{{ produkt.get_thumbnail }}" alt="{{ produkt.namn }}" class="w-full h-48 object-cover">
                 </a>
                 <div class="p-4">
                     <h2 class="font-bold text-lg mb-2">
-                        <a href="{% url 'product_detail' produkt.id %}">{{ produkt.namn }}</a>
+                        <a href="{% url 'produkt' produkt.id %}">{{ produkt.namn }}</a>
                     </h2>
-                    <p class="mb-2">{{ produkt.beskrivning|truncatewords:20 }}</p>
+                    <p class="mb-2">{{ produkt.beskrivning|safe }}</p>
                     <p class="text-lg font-bold">{{ produkt.pris }} kr</p>
+                    <a href="#" 
+                        class="mt-6 inline-block px-8 py-4 rounded-xl green-bg green-bg-hover text-gray-200"
+                        hx-get="{% url 'add_to_cart' produkt.id %}"
+                        hx-target="#menu-cart-btn"
+                        hx-swap="outerHTML">
+                        Lägg i kundvagn
+                    </a>
                 </div>
+
             </div>
         {% empty %}
             <p>Inga stuvbitar tillgängliga för tillfället.</p>
