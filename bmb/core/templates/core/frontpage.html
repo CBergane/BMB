@@ -14,10 +14,34 @@
     </div>
 </header>
 
-<div class="max-w-6xl mx-auto py-2 px-6 xl:px-0">
-    <div class="products flex items-center flex-wrap">
-
+<div class="info-box max-w-6xl mx-auto py-4 px-6 xl:px-0">
+    <div class="flex items-center flex-wrap">
+        <svg class="w-6 h-6 green-color-text dark:green-color-text" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+        </svg>
+        <p>Vi jobbar med hållbara tyger som ni kan få mer information om här: <a href="#" onclick="openModal(); return false;" class="text-link">Se videon om hållbarhet</a></p>
     </div>
 </div>
+
+<!-- Modalen -->
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/xhQiGhnbDqw" frameborder="0" allowfullscreen></iframe>
+    </div>
+</div>
+
+<script>
+    function openModal() {
+        document.getElementById("myModal").style.display = "block";
+    }
+    
+    function closeModal() {
+        var iframe = document.querySelector('#myModal iframe');
+        var iframeSrc = iframe.src;
+        iframe.src = iframeSrc;
+        document.getElementById("myModal").style.display = "none";
+    }
+</script>
 
 {% endblock%}
