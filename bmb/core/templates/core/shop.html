@@ -11,7 +11,7 @@
 
         <!-- Kategorimeny -->
         <h3 class="mt-6 mb-3 text-xl uppercase">Kategorier</h3>
-        <ul class="space-y-2">
+        <ul class="space-y-2 font-bold">
             {% for category in categories %}
                 <li>
                     <button onclick="toggleSubcategories('{{ category.slug }}')" class="{% if category.slug == active_category %} green-color {% else %} text-gray-500 {% endif %}">
