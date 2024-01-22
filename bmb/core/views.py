@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
+from django.db.models import Count
 
 from products.models import Produkt, Category
 
@@ -30,7 +31,7 @@ def about(request):
     return render(request, 'core/about.html', )
 
 def shop(request):
-    categories = Category.objects.filter(parent__isnull=True)  # Endast överordnade kategorier
+    categories = Category.objects.filter(parent__isnull=True).annotate(num_subcats=Count('children')).order_by('-num_subcats')  # Endast överordnade kategorier
     active_category_slug = request.GET.get('category', None)
     products = Produkt.objects.none()  # Starta med en tom QuerySet
 
