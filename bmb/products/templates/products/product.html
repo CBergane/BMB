@@ -74,6 +74,17 @@
         {% if produkt.beskrivning %}
             <p class="pt-6 text-gray-700">{{produkt.beskrivning | safe}}</p>
         {% endif %}
+
+        <div class="icons-wrapper">
+            {% for instruction in produkt.wash_instructions.all %}
+                <div class="icon-container">
+                    <img src="{{ instruction.icon.url }}" alt="{{ instruction.name }}" class="wash-icon">
+                    <span class="icon-description">{{ instruction.name }}</span>
+                </div>
+            {% endfor %}
+        </div>
+        
+
         {% if produkt.is_active %}
             {% if produkt.is_fabric %}
             <!-- Fabric products form -->

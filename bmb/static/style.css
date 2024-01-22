@@ -182,6 +182,62 @@
     text-decoration: none; /* Ta bort understrykning vid hover */
 }
 
+/* washing icons */
+.icon-container {
+    position: relative;
+    display: inline-block;
+}
+
+.icon-description {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%; /* Justera placeringen efter behov */
+    left: 50%;
+    margin-left: -60px; /* Halva bredden för att centrera */
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.icon-container:hover .icon-description {
+    visibility: visible;
+    opacity: 1;
+}
+
+.icons-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10%, 1fr)); /* 5 kolumner på större skärmar */
+    gap: 10px;
+}
+
+
+/* icons are from "https://www.flaticon.com/ icons created by Freepik - Flaticon */
+
+.wash-icon {
+    width: 50px;  /* Standardbredd */
+    height: 50px; /* Standardhöjd */
+}
+
+
+@media (max-width: 600px) { /* För små skärmar */
+    .wash-icon {
+        width: 30px;
+        height: 30px;
+    }
+
+    .icons-wrapper {
+        grid-template-columns: repeat(auto-fill, minmax(50%, 1fr)); /* 2 kolumner på små skärmar */
+    }
+}
+
+
+
 /* Hamburger Menu */
 .hamburger {
     cursor: pointer;

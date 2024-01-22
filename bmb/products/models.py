@@ -27,6 +27,16 @@ class Category(models.Model):
     
     def get_children(self):
         return self.children.all()
+
+
+class WashInstruction(models.Model):
+    name = models.CharField(max_length=100)
+    icon = CloudinaryField('icon')  # Spara ikoner i media/icons
+
+    def __str__(self):
+        return self.name
+
+
 class Produkt(models.Model):
 
     UNIT_CHOICES = [
@@ -58,6 +68,7 @@ class Produkt(models.Model):
     färg = models.CharField(max_length=255, blank=True, null=True)
     motiv = models.CharField(max_length=255, blank=True, null=True)
     beskrivning = RichTextField(blank=True, null=True)
+    wash_instructions = models.ManyToManyField(WashInstruction, blank=True)
     inventory = models.IntegerField(default=0, help_text="Mängd kvar i lager, st eller decimeter")
     is_active = models.BooleanField(default=True, help_text="Är denna produkt i lager?")
     pris = models.DecimalField(max_digits=10, decimal_places=2)
