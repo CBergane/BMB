@@ -204,30 +204,25 @@
     font-weight: bold; /* Style for active link */
 }
 
-/* Responsive Design */
-@media screen and (max-width: 768px) {
-    .hamburger {
-        display: block;
+@media screen and (max-width: 1024px) {
+    #menu {
+        transition: transform 0.5s ease;
     }
 
-    .menu {
-        display: none; /* Hide on small screens */
+    #menu.open {
+        transform: translateX(0);
     }
 
-    .menu.lg:hidden {
-        display: block; /* Show when hamburger is clicked */
-        flex-direction: column;
+    #closeMenu {
+        display: block; /* Visa stängknappen */
+        position: absolute;
+        top: 10px;  /* Justera efter behov */
+        right: 10px; /* Justera efter behov */
     }
+}
 
-    .menu ul {
-        padding: 0;
-    }
-
-    .menu ul li {
-        padding: 10px 0; /* Spacing for mobile menu items */
-    }
-
-    .menu-right {
-        display: none; /* Hide right menu on small screens */
+@media screen and (min-width: 1025px) {
+    #closeMenu {
+        display: none; /* Dölj stängknappen */
     }
 }

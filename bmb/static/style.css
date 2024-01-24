@@ -60,7 +60,6 @@
     width: 100%;
 }
 
-/* This assumes you're adding an 'active' class to your current page's nav item */
 .nav-link.active {
     font-weight: bold; /* optional, for active page styling */
     --underlineWidth: 100%;
@@ -133,7 +132,7 @@
 }
 
 .close {
-    color: #aaaaaa;
+    color: #0c0a0a;
     float: right;
     font-size: 28px;
     font-weight: bold;
@@ -237,13 +236,6 @@
 }
 
 
-
-/* Hamburger Menu */
-.hamburger {
-    cursor: pointer;
-    display: none; /* Hidden by default, shown in mobile view */
-}
-
 /* Navigation Menu */
 .menu ul {
     list-style-type: none;
@@ -260,30 +252,25 @@
     font-weight: bold; /* Style for active link */
 }
 
-/* Responsive Design */
-@media screen and (max-width: 768px) {
-    .hamburger {
-        display: block;
+@media screen and (max-width: 1024px) {
+    #menu {
+        transition: transform 0.5s ease;
     }
 
-    .menu {
-        display: none; /* Hide on small screens */
+    #menu.open {
+        transform: translateX(0);
     }
 
-    .menu.lg:hidden {
-        display: block; /* Show when hamburger is clicked */
-        flex-direction: column;
+    #closeMenu {
+        display: block; /* Visa stängknappen */
+        position: absolute;
+        top: 10px;  /* Justera efter behov */
+        right: 40px; /* Justera efter behov */
     }
+}
 
-    .menu ul {
-        padding: 0;
-    }
-
-    .menu ul li {
-        padding: 10px 0; /* Spacing for mobile menu items */
-    }
-
-    .menu-right {
-        display: none; /* Hide right menu on small screens */
+@media screen and (min-width: 1025px) {
+    #closeMenu {
+        display: none; /* Dölj stängknappen */
     }
 }

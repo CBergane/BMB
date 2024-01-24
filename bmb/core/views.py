@@ -4,11 +4,49 @@ from django.shortcuts import render, redirect
 from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
-from django.db.models import Count
+from django.core.mail import send_mail
+from django.http import JsonResponse
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
+from django.db.models import Count
 from products.models import Produkt, Category
 
 from .forms import SignUpForm
+
+def send_contact_email(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+
+        if not all([name, email, message]):
+            return JsonResponse({'status': 'error', 'message': 'Alla fält måste fyllas i.'})
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            return JsonResponse({'status': 'error', 'message': 'Ogiltig e-postadress.'})
+
+        if any(char in message for char in ['<', '>', 'script', 'alert']):
+            return JsonResponse({'status': 'error', 'message': 'Ogiltiga tecken i meddelandet.'})
+
+        if not name.replace(' ', '').isalpha():
+            return JsonResponse({'status': 'error', 'message': 'Namnet får endast innehålla bokstäver.'})
+
+
+        # Skicka e-post
+        send_mail(
+            subject=f"Meddelande från {name} via Kontaktformulär",
+            message=message,
+            from_email=email,
+            recipient_list=['bmb@bramycketbattre.com'], # ändra till din e-postadress
+            fail_silently=False,
+        )
+
+        return JsonResponse({'status': 'success', 'message': 'E-post skickad'})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Endast POST-metoden är tillåten'})
 
 
 def frontpage(request):
