@@ -109,7 +109,8 @@
                         <title>Stäng</title>
                         <path d="M14.707 14.707a1 1 0 01-1.414 0L10 11.414l-3.293 3.293a1 1 0 11-1.414-1.414L8.586 10 5.293 6.707a1 1 0 111.414-1.414L10 8.586l3.293-3.293a1 1 0 111.414 1.414L11.414 10l3.293 3.293a1 1 0 010 1.414z"></path>
                     </svg>
-                </button>                    
+                </button>
+                <div id="emailFeedback" class="hidden text-center py-2"></div>
                 <h3 class="text-lg leading-6 font-medium text-gray-900">Kontakta Oss</h3>
                 <div class="mt-2 px-7 py-3">
                     <!-- Kontaktformulär -->
@@ -178,8 +179,8 @@
                 modal.classList.add('hidden');
             }, { once: true }); // Lyssnare som gömmer modalen efter animationen
         }
-
         const contactForm = document.getElementById('contactForm');
+        const emailFeedback = document.getElementById('emailFeedback');
         if (contactForm) {
             contactForm.addEventListener('submit', function(event) {
                 event.preventDefault();
@@ -196,13 +197,24 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        alert(data.message);
-                        closeContactModal();
+                        emailFeedback.innerText = data.message;
+                        emailFeedback.classList.remove('hidden');
+                        emailFeedback.classList.add('text-green-500');
+                        setTimeout(() => {
+                            closeModalContact();
+                        }, 3000); // Stänger modalen efter 3 sekunder
                     } else {
-                        alert(data.message);
+                        emailFeedback.innerText = data.message;
+                        emailFeedback.classList.remove('hidden');
+                        emailFeedback.classList.add('text-red-500');
                     }
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    emailFeedback.innerText = 'Ett fel uppstod, försök igen.';
+                    emailFeedback.classList.remove('hidden');
+                    emailFeedback.classList.add('text-red-500');
+                });
             });
         }
 

@@ -180,6 +180,11 @@
     color: #729b11; /* Mörkare färg vid hover */
     text-decoration: none; /* Ta bort understrykning vid hover */
 }
+/* email modal */
+#emailFeedback {
+    transition: all 0.3s ease-in-out;
+}
+
 
 /* washing icons */
 .icon-container {
