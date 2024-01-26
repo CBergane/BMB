@@ -34,13 +34,14 @@ def send_contact_email(request):
         if not name.replace(' ', '').isalpha():
             return JsonResponse({'status': 'error', 'message': 'Namnet får endast innehålla bokstäver.'})
 
+        email_body = f"Namn: {name}\nE-post: {email}\n\nMeddelande:\n{message}"
 
         # Skicka e-post
         send_mail(
             subject=f"Meddelande från {name} via Kontaktformulär",
-            message=message,
+            message=email_body,
             from_email=email,
-            recipient_list=['bmb@bramycketbattre.com'], # ändra till din e-postadress
+            recipient_list=['bmb@bramycketbattre.com'],
             fail_silently=False,
         )
 
