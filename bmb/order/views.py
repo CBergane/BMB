@@ -118,7 +118,7 @@ def start_swish_order(request):
             address=data['address'],
             zipcode=data['zipcode'],
             city=data['city'],
-            paid_amount=total_price,
+            paid_amount=total_price + shipping_cost,
             paid=False
         )
 
@@ -169,7 +169,7 @@ def start_swish_order(request):
             5. Du kommer få ett meddelande att betalningen har skett.
 
             Har du några frågor så kontakta oss på bmb@bramycketbattre.com.
-            """.format(total_price)
+            """.format(total_price + shipping_cost)
 
         # Email payment instructions to the customer
         send_mail(
