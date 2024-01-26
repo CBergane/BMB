@@ -1,12 +1,13 @@
 {% extends 'core/base.html' %}
+{% load extra_filters %}
 
 {% block title %}Kassa{% endblock %}
 
 {% block content%}
 
-<div class="max-w-6xl mx-auto flex flex-wrap items-start py-6 px-6 xl:px-0">
-    <div class="products w-full lg:w-3/4">       
-            <h1 class="mb-5 text-3xl">Kassan</h1>
+<div class="max-w-6xl mx-auto flex flex-wrap items-start py-6 px-6 xl:px-0">    
+    <div class="products w-full lg:w-3/5">       
+        <h1 class="mb-5 text-3xl">Kassan</h1>
 
             <div class="w-full md:pr-6">
                 <div class="mb-6 p-6 bg-gray-100 rounded-xl">
@@ -53,13 +54,33 @@
             </div>
         </div>
 
-        <div class="summary w-full md:w-1/4 p-6 bg-gray-100 rounded-xl mt-3">
+        <div class="summary w-full md:w-2/5 md:mt-14 p-6 bg-gray-100 rounded-xl mt-3">
             <h2 class="uppercase text-lg mb-5">Summering</h2>
-
+        
             <div class="mb-6 flex justify-between">
-                <span class="font-semibold">Totalt</span>
+                <span class="font-semibold">Delsumma (inkl. moms)</span>
                 <span>{{ cart.get_total_cost }} kr</span>
             </div>
+            
+            <div class="mb-6 flex justify-between">
+                <span class="font-semibold">Fraktkostnad</span>
+                <span>79 kr</span>
+            </div>
+            
+            <div class="mb-6 flex justify-between">
+                <span class="font-semibold">Moms (20%)</span>
+                <span>{{ cart.get_total_cost|multiply:0.20|floatformat:2 }} kr</span>
+            </div>
+        
+            {% with total_cost=cart.get_total_cost|add:79 %}
+                <div class="mb-6 flex justify-between">
+                    <span class="font-semibold">Totalt inklusive moms och frakt</span>
+                    <span>{{ total_cost|floatformat:2 }} kr</span>
+                </div>
+            {% endwith %}
+        </div>
+        
+        
             <!--
             <button
                 onclick="buy(event)" 

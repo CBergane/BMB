@@ -90,6 +90,7 @@ def start_swish_order(request):
         cart = Cart(request)
         data = json.loads(request.body)
         total_price = 0
+        shipping_cost = 79
 
         for item in cart:
             produkt = item['produkt']
@@ -100,6 +101,9 @@ def start_swish_order(request):
                 return JsonResponse({'error': f"Only {produkt.inventory} {produkt.namn} available in stock."}, status=400)
 
             total_price += produkt.pris * quantity
+
+        total_price += shipping_cost
+        vat_amount = total_price / 1.2 * 0.2
 
         # Create the order in your database
         order = Order.objects.create(
@@ -142,6 +146,7 @@ def start_swish_order(request):
         order_details += "Beställning:\n"
         for item in order.items.all():
             order_details += f"\tProdukt: {item.produkt.namn}, Mängd: {item.quantity}, Pris: {item.price}\n"
+        order_details += f"Moms (20%): {vat_amount:.2f} kr\n"
         order_details += f"Totalt: {order.paid_amount}"
 
         # Email order details to yourself
@@ -149,7 +154,7 @@ def start_swish_order(request):
             'Ny order inkommen',
             order_details,  # This contains the order details
             settings.EMAIL_HOST_USER,
-            ['bramycketbattre.best@gmail.com'],
+            ['bmb@bramycketbattre.com'],
             fail_silently=False,
         )
 

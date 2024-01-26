@@ -1,1 +1,22 @@
-{{ cart.get_total_cost }} kr
+{% load extra_filters %}
+<div class="mb-6 flex justify-between">
+    <span class="font-semibold">Delsumma (inkl. moms)</span>
+    <span>{{ cart.get_total_cost }} kr</span>
+</div>
+
+<div class="mb-6 flex justify-between">
+    <span class="font-semibold">Fraktkostnad </span>
+    <span>79 kr</span>
+</div>
+
+<div class="mb-6 flex justify-between">
+    <span class="font-semibold">Moms (20%) </span>
+    <span>{{ cart.get_total_cost|multiply:0.20|floatformat:2 }} kr</span>
+</div>
+
+{% with total_cost=cart.get_total_cost|add:79 %}
+    <div class="mb-6 flex justify-between">
+        <span class="font-semibold">Totalt inklusive moms och frakt </span>
+        <span>{{ total_cost|floatformat:2 }} kr</span>
+    </div>
+{% endwith %}
