@@ -104,7 +104,7 @@ def start_swish_order(request):
 
             # Validate that enough inventory is available
             if produkt.inventory < quantity:
-                return JsonResponse({'error': f"Only {produkt.inventory} {produkt.namn} available in stock."}, status=400)
+                return JsonResponse({'error': f"Bara {produkt.inventory} {produkt.namn} kvar i lagret."}, status=400)
 
             total_price += produkt.pris * quantity
 
@@ -157,10 +157,10 @@ def start_swish_order(request):
 
         # Email order details to yourself
         send_mail(
-            'Ny order inkommen',
-            order_details,  # This contains the order details
-            settings.EMAIL_HOST_USER,
-            ['bmb@bramycketbattre.com'],
+            subject=f"Order {order.id} bekräftelse",
+            message=order_details,
+            from_email='bramycketbattre.best@gmail.com',  # E-postadressen som meddelandet ska skickas från
+            recipient_list=['bmb@bramycketbattre.com'],  # Mottagarens e-postadress
             fail_silently=False,
         )
 
