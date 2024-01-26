@@ -103,104 +103,47 @@
 <script type="application/javascript" src="https://js.stripe.com/v3/"></script>
 
 <script>
-    let el = document.querySelector('#errors')
+    let el = document.querySelector('#errors');
+
     function validateForm(data) {
-        let errors = []
+        let errors = [];
 
         if (data.first_name === '') {
-            errors.push('Förnamnet saknas')
+            errors.push('Förnamnet saknas');
         }
-
         if (data.last_name === '') {
-            errors.push('Efternamnet saknas')
+            errors.push('Efternamnet saknas');
         }
-
         if (data.email === '') {
-            errors.push('E-mail saknas')
+            errors.push('E-mail saknas');
         }
-
         if (data.phone === '') {
-            errors.push('Telefonnumret saknas')
+            errors.push('Telefonnumret saknas');
         }
-
         if (data.address === '') {
-            errors.push('Adressen saknas')
+            errors.push('Adressen saknas');
         }
-
         if (data.zipcode === '') {
-            errors.push('Postnumret saknas')
+            errors.push('Postnumret saknas');
         }
-
         if (data.city === '') {
-            errors.push('Stad saknas')
+            errors.push('Stad saknas');
         }
 
-        if (errors.length > 0 ) {
+        if (errors.length > 0) {
             let html = '<ul>';
-
             errors.forEach((error) => {
                 html += '<li>' + error + '</li>';
-            })
-
+            });
             el.innerHTML = html + '</ul>';
         } else {
             el.innerHTML = '';
         }
-
-        return errors
-
-    }
-
-    function buy(event) {
-        event.preventDefault()
-
-        let data = {
-            'first_name': document.querySelector('input[name=first_name]').value,
-            'last_name': document.querySelector('input[name=last_name]').value,
-            'email': document.querySelector('input[name=email]').value,
-            'phone': document.querySelector('input[name=phone]').value,
-            'address': document.querySelector('input[name=address]').value,
-            'zipcode': document.querySelector('input[name=zipcode]').value,
-            'city': document.querySelector('input[name=city]').value,
-        }
-
-        let errors = validateForm(data)
-
-        if (errors.length) {
-            console.log('Errors', errors)
-        } else {
-            var stripe = Stripe('{{ pub_key }}')
-
-            fetch('/order/start_order/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify(data)
-            })
-            .then(function(response) {
-                return response.json()
-            })
-            .then(function(session) {
-                return stripe.redirectToCheckout({ sessionId: session.session.id })
-            })
-            .then(function(result) {
-                if (result.error) {
-                    alert(result.error.message)
-                }
-            })
-            .catch(function(error) {
-                console.log('Errors', error)
-            })
-        }
-
-        return false
+        return errors;
     }
 
     function payWithSwish(event) {
-        event.preventDefault()
+        event.preventDefault();
 
         let data = {
             'first_name': document.querySelector('input[name=first_name]').value,
@@ -210,44 +153,50 @@
             'address': document.querySelector('input[name=address]').value,
             'zipcode': document.querySelector('input[name=zipcode]').value,
             'city': document.querySelector('input[name=city]').value,
-        }
+        };
 
-        let errors = validateForm(data)
+        let errors = validateForm(data);
 
         if (errors.length) {
-            console.log('Errors', errors)
+            console.log('Errors', errors);
         } else {
-            fetch('/order/start_swish_order/', { // Make sure to change the endpoint to match your Swish order processing URL
+            fetch('/order/start_swish_order/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
+                    'X-CSRFToken': getCookie('csrftoken')
                 },
                 credentials: 'same-origin',
                 body: JSON.stringify(data)
             })
             .then(function(response) {
-                return response.json()
+                return response.json();
             })
             .then(function(order) {
                 window.location.href = "/cart/success/";
-                // You may also want to display the payment instructions if they're not in the email.
-            })
-            .then(function(response) {
-                if (!response.ok) {
-                    // Handle the error and possibly return to exit from the promise chain.
-                    console.log('Error status', response.status);
-                    return;
-                }
-                return response.json();
             })
             .catch(function(error) {
-                console.log('Errors', error)
-            })
+                console.log('Errors', error);
+            });
         }
 
-        return false
+        return false;
     }
 
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 </script>
+
 {% endblock %}
