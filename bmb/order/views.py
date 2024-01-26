@@ -118,7 +118,7 @@ def start_swish_order(request):
             address=data['address'],
             zipcode=data['zipcode'],
             city=data['city'],
-            paid_amount=total_price + shipping_cost,
+            paid_amount=total_price,
             paid=False
         )
 
@@ -149,7 +149,7 @@ def start_swish_order(request):
         order_details += "Beställning:\n"
         for item in order.items.all():
             order_details += f"\tProdukt: {item.produkt.namn}, Mängd: {item.quantity}, Pris: {item.price}\n"
-        order_details += f"Totalt: {order.paid_amount}"
+        order_details += f"Totalt: {order.paid_amount + shipping_cost}"
 
         # Email order details to yourself
         send_mail(
