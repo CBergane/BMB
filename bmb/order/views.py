@@ -154,7 +154,7 @@ def start_swish_order(request):
             'Ny order inkommen',
             order_details,  # This contains the order details
             settings.EMAIL_HOST_USER,
-            ['bmb@bramycketbattre.com'],
+            ['bramycketbattre.best@gmail.com'],
             fail_silently=False,
         )
 
