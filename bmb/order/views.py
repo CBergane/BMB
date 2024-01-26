@@ -86,6 +86,15 @@ def start_order(request):
 
 
 def start_swish_order(request):
+    if request.method != "POST":
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+    # Försök att läsa och dekodera JSON-data från begäran
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid or missing data'}, status=400)
+        
     with transaction.atomic():
         cart = Cart(request)
         data = json.loads(request.body)
@@ -154,7 +163,7 @@ def start_swish_order(request):
             'Ny order inkommen',
             order_details,  # This contains the order details
             settings.EMAIL_HOST_USER,
-            ['bramycketbattre.best@gmail.com'],
+            ['bmb@bramycketbattre.com'],
             fail_silently=False,
         )
 
