@@ -108,9 +108,6 @@ def start_swish_order(request):
 
             total_price += produkt.pris * quantity
 
-        total_price += shipping_cost
-        vat_amount = total_price / 1.2 * 0.2
-
         # Create the order in your database
         order = Order.objects.create(
             user=request.user,
@@ -152,7 +149,6 @@ def start_swish_order(request):
         order_details += "Beställning:\n"
         for item in order.items.all():
             order_details += f"\tProdukt: {item.produkt.namn}, Mängd: {item.quantity}, Pris: {item.price}\n"
-        order_details += f"Moms (20%): {vat_amount:.2f} kr\n"
         order_details += f"Totalt: {order.paid_amount}"
 
         # Email order details to yourself
