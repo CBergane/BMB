@@ -1,36 +1,37 @@
 from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import redirect
+import logging
+logger = logging.getLogger(__name__)
 
 from .cart import Cart
 from django.shortcuts import get_object_or_404, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
-from products.models import Produkt
+from products.models import Produkt, Color
 
 def add_to_cart(request, produkt_id):
     produkt = get_object_or_404(Produkt, pk=produkt_id)
 
     if request.method == 'POST':
-        quantity = int(request.POST.get('quantity', 1))  # Default to 1 if no quantity was specified
-        
-        # Check if the desired quantity is available
+        quantity = int(request.POST.get('quantity', 1))
+        color_id = request.POST.get('color_id', None)
+        custom_text = request.POST.get('custom_text', '')
+
         if quantity > produkt.inventory:
-            quantity = produkt.inventory  # Adjust to the max available quantity
-            messages.warning(request, "Quantity adjusted to max available stock.")  # Optional: Inform the user
+            quantity = produkt.inventory
+            messages.warning(request, "Du har överskridit maximalt antal enheter i lagret.")
 
         cart = Cart(request)
-        cart.add(produkt_id, quantity)
+        cart.add(produkt_id, quantity, color_id=color_id, custom_text=custom_text)
 
-        if request.headers.get('HX-Request') == 'true':  # Check if the request is coming from htmx
+        if request.headers.get('HX-Request') == 'true':
             return render(request, 'cart/partials/menu_cart.html')
         else:
-            # Redirect to the cart page or wherever you want
             return HttpResponseRedirect(reverse('cart'))
     else:
-        # Handle the case for GET request or return an error
         return HttpResponseRedirect(reverse('product_detail', args=(produkt_id,)))
 
 
@@ -40,40 +41,42 @@ def cart(request):
 def success(request):
     return render(request, 'cart/success.html')
 
-def update_cart(request, produkt_id, action):
+def update_cart(request, cart_key, action):
+    logger.info(f"Uppdaterar varukorg: cart_key={cart_key}, action={action}")
     cart = Cart(request)
 
     if action == 'increment':
-        cart.add(produkt_id, 1, True)
+        cart.increment_item(cart_key)
+    elif action == 'decrement':
+        cart.decrement_item(cart_key)
+
+    item = cart.get_item(cart_key)
+    if item:
+        # Hämta uppdaterad information
+        response = render(request, 'cart/partials/cart_item.html', {'item': item})
     else:
-        cart.add(produkt_id, -1, True)
-    
-    produkt = Produkt.objects.get(pk=produkt_id)
-    quantity = cart.get_item(produkt_id)
+        response = HttpResponse("Item not found", status=404)
 
-    if quantity:
-        quantity = quantity['quantity']
-
-        item = {
-            'produkt': {
-                'id': produkt.id,
-                'namn': produkt.namn,
-                'image': produkt.image,
-                'get_thumbnail': produkt.get_thumbnail(),
-                'pris': produkt.pris,
-                'slug': produkt.slug,
-                'get_unit_display': produkt.get_unit_display(),
-            },
-            'total_price': (quantity * produkt.pris),
-            'quantity': quantity,
-        }
-    else:
-        item = None
-
-    response = render(request, 'cart/partials/cart_item.html', {'item': item})
     response['HX-Trigger'] = 'update-menu-cart'
-
     return response
+
+def update_cart_quantity(request, cart_key, action):
+    cart = Cart(request)
+    if action == 'increment':
+        cart.increment_item(cart_key)
+    elif action == 'decrement':
+        cart.decrement_item(cart_key)
+    
+    item = cart.get_item(cart_key)
+    if item:
+        return JsonResponse({'quantity': item['quantity']})
+    else:
+        return JsonResponse({'error': 'Item not found'}, status=404)
+
+def clear_cart(request):
+    cart = Cart(request)
+    cart.clear()
+    return redirect('cart')
 
 @login_required
 def checkout(request):

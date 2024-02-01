@@ -1,0 +1,9 @@
+<div class="quantity mt-6 flex items-center space-x-4">
+    <a class="p-3 bg-gray-100" onclick="updateCartItem('{{ item.cart_key }}', 'decrement')" style="cursor:pointer;">
+        -
+    </a>
+    <span id="quantity-{{ item.cart_key }}">{{ item.quantity }}</span><span> {{ item.produkt.get_unit_display }}</span>
+    <a class="p-3 bg-gray-100" onclick="updateCartItem('{{ item.cart_key }}', 'increment')" style="cursor:pointer;">
+        +
+    </a>
+</div>

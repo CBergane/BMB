@@ -37,6 +37,15 @@ class WashInstruction(models.Model):
         return self.name
 
 
+class Color(models.Model):
+    name = models.CharField(max_length=100)
+    # Eventuella ytterligare fält, som en HEX-värdet för färgen etc.
+
+    def __str__(self):
+        return self.name
+
+
+
 class Produkt(models.Model):
 
     UNIT_CHOICES = [
@@ -134,6 +143,17 @@ class Produkt(models.Model):
         if self.discount_percentage is None:
             self.discount_percentage = 0
         super(Produkt, self).save(*args, **kwargs)
+
+class ProductVariant(models.Model):
+    product = models.ForeignKey(Produkt, related_name='variants', on_delete=models.CASCADE)
+    color = models.ForeignKey(Color, on_delete=models.CASCADE)
+    allow_custom_text = models.BooleanField(default=False)
+    custom_text = models.CharField(max_length=255, blank=True, null=True)
+    additional_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    # Eventuellt andra attribut som storlek eller material.
+
+    def __str__(self):
+        return f"{self.product.namn} - {self.color.name} - {self.custom_text}"
 
 
 class Review(models.Model):

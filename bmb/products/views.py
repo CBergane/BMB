@@ -2,8 +2,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 
 from .models import Produkt, Review
 
-def produkt(request, category_slug=None, subcategory_slug=None, slug=None):
+def produkt(request, slug):
     produkt = get_object_or_404(Produkt, slug=slug)
+
+    # Kontrollera om någon variant tillåter anpassad text
+    show_custom_text_field = produkt.variants.filter(allow_custom_text=True).exists()
 
     if produkt.is_fabric:
         produkt.inventory_in_meters = produkt.inventory / 10
@@ -30,7 +33,11 @@ def produkt(request, category_slug=None, subcategory_slug=None, slug=None):
                     created_by=request.user
                 )
 
-            return redirect('produkt', category_slug=category_slug, subcategory_slug=subcategory_slug, slug=slug)
+            return redirect('produkt', slug=slug)
 
-    return render(request, 'products/product.html', {'produkt': produkt})
+    return render(request, 'products/product.html', {
+        'produkt': produkt,
+        'show_custom_text_field': show_custom_text_field
+    })
+
 

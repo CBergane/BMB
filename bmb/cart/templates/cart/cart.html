@@ -9,6 +9,10 @@
         {% for item in cart %}
             {% include 'cart/partials/cart_item.html' %}
         {% endfor %}
+        <form action="{% url 'clear_cart' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Rensa Varukorgen</button>
+        </form>
     </div>
     <div class="summary w-full md:w-2/5 p-6 bg-gray-100 rounded-xl mt-3">
         <h2 class="uppercase text-lg mb-5">Summering</h2>
@@ -26,4 +30,62 @@
     </div>
     
 </div>
+
+<script>
+    function updateCartItem(cartKey, action) {
+        fetch(`/cart/update_cart_quantity/${cartKey}/${action}/`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.quantity !== undefined) {
+                // Uppdatera kvantiteten för varukorgsartikeln
+                document.getElementById(`quantity-${cartKey}`).textContent = data.quantity;
+
+                // Trigga en htmx-uppdatering för menyvarukorgen
+                htmx.trigger('#menu-cart-btn', 'update-menu-cart');
+
+                // Uppdatera även varukorgens totala kostnad om du har ett sådant element
+                updateCartTotal(); // Se till att du har en implementering för denna funktion
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Funktion för att uppdatera varukorgens totala kostnad
+    function updateCartTotal() {
+        // Antag att du har en endpoint som returnerar den uppdaterade totala kostnaden
+        fetch('/cart/hx_cart_total/', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('cart-total').innerHTML = html;
+            // Du kan även trigga en htmx-uppdatering för varukorgens totala kostnad om det behövs
+            htmx.trigger('#cart-total', 'update-total-cost');
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+</script>
 {% endblock%}

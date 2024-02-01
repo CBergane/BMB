@@ -124,10 +124,20 @@ def start_swish_order(request):
 
         # Creating OrderItems
         for item in cart:
-            produkt = Produkt.objects.filter(id=item['produkt'].id).select_for_update().first()
-            quantity = int(item['quantity'])
-            price = produkt.pris * quantity
-            item = OrderItem.objects.create(order=order, produkt=produkt, price=price, quantity=quantity)
+            for item in cart:
+                produkt = Produkt.objects.filter(id=item['produkt'].id).select_for_update().first()
+                quantity = int(item['quantity'])
+                color_id = item.get('color_id')
+                custom_text = item.get('custom_text')
+                price = produkt.pris * quantity
+                order_item = OrderItem.objects.create(
+                    order=order,
+                    produkt=produkt,
+                    price=price,
+                    quantity=quantity,
+                    color_id=color_id,
+                    custom_text=custom_text
+                )
 
             # Decrement the inventory for the purchased product
             produkt.inventory -= quantity
@@ -148,8 +158,9 @@ def start_swish_order(request):
         order_details += f"Address: {order.address}, {order.zipcode}, {order.city}\n"
         order_details += "Beställning:\n"
         for item in order.items.all():
-            order_details += f"\tProdukt: {item.produkt.namn}, Mängd: {item.quantity}, Pris: {item.price}\n"
+            order_details += f"\tProdukt: {item.produkt.namn}, Färg: {item.color.name if item.color else 'N/A'}, Anpassad text: {item.custom_text if item.custom_text else 'N/A'}, Mängd: {item.quantity}, Pris: {item.price}\n"
         order_details += f"Totalt: {order.paid_amount + shipping_cost}"
+
 
         # Email order details to yourself
         send_mail(

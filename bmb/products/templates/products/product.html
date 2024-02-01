@@ -99,15 +99,33 @@
                     Lägg i kundvagn
                 </button>
             </form>
-        {% else %}
-            <!-- Non-fabric product link -->
-            <a href="#" 
-               class="mt-6 inline-block px-8 py-4 rounded-xl green-bg green-bg-hover text-gray-200"
-               hx-get="{% url 'add_to_cart' produkt.id %}"
-               hx-target="#menu-cart-btn"
-               hx-swap="outerHTML">
-                Lägg i kundvagn
-            </a>
+            {% else %}
+            <!-- Non-fabric product form -->
+            <form class="mt-6" action="{% url 'add_to_cart' produkt.id %}" method="post">
+                {% csrf_token %}
+    
+                <!-- Färgalternativ -->
+                <div class="mb-2">
+                    <label for="color">Färg:</label>
+                    <select id="color" name="color_id">
+                        {% for variant in produkt.variants.all %}
+                            <option value="{{ variant.color.id }}">{{ variant.color.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+    
+                <!-- Fält för anpassad text om tillåtet -->
+                {% if show_custom_text_field %}
+                    <div class="mb-2">
+                        <label for="custom_text">Anpassad Text (valfritt):</label>
+                        <input type="text" id="custom_text" name="custom_text" placeholder="Skriv din text här" class="bg-gray-100 block w-full"/>
+                    </div>
+                {% endif %}
+    
+                <button type="submit" class="btn-green mt-2 inline-block px-8 py-4 rounded-xl text-gray-200">
+                    Lägg i kundvagn
+                </button>
+            </form>
         {% endif %}
     {% else %}
         <span class="mt-6 inline-block px-8 py-4 rounded-xl text-gray-400">Slut i lager</span>
