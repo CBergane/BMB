@@ -11,7 +11,7 @@
         {% endfor %}
         <form action="{% url 'clear_cart' %}" method="post">
             {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Rensa Varukorgen</button>
+            <button type="submit" class="btn p-2 bg-red-500 hover:bg-red-700 rounded">Rensa Varukorgen</button>
         </form>
     </div>
     <div class="summary w-full md:w-2/5 p-6 bg-gray-100 rounded-xl mt-3">
