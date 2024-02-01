@@ -2,7 +2,7 @@ from itertools import product
 from django.db import models
 from django.contrib.auth.models import User
 
-from products.models import Produkt
+from products.models import Produkt, Color
 
 class Order(models.Model):
     ORDERED = 'ordered'
@@ -40,8 +40,10 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     produkt = models.ForeignKey(Produkt, related_name='items', on_delete=models.CASCADE)
+    color = models.ForeignKey(Color, on_delete=models.CASCADE, blank=True, null=True)
+    custom_text = models.CharField(max_length=255, blank=True, null=True)
     price = models.IntegerField()
     quantity = models.IntegerField(default=1)
 
     def get_total_price(self):
-        return self.price
+        return self.price * self.quantity
