@@ -124,9 +124,6 @@ def start_swish_order(request):
 
             if color_id:
                 color = Color.objects.get(id=color_id)
-
-            if color_id:
-                color = Color.objects.get(id=color_id)
             price = produkt.pris * quantity
             total_price += price  # Uppdatera totalpriset
 
