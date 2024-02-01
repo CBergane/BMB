@@ -121,13 +121,16 @@ def start_swish_order(request):
             quantity = int(item['quantity'])
             color_id = item.get('color_id')
             custom_text = item.get('custom_text')
+            color = None
+            if color_id:
+                color = Color.objects.get(id=color_id)
             price = produkt.pris * quantity
             total_price += price  # Uppdatera totalpriset
 
             OrderItem.objects.create(
                 order=order,
                 produkt=produkt,
-                color_id=color_id,
+                color=color,
                 custom_text=custom_text,
                 price=price,
                 quantity=quantity
