@@ -3,8 +3,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect
-import logging
-logger = logging.getLogger(__name__)
+
 
 from .cart import Cart
 from django.shortcuts import get_object_or_404, HttpResponseRedirect

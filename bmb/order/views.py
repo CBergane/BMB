@@ -1,10 +1,13 @@
 import json
 import stripe
+import logging
+logger = logging.getLogger(__name__)
 
 from django.conf import settings
 from django.db import transaction
 from django.http import JsonResponse
 from django.core.mail import send_mail
+
 
 from cart.cart import Cart
 
@@ -98,17 +101,7 @@ def start_swish_order(request):
         total_price = 0
         shipping_cost = 79
 
-        for item in cart:
-            produkt = item['produkt']
-            quantity = int(item['quantity'])
-
-            # Validate that enough inventory is available
-            if produkt.inventory < quantity:
-                return JsonResponse({'error': f"Bara {produkt.inventory} {produkt.namn} kvar i lagret."}, status=400)
-
-            total_price += produkt.pris * quantity
-
-        # Create the order in your database
+        # Skapa ordern först
         order = Order.objects.create(
             user=request.user,
             first_name=data['first_name'],
@@ -118,35 +111,38 @@ def start_swish_order(request):
             address=data['address'],
             zipcode=data['zipcode'],
             city=data['city'],
-            paid_amount=total_price,
+            paid_amount=0,  # Sätt till 0 tillfälligt
             paid=False
         )
 
-        # Creating OrderItems
+        # Sedan skapa OrderItem för varje artikel i kundvagnen
         for item in cart:
-            for item in cart:
-                produkt = Produkt.objects.filter(id=item['produkt'].id).select_for_update().first()
-                quantity = int(item['quantity'])
-                color_id = item.get('color_id')
-                custom_text = item.get('custom_text')
-                price = produkt.pris * quantity
-                order_item = OrderItem.objects.create(
-                    order=order,
-                    produkt=produkt,
-                    price=price,
-                    quantity=quantity,
-                    color_id=color_id,
-                    custom_text=custom_text
-                )
+            produkt = Produkt.objects.filter(id=item['produkt_id']).select_for_update().first()
+            quantity = int(item['quantity'])
+            color_id = item.get('color_id')
+            custom_text = item.get('custom_text')
+            price = produkt.pris * quantity
+            total_price += price  # Uppdatera totalpriset
 
-            # Decrement the inventory for the purchased product
+            OrderItem.objects.create(
+                order=order,
+                produkt=produkt,
+                color_id=color_id,
+                custom_text=custom_text,
+                price=price,
+                quantity=quantity
+            )
+
+            # Minskning av lager och eventuell avaktivering av produkten
             produkt.inventory -= quantity
             produkt.save()
-
-            # Check if inventory reaches 0 and deactivate the product if needed
             if produkt.inventory <= 0:
                 produkt.is_active = False
                 produkt.save()
+
+        # Uppdatera det totala priset för ordern
+        order.paid_amount = total_price + shipping_cost
+        order.save()
 
         cart.clear()
 

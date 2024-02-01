@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
+import logging
+logger = logging.getLogger(__name__)
 
 from products.models import Produkt, Color
 
@@ -14,6 +16,7 @@ class Cart(object):
 
     def add(self, produkt_id, quantity=1, color_id=None, custom_text='', update_quantity=False):
         produkt_id_str = str(produkt_id)
+        logger.info(f"Adding to cart: produkt_id={produkt_id}, quantity={quantity}, color_id={color_id}, custom_text='{custom_text}'")
         # Skapa en unik nyckel för varje unik produktvariant (produkt + färg + text)
         cart_key = f"{produkt_id_str}_{color_id}_{custom_text}"
 
