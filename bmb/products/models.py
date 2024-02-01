@@ -45,7 +45,6 @@ class Color(models.Model):
         return self.name
 
 
-
 class Produkt(models.Model):
 
     UNIT_CHOICES = [

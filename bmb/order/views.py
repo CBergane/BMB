@@ -118,19 +118,15 @@ def start_swish_order(request):
         for item in cart:
             produkt = Produkt.objects.filter(id=item['produkt_id']).select_for_update().first()
             quantity = int(item['quantity'])
-            color_id = item.get('color_id')
+            color = item.get('color')  # Hämta Color-objektet direkt
             custom_text = item.get('custom_text')
-            color = None
-
-            if color_id:
-                color = Color.objects.get(id=color_id)
             price = produkt.pris * quantity
             total_price += price  # Uppdatera totalpriset
 
             OrderItem.objects.create(
                 order=order,
                 produkt=produkt,
-                color=color,
+                color=color,  # Använd Color-objektet här
                 custom_text=custom_text,
                 price=price,
                 quantity=quantity
