@@ -1,7 +1,6 @@
 import json
 import stripe
 import logging
-logger = logging.getLogger(__name__)
 
 from django.conf import settings
 from django.db import transaction
@@ -122,6 +121,10 @@ def start_swish_order(request):
             color_id = item.get('color_id')
             custom_text = item.get('custom_text')
             color = None
+
+            if color_id:
+                color = Color.objects.get(id=color_id)
+
             if color_id:
                 color = Color.objects.get(id=color_id)
             price = produkt.pris * quantity
