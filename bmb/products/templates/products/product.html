@@ -93,7 +93,7 @@
                 <div class="mb-2">
                     <label for="quantity">Antal ({{ produkt.get_unit_display }}):</label>
                     <!-- Set min and step to 1 for decimeter units -->
-                    <input type="number" id="quantity" name="quantity" value="1" min="5" max="{{ produkt.inventory }}" step="1" class="quantity-input bg-gray-100 block w-1/2"/>
+                    <input type="number" id="quantity" name="quantity" value="" min="5" max="{{ produkt.inventory }}" step="1" class="quantity-input bg-gray-100 block w-1/2"/>
                 </div>
                 <button type="submit" class="btn-green mt-2 inline-block px-8 py-4 rounded-xl text-gray-200">
                     Lägg i kundvagn

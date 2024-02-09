@@ -38,7 +38,7 @@
                         {% if request.user.is_authenticated %}
                             <li><a href="{% url 'logout' %}" class="nav-link {% if request.resolver_match.url_name == 'logout' %}active{% endif %}">Logga ut</a></li>
                         {% else %}
-                            <li><a href="{% url 'signup' %}" class="nav-link {% if request.resolver_match.url_name == 'signup' %}active{% endif %}">Gå med</a></li>
+                            <li><a href="{% url 'signup' %}" class="nav-link {% if request.resolver_match.url_name == 'signup' %}active{% endif %}">Skapa ett konto</a></li>
                         {% endif %}
                         <li><a href="{% url 'about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">Om oss</a></li>
                         <li>
