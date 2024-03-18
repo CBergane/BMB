@@ -36,7 +36,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['8000-cbergane-bmb-0cakmcti2vr.ws-eu108.gitpod.io', 'localhost', 'bmb-annelie-e3fc68fd7d04.herokuapp.com', '127.0.0.1', 'www.bramycketbattre.com', 'bramycketbattre.com' ]
+ALLOWED_HOSTS = ['8000-cbergane-bmb-0cakmcti2vr.ws-eu110.gitpod.io', 'localhost', 'bmb-annelie-e3fc68fd7d04.herokuapp.com', '127.0.0.1', 'www.bramycketbattre.com', 'bramycketbattre.com' ]
 
 SITE_ID = 1
 
@@ -110,9 +110,14 @@ WSGI_APPLICATION = 'bmb.wsgi.application'
 #    }
 #}
 
+
 DATABASES = {
-     'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
- }
+    'default': dj_database_url.parse(
+        os.environ.get("HEROKU_POSTGRESQL_MAUVE_URL"), 
+        conn_max_age=600, 
+        ssl_require=True
+    )
+}
 
 
 # Password validation
