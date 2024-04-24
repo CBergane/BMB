@@ -17,10 +17,9 @@
         </a>
 
         <p>Ordinarie Pris: <s>{{ produkt.pris }}</s></p>
-        <p>Rabatterat Pris: {{ produkt.get_discounted_price }}</p>
-        
-        <!-- Display the discount percentage if you want -->
         <p>Rabatt: {{ produkt.discount_percentage }}%</p>
+        <p>Reapris: {{ produkt.get_discounted_price }}</p>
+        
     </div>
     {% empty %}
         <p class="mb-2 text-4xl lg:text-4xl green-color-text font-bold text-center">Inga nedsatta priser för tillfället.</p>
