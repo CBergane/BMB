@@ -161,7 +161,7 @@
         {% endif %}
 
         {% for review in produkt.reviews.all %}
-            <div class="px-4 py-6 bg-gray-100 rounded-xl mb-4">
+            <div class="px-4 py-6 bg-gray-100 rounded-xl mt-6 mb-4">
                 <strong>Omdöme:</strong> {{ review.rating }}/6<br>
                 <strong>Datum:</strong> {{ review.created_at|date:"Y-m-d" }}<br>
                 <strong>Kommentar:</strong><br>
@@ -172,30 +172,41 @@
 </div>
 
 <!-- Modal for first image -->
-<div id="modal1" class="modal">
-    <span class="close cursor-pointer" onclick="closeModal('modal1')">&times;</span>
-    <img class="modal-content" id="img01" src="{% if produkt.image %}{{ produkt.image.url }}{% else %}https://placehold.co/240x240{% endif %}">
+<div id="modal1" class="modal fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+    <div class="relative max-w-xl mx-auto top-20">
+        <span class="close cursor-pointer absolute right-0 top-0 transform translate-x-1/2 -translate-y-1/2 text-red-500 text-4xl" onclick="closeModal('modal1')">&times;</span>
+        <img class="rounded-lg shadow-xl" id="img01" src="{% if produkt.image %}{{ produkt.image.url }}{% else %}https://placehold.co/240x240{% endif %}">
+    </div>
 </div>
+
+
 
 <!-- Modal for second image -->
 {% if produkt.image2 %}
-<div id="modal2" class="modal">
-    <span class="close cursor-pointer" onclick="closeModal('modal2')">&times;</span>
-    <img class="modal-content" id="img02" src="{{ produkt.image2.url }}">
+<div id="modal2" class="modal fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+    <div class="relative max-w-xl mx-auto top-20">
+        <span class="close cursor-pointer absolute right-0 top-0 transform translate-x-1/2 -translate-y-1/2 text-red-500 text-4xl" onclick="closeModal('modal2')">&times;</span>
+        <img class="rounded-lg shadow-xl" id="img02" src="{{ produkt.image2.url }}">
+    </div>
 </div>
+
 {% endif %}
 <!-- Modal for third image -->
 {% if produkt.image3 %}
-<div id="modal2" class="modal">
-    <span class="close cursor-pointer" onclick="closeModal('modal3')">&times;</span>
-    <img class="modal-content" id="img03" src="{{ produkt.image3.url }}">
+<div id="modal3" class="modal fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+    <div class="relative max-w-xl mx-auto top-20">
+        <span class="close cursor-pointer absolute right-0 top-0 transform translate-x-1/2 -translate-y-1/2 text-red-500 text-4xl" onclick="closeModal('modal3')">&times;</span>
+        <img class="rounded-lg shadow-xl" id="img03" src="{{ produkt.image3.url }}">
+    </div>
 </div>
 {% endif %}
 <!-- Modal for 4th image -->
-{% if produkt.image2 %}
-<div id="modal4" class="modal">
-    <span class="close cursor-pointer" onclick="closeModal('modal4')">&times;</span>
-    <img class="modal-content" id="img04" src="{{ produkt.image4.url }}">
+{% if produkt.image4 %}
+<div id="modal4" class="modal fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+    <div class="relative max-w-xl mx-auto top-20">
+        <span class="close cursor-pointer absolute right-0 top-0 transform translate-x-1/2 -translate-y-1/2 text-red-500 text-4xl" onclick="closeModal('modal4')">&times;</span>
+        <img class="rounded-lg shadow-xl" id="img04" src="{{ produkt.image4.url }}">
+    </div>
 </div>
 {% endif %}
 
