@@ -114,7 +114,7 @@ WSGI_APPLICATION = 'bmb.wsgi.application'
 DATABASES = {
     'default': dj_database_url.parse(
         os.environ.get("HEROKU_POSTGRESQL_MAUVE_URL"), 
-        conn_max_age=100, 
+        conn_max_age=400, 
         ssl_require=True
     )
 }

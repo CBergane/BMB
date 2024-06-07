@@ -28,6 +28,7 @@
             <del>{{ produkt.pris }} kr / <strong>{{ produkt.get_unit_display }}</strong></del> <br>
             {{ produkt.get_discounted_price }} kr / <strong>{{ produkt.get_unit_display }}</strong>
         </p>
+        <p>{{ produkt.get_discount_info }}</p>
         {% else %}
             <p class="pt-1 text-gray-400">{{ produkt.pris}} kr / <strong>{{ produkt.get_unit_display }}</strong></p>
         {% endif %}

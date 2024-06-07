@@ -138,6 +138,11 @@ class Produkt(models.Model):
         """
         return self.pris - (self.pris * self.discount_percentage / 100)
 
+    def get_discount_info(self):
+        if self.discount_percentage > 0:
+            return f"{self.discount_percentage}% rabatt"
+        return "Ingen rabatt"
+
     def save(self, *args, **kwargs):
         if self.discount_percentage is None:
             self.discount_percentage = 0
