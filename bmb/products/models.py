@@ -110,6 +110,20 @@ class Produkt(models.Model):
         else:
             return None
 
+    def get_thumbnail_image3(self):
+        if self.image3:
+            thumbnail_url = cloudinary_url(self.image3.public_id, width=300, height=300, crop="fill")[0]
+            return thumbnail_url
+        else:
+            return None
+
+    def get_thumbnail_image4(self):
+        if self.image4:
+            thumbnail_url = cloudinary_url(self.image4.public_id, width=300, height=300, crop="fill")[0]
+            return thumbnail_url
+        else:
+            return None
+
     def get_rating(self):
         reviews_total = 0
 
