@@ -30,19 +30,40 @@
                         </svg>
                     </button>
                     <ul class="flex flex-col lg:flex-row lg:space-x-4 lg:items-center w-full lg:w-auto">
-                        <li><a href="{% url 'shop' %}" class="nav-link {% if request.resolver_match.url_name == 'shop' %}active{% endif %}">Shop</a></li>
-                        <li><a href="{% url 'news' %}" class="nav-link {% if request.resolver_match.url_name == 'news' %}active{% endif %}">Nyheter</a></li>
-                        <li><a href="{% url 'discounted_products' %}" class="nav-link {% if request.resolver_match.url_name == 'discounted_products' %}active{% endif %}">Rea</a></li>
-                        <li><a href="{% url 'stubbies' %}" class="nav-link {% if request.resolver_match.url_name == 'stubbies' %}active{% endif %}">Stuvbitar</a></li>
+                        <li>
+                            <a href="{% url 'shop' %}" class="nav-link {% if request.resolver_match.url_name == 'shop' %}active{% endif %}">Shop</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'news' %}" class="nav-link {% if request.resolver_match.url_name == 'news' %}active{% endif %}">Nyheter</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'discounted_products' %}" class="nav-link {% if request.resolver_match.url_name == 'discounted_products' %}active{% endif %}">Rea</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'stubbies' %}" class="nav-link {% if request.resolver_match.url_name == 'stubbies' %}active{% endif %}">Stuvbitar</a>
+                        </li>
+                        <!-- Nytt val -->
+                        <li>
+                            <a href="" class="nav-link italic font-semibold bg-gray-800 text-white px-4 py-2 hover:bg-gray-800">
+                                BMB Exclusive
+                            </a>
+                        </li>
                         {% if request.user.is_authenticated %}
-                            <li><a href="{% url 'logout' %}" class="nav-link {% if request.resolver_match.url_name == 'logout' %}active{% endif %}">Logga ut</a></li>
+                            <li>
+                                <a href="{% url 'logout' %}" class="nav-link {% if request.resolver_match.url_name == 'logout' %}active{% endif %}">Logga ut</a>
+                            </li>
                         {% else %}
-                            <li><a href="{% url 'signup' %}" class="nav-link {% if request.resolver_match.url_name == 'signup' %}active{% endif %}">Skapa ett konto</a></li>
+                            <li>
+                                <a href="{% url 'signup' %}" class="nav-link {% if request.resolver_match.url_name == 'signup' %}active{% endif %}">Skapa ett konto</a>
+                            </li>
                         {% endif %}
-                        <li><a href="{% url 'about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">Om oss</a></li>
+                        <li>
+                            <a href="{% url 'about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">Om oss</a>
+                        </li>
                         <li>
                             <a href="#" class="nav-link" onclick="openModalContact(event)">Kontakta Oss</a>
-                        </li>                                       
+                        </li>
+                                                
                     </ul>
                 </div>
             </div>
