@@ -63,6 +63,7 @@ class Produkt(models.Model):
     )
     is_fabric = models.BooleanField(default=False, help_text="Är denna produkt ett tyg?")
     is_stubbie = models.BooleanField(default=False, help_text="Markera om denna produkt är en stuvbit.")
+    is_bmb_exclusive = models.BooleanField(default=False, help_text="Är denna produkt BMB exklusiv?")
     bredd = models.IntegerField(blank=True, null=True)
     vikt = models.IntegerField(blank=True, null=True)
     length = models.DecimalField(

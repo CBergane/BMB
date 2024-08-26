@@ -107,6 +107,10 @@ def stubbie_view(request):
     stubbies = Produkt.objects.filter(is_stubbie=True, is_active=True)
     return render(request, 'core/stubbie_template.html', {'stubbies': stubbies})
 
+def bmb_exclusive_products(request):
+    bmb_exclusive_products = Produkt.objects.filter(is_bmb_exclusive=True, is_active=True)
+    return render(request, 'core/bmb_exclusive.html', {'produkt': bmb_exclusive_products})
+
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)

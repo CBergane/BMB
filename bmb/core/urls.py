@@ -2,7 +2,7 @@ from django.urls import path
 
 from django.contrib.auth import views
 
-from core.views import frontpage, shop, signup, myaccount, edit_myaccount, about, discounted_products, news, stubbie_view, send_contact_email
+from core.views import frontpage, shop, signup, myaccount, edit_myaccount, about, discounted_products, news, stubbie_view, send_contact_email, bmb_exclusive_products
 from products.views import produkt
 
 
@@ -20,4 +20,5 @@ urlpatterns = [
     path('edit_myaccount/', edit_myaccount, name='edit_myaccount'),
     path('discounted_products/', discounted_products, name='discounted_products'),
     path('stubbies/', stubbie_view, name='stubbies'),
+    path('bmb-exclusive/', bmb_exclusive_products, name='bmb_exclusive_products'),
 ]

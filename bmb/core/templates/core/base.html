@@ -18,8 +18,6 @@
                 <a href="{% url 'frontpage' %}" class="py-4 mt-1">
                     <img src="{% static 'media/BMB.png' %}" class="h-14 w-16 rounded-full" alt="">
                 </a>
-
-                
                 <!-- Meny -->
                 <div id="menu" class="lg:flex flex-col lg:flex-row flex-grow items-center lg:space-x-4 fixed lg:static top-0 left-0 w-full h-full bg-white lg:bg-transparent shadow-lg lg:shadow-none z-10 transform translate-x-full lg:translate-x-0">
                     <!-- Stängknapp för Mobil -->
@@ -44,7 +42,7 @@
                         </li>
                         <!-- Nytt val -->
                         <li>
-                            <a href="" class="nav-link italic font-semibold bg-gray-800 text-white px-4 py-2 hover:bg-gray-800">
+                            <a href="{% url 'bmb_exclusive_products' %}" class="nav-link italic font-semibold bg-gray-800 text-white px-4 py-2 hover:bg-gray-800">
                                 BMB Exclusive
                             </a>
                         </li>
@@ -79,8 +77,6 @@
                         Gå till min profil
                     </div>
                 </div>
-                
-                
                 
                 <div
                     hx-get="{% url 'hx_menu_cart' %}"
