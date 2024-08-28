@@ -190,6 +190,7 @@
     --img-size: calc(100px - .5rem / 2);
     display: grid;
     gap: .5rem;
+    object-fit: cover;
     grid-template-columns: repeat(6, var(--img-size));
     grid-template-rows: repeat(3, var(--img-size));
     justify-content: center; /* Centrerar galleriet horisontellt */
@@ -236,7 +237,7 @@
   }
   
   
-  @keyframes zIndexHack {
+@keyframes zIndexHack {
     0%, 100% {
       z-index: 10;
     }
