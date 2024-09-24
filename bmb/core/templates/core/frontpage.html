@@ -15,7 +15,7 @@
 </header>
 
 <div class="info-box max-w-6xl mx-auto py-4 mb-4 px-6 xl:px-0">
-    <div class="flex items-center flex-wrap">
+    <div class="flex items-center flex-wrap text-center">
         <p>
         <svg class="w-6 h-6 green-color-text dark:green-color-text" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
@@ -28,6 +28,17 @@
             För mer information om GOTS produkter klicka <a href="#" onclick="openModal(); return false;" class="text-link">här.</a></p>
     </div>
 </div>
+
+<!-- Meddelande sektion -->
+<div class="meddelanden">
+    {% for meddelande in meddelanden %}
+        <div class="meddelande info-box max-w-6xl mx-auto py-4 mb-4 px-6 xl:px-0 text-center">
+            <strong>{{ meddelande.text }}</strong><br>
+            Aktiv från: {{ meddelande.start_date|date:"Y-m-d" }} till {{ meddelande.end_date|date:"Y-m-d" }}
+        </div>
+    {% endfor %}
+</div>
+
 
 <article class="gallery my-16">
     <img src="../../../static/media/thumbnail_IMG_9313.png" alt="guitar player at concert" />

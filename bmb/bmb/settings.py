@@ -24,7 +24,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['8000-cbergane-bmb-fqzsmngdwyk.ws-eu115.gitpod.io', 'localhost', 'bmb-annelie-e3fc68fd7d04.herokuapp.com', '127.0.0.1', 'www.bramycketbattre.com', 'bramycketbattre.com' ]
+
+ALLOWED_HOSTS = ['8000-cbergane-bmb-yy245hqlxih.ws-eu116.gitpod.io', 'localhost', 'bmb-annelie-e3fc68fd7d04.herokuapp.com', '127.0.0.1', 'www.bramycketbattre.com', 'bramycketbattre.com' ]
 
 SITE_ID = 1
 
@@ -132,7 +133,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Stockholm'
+USE_TZ = True
 
 USE_I18N = True
 

@@ -11,6 +11,7 @@ from django.core.exceptions import ValidationError
 
 from django.db.models import Count
 from products.models import Produkt, Category
+from .models import Meddelande
 
 from .forms import SignUpForm
 
@@ -51,11 +52,22 @@ def send_contact_email(request):
 
 
 def frontpage(request):
-    produkt = Produkt.objects.all()[0:8]
-    return render(request, 
-    'core/frontpage.html',
-    {'produkt': produkt},
-    )
+    # Hämta de första 8 produkterna
+    produkter = Produkt.objects.all()[:8]
+
+    # Hämta aktiva meddelanden vars slutdatum inte har passerat
+    aktiva_meddelanden = Meddelande.objects.filter(
+        is_active=True,
+        end_date__gte=timezone.now()
+    ).order_by('-start_date')
+
+    # Skicka både produkter och meddelanden till templaten
+    context = {
+        'produkter': produkter,
+        'meddelanden': aktiva_meddelanden
+    }
+    
+    return render(request, 'core/frontpage.html', context)
 
 def news(request):
     # Calculate the date two months ago from now
@@ -140,3 +152,4 @@ def edit_myaccount(request):
 
         return redirect('myaccount')
     return render(request, 'core/edit_myaccount.html', )
+
