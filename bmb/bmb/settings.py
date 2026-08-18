@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get("DEBUG", "False").lower() in ("true", "1", "yes")
 
 
 ALLOWED_HOSTS = ['8000-cbergane-bmb-yy245hqlxih.ws-eu116.gitpod.io', 'localhost', 'bmb-annelie-e3fc68fd7d04.herokuapp.com', '127.0.0.1', 'www.bramycketbattre.com', 'bramycketbattre.com' ]
@@ -100,11 +100,22 @@ WSGI_APPLICATION = 'bmb.wsgi.application'
 #}
 
 
+DATABASE_URL = (
+    os.environ.get("DATABASE_URL")
+    or os.environ.get("HEROKU_POSTGRESQL_MAUVE_URL")
+)
+
+DATABASE_SSL = os.environ.get("DATABASE_SSL", "True").lower() in (
+    "true",
+    "1",
+    "yes",
+)
+
 DATABASES = {
-    'default': dj_database_url.parse(
-        os.environ.get("HEROKU_POSTGRESQL_MAUVE_URL"), 
-        conn_max_age=300, 
-        ssl_require=True
+    "default": dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=300,
+        ssl_require=DATABASE_SSL,
     )
 }
 
@@ -160,7 +171,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = not DEBUG
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
