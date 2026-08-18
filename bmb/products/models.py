@@ -8,7 +8,7 @@ from django.core.files import File
 from autoslug import AutoSlugField
 from PIL import Image
 from io import BytesIO
-from ckeditor.fields import RichTextField
+from django_ckeditor_5.fields import CKEditor5Field
 
 class Category(models.Model):
     namn = models.CharField(max_length=255)
@@ -76,7 +76,11 @@ class Produkt(models.Model):
     kvalitet = models.CharField(max_length=255, blank=True, null=True)
     färg = models.CharField(max_length=255, blank=True, null=True)
     motiv = models.CharField(max_length=255, blank=True, null=True)
-    beskrivning = RichTextField(blank=True, null=True)
+    beskrivning = CKEditor5Field(
+        blank=True,
+        null=True,
+        config_name="default",
+    )
     wash_instructions = models.ManyToManyField(WashInstruction, blank=True)
     inventory = models.IntegerField(default=0, help_text="Mängd kvar i lager, st eller decimeter")
     is_active = models.BooleanField(default=True, help_text="Är denna produkt i lager?")
