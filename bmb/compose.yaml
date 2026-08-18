@@ -1,0 +1,43 @@
+services:
+  db:
+    image: docker.io/library/postgres:15
+    container_name: bmb-postgres15
+    restart: unless-stopped
+    env_file:
+      - .env.container
+    volumes:
+      - bmb-pg15-data:/var/lib/postgresql/data
+    networks:
+      - bmb-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bmb -d bmb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: Containerfile
+    image: localhost/bmb-web:dev
+    container_name: bmb-web
+    restart: unless-stopped
+    env_file:
+      - .env.container
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8000:8000"
+    networks:
+      - bmb-net
+
+volumes:
+  bmb-pg15-data:
+    external: true
+    name: bmb-pg15-data
+
+networks:
+  bmb-net:
+    external: true
+    name: bmb-net
