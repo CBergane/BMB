@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunSQL(
-            sql="ALTER TABLE products_produkt DROP COLUMN fabric_increment;",
-            reverse_sql="ALTER TABLE products_produkt ADD COLUMN fabric_increment integer NOT NULL DEFAULT 0;"
+            sql="ALTER TABLE products_produkt DROP COLUMN IF EXISTS fabric_increment;",
+            reverse_sql="ALTER TABLE products_produkt ADD COLUMN IF NOT EXISTS fabric_increment integer NOT NULL DEFAULT 0;"
         ),
     ]
