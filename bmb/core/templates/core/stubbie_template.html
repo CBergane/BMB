@@ -3,38 +3,24 @@
 
 {% block title %}Stuvbitar{% endblock %}
 
-{% block content%}
+{% block content %}
 
-<div class="max-w-6xl mx-auto py-2 px-6 xl:px-0">
-    <div class="products flex items-center flex-wrap">
-        <h1 class="text-2xl font-bold mb-4">Stuvbitar</h1>
-    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+<section class="max-w-6xl mx-auto px-6 py-8 xl:px-0">
+    <div class="mb-8">
+        <p class="eyebrow">Stuvbitar</p>
+        <h1 class="section-heading mt-2 text-4xl text-gray-900">Stuvbitar</h1>
+        <p class="mt-3 max-w-2xl text-sm leading-7 text-gray-600">
+            Snabbtillgängliga längder för mindre projekt, provsömnad och smarta kompletteringar.
+        </p>
+    </div>
+
+    <div class="product-grid products">
         {% for produkt in stubbies %}
-            <div class="border rounded-lg overflow-hidden shadow-lg">
-                <a href="{% url 'produkt' produkt.slug %}">
-                    <img src="{{ produkt.get_thumbnail }}" alt="{{ produkt.namn }}" class="w-full h-48 object-cover">
-                </a>
-                <div class="p-4">
-                    <h2 class="font-bold text-lg mb-2">
-                        <a href="{% url 'produkt' produkt.id %}">{{ produkt.namn }}</a>
-                    </h2>
-                    <p class="mb-2">{{ produkt.beskrivning| truncatechars:100 | safe }}</p>
-                    <p class="text-lg font-bold">{{ produkt.pris }} kr</p>
-                    <a href="#" 
-                        class="mt-6 inline-block px-8 py-4 rounded-xl green-bg green-bg-hover text-gray-200"
-                        hx-get="{% url 'add_to_cart' produkt.id %}"
-                        hx-target="#menu-cart-btn"
-                        hx-swap="outerHTML">
-                        Lägg i kundvagn
-                    </a>
-                </div>
-
-            </div>
+            {% include 'products/partials/product_list_items.html' with card_mode='stubbie' %}
         {% empty %}
-            <p>Inga stuvbitar tillgängliga för tillfället.</p>
+            <p class="product-grid-empty">Inga stuvbitar tillgängliga för tillfället.</p>
         {% endfor %}
     </div>
-    </div>
-</div>
+</section>
 
 {% endblock %}

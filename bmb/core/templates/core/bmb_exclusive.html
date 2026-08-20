@@ -3,21 +3,22 @@
 
 {% block title %}BMB Exclusive{% endblock %}
 
-{% block content%}
+{% block content %}
 
-<div class="max-w-6xl mx-auto py-2 px-6 xl:px-0">
-    <div>
-        <p class="mb-2 text-3xl lg:text-5xl text-center green-color-text font-bold">BMB Exclusive</p>
-        <p class="mb-10 text-center green-color-text font-bold">Upptäck våra exklusiva produkter endast tillgängliga via BMB.</p>
+<section class="max-w-6xl mx-auto px-6 py-8 xl:px-0">
+    <div class="mb-8 text-center">
+        <p class="eyebrow">BMB Exclusive</p>
+        <h1 class="section-heading mt-2 text-4xl text-gray-900 lg:text-5xl">Exklusivt hos BMB</h1>
+        <p class="mt-3 text-sm font-medium text-gray-600">Upptäck våra exklusiva produkter endast tillgängliga via BMB.</p>
     </div>
 
-    <div class="max-w-6xl mx-auto py-2 px-6 xl:px-0">
-        <div class="products w-full lg:w-3/4 -mt-4 flex flex-wrap">
+    <div class="product-grid products">
             {% for produkt in produkt %}
-                {% include 'products/partials/product_list_items.html'%}
+                {% include 'products/partials/product_list_items.html' %}
+            {% empty %}
+                <p class="product-grid-empty">Inga exklusiva produkter att visa just nu.</p>
             {% endfor %}
-        </div>
     </div>
-</div>
+</section>
 
-{% endblock%}
+{% endblock %}

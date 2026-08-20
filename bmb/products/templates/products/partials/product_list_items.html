@@ -1,26 +1,90 @@
-<div class="w-full md:w-1/3 xl:w-1/4 p-6 flex flex-col">
-    <a href="{% url 'produkt' produkt.slug %}">
-        <img src="{{ produkt.get_thumbnail }}" 
-            class="w-full rounded-xl shadow-lg" 
-            alt="{{ produkt.namn }}">
+<article class="product-card">
+    <a href="{% url 'produkt' produkt.slug %}" class="product-card-media">
+        <img
+            src="{{ produkt.get_thumbnail }}"
+            class="product-card-image"
+            alt="Produktbild för {{ produkt.namn }}"
+        >
     </a>
-    <div class="pt-3 flex-grow flex flex-col justify-between">
-        <a href="{% url 'produkt' produkt.slug %}" class="flex-shrink-0">{{ produkt.namn }} {% if produkt.discount_percentage > 0 %}<strong>REA</strong>{% endif %}</a>
 
-        {% if produkt.is_active %}
-            <span class="inline-block rounded-xl text-gray-900 cursor-pointer">
-                <a href="{% url 'produkt' produkt.slug %}" class="flex-shrink-0 nav-link">Se alternativ / Köp</a>
-            </span>
-        {% else %}
-            <span class="inline-block rounded-xl text-gray-400">Slut i lager</span>
-        {% endif %}
+    <div class="product-card-content">
+        <div class="product-card-badges">
+            {% if produkt.discount_percentage > 0 %}
+                <span class="product-badge product-badge--sale">REA</span>
+            {% endif %}
+            {% if produkt.is_bmb_exclusive %}
+                <span class="product-badge product-badge--exclusive">BMB Exclusive</span>
+            {% endif %}
+            {% if produkt.is_stubbie %}
+                <span class="product-badge product-badge--stubbie">Stuvbit</span>
+            {% endif %}
+            {% if not produkt.is_active %}
+                <span class="product-badge product-badge--soldout">Slut i lager</span>
+            {% endif %}
+        </div>
 
-        {% if produkt.discount_percentage > 0 %}
-            <p class="pt-1 text-gray-400">
-                {{ produkt.get_discounted_price }} kr / <strong>{{ produkt.get_unit_display }}</strong>
+        <div class="product-card-copy">
+            <h3 class="product-card-title">
+                <a href="{% url 'produkt' produkt.slug %}" class="product-card-title-link">
+                    {{ produkt.namn }}
+                </a>
+            </h3>
+
+            {% if produkt.is_stubbie and produkt.length %}
+                <p class="product-card-detail">Längd: {{ produkt.length }} dm</p>
+            {% endif %}
+
+            <div class="product-card-pricing">
+                <p class="product-card-price">
+                    {% if produkt.discount_percentage > 0 %}
+                        <span class="product-card-price-current">{{ produkt.get_discounted_price }} kr</span>
+                    {% else %}
+                        <span class="product-card-price-current">{{ produkt.pris }} kr</span>
+                    {% endif %}
+                    <span class="product-card-unit">/ {{ produkt.get_unit_display }}</span>
+                </p>
+
+                {% if produkt.discount_percentage > 0 %}
+                    <p class="product-card-compare">Ordinarie {{ produkt.pris }} kr</p>
+                {% endif %}
+            </div>
+
+            <p class="product-card-status">
+                {% if produkt.is_active %}
+                    I lager
+                {% else %}
+                    Slut i lager
+                {% endif %}
             </p>
-        {% else %}
-            <p class="pt-1 text-gray-400">{{ produkt.pris}} kr / <strong>{{ produkt.get_unit_display }}</strong></p>
-        {% endif %}
+        </div>
+
+        <div class="product-card-actions">
+            {% if card_mode == 'stubbie' and produkt.is_active %}
+                <a
+                    href="{% url 'produkt' produkt.slug %}"
+                    class="product-card-button product-card-button--primary"
+                    hx-get="{% url 'add_to_cart' produkt.id %}"
+                    hx-target="#menu-cart-btn"
+                    hx-swap="outerHTML"
+                    aria-label="Lägg {{ produkt.namn }} i kundvagnen"
+                >
+                    Lägg i kundvagn
+                </a>
+            {% elif produkt.is_active %}
+                <a href="{% url 'produkt' produkt.slug %}" class="product-card-button product-card-button--primary">
+                    Se produkt
+                </a>
+            {% else %}
+                <span class="product-card-button product-card-button--disabled" aria-disabled="true">
+                    Tillfälligt slut
+                </span>
+            {% endif %}
+
+            {% if card_mode == 'stubbie' %}
+                <a href="{% url 'produkt' produkt.slug %}" class="product-card-link">
+                    Visa produkt
+                </a>
+            {% endif %}
+        </div>
     </div>
-</div>
+</article>
