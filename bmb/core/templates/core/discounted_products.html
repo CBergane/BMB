@@ -11,7 +11,7 @@
             <a href="{% url 'produkt' produkt.slug %}">
                 <img src="{{ produkt.get_thumbnail }}" 
                     class="w-full rounded-xl shadow-lg" 
-                    alt="">
+                    alt="{{ produkt.namn }}">
             </a>
             <div class="pt-3 flex-grow flex flex-col justify-between">
                 <h3>{{ produkt.namn }}</h3>

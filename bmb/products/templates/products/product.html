@@ -7,17 +7,17 @@
 <div class="max-w-6xl mx-auto flex flex-wrap py-6 px-6 xl:px-0">
     <div class="max-w-6xl mx-auto flex flex-wrap py-6 px-6 xl:px-0">
         <div class="images w-full mb-6 lg:mb-0 lg:w-3/5">
-            <img class="rounded-xl cursor-pointer w-1/2" src="{% if produkt.image %}{{ produkt.get_thumbnail }}{% else %}https://placehold.co/240x240{% endif %}" alt="" onclick="openModal('modal1')">
+            <img class="rounded-xl cursor-pointer w-1/2" src="{% if produkt.image %}{{ produkt.get_thumbnail }}{% else %}https://placehold.co/240x240{% endif %}" alt="{{ produkt.namn }}" onclick="openModal('modal1')">
             
             <div class="flex space-x-4 mt-4">
                 {% if produkt.image2 %}
-                    <img class="rounded-xl cursor-pointer w-1/3" src="{{ produkt.get_thumbnail_image2 }}" alt="" onclick="openModal('modal2')">
+                    <img class="rounded-xl cursor-pointer w-1/3" src="{{ produkt.get_thumbnail_image2 }}" alt="{{ produkt.namn }} bild 2" onclick="openModal('modal2')">
                 {% endif %}
                 {% if produkt.image3 %}
-                    <img class="rounded-xl cursor-pointer w-1/3" src="{{ produkt.get_thumbnail_image3 }}" alt="" onclick="openModal('modal3')">
+                    <img class="rounded-xl cursor-pointer w-1/3" src="{{ produkt.get_thumbnail_image3 }}" alt="{{ produkt.namn }} bild 3" onclick="openModal('modal3')">
                 {% endif %}
                 {% if produkt.image4 %}
-                    <img class="rounded-xl cursor-pointer w-1/3" src="{{ produkt.get_thumbnail_image4 }}" alt="" onclick="openModal('modal4')">
+                    <img class="rounded-xl cursor-pointer w-1/3" src="{{ produkt.get_thumbnail_image4 }}" alt="{{ produkt.namn }} bild 4" onclick="openModal('modal4')">
                 {% endif %}
             </div>
         </div>
@@ -180,7 +180,7 @@
 <div id="modal1" class="modal fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
     <div class="relative max-w-xl mx-auto top-20">
         <span class="close cursor-pointer absolute right-0 top-0 transform translate-x-1/2 -translate-y-1/2 text-red-500 text-4xl" onclick="closeModal('modal1')">&times;</span>
-        <img class="rounded-lg shadow-xl" id="img01" src="{% if produkt.image %}{{ produkt.image.url }}{% else %}https://placehold.co/240x240{% endif %}">
+        <img class="rounded-lg shadow-xl" id="img01" src="{% if produkt.image %}{{ produkt.image.url }}{% else %}https://placehold.co/240x240{% endif %}" alt="{{ produkt.namn }}">
     </div>
 </div>
 
@@ -191,7 +191,7 @@
 <div id="modal2" class="modal fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
     <div class="relative max-w-xl mx-auto top-20">
         <span class="close cursor-pointer absolute right-0 top-0 transform translate-x-1/2 -translate-y-1/2 text-red-500 text-4xl" onclick="closeModal('modal2')">&times;</span>
-        <img class="rounded-lg shadow-xl" id="img02" src="{{ produkt.image2.url }}">
+        <img class="rounded-lg shadow-xl" id="img02" src="{{ produkt.image2.url }}" alt="{{ produkt.namn }} bild 2">
     </div>
 </div>
 
@@ -201,7 +201,7 @@
 <div id="modal3" class="modal fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
     <div class="relative max-w-xl mx-auto top-20">
         <span class="close cursor-pointer absolute right-0 top-0 transform translate-x-1/2 -translate-y-1/2 text-red-500 text-4xl" onclick="closeModal('modal3')">&times;</span>
-        <img class="rounded-lg shadow-xl" id="img03" src="{{ produkt.image3.url }}">
+        <img class="rounded-lg shadow-xl" id="img03" src="{{ produkt.image3.url }}" alt="{{ produkt.namn }} bild 3">
     </div>
 </div>
 {% endif %}
@@ -210,7 +210,7 @@
 <div id="modal4" class="modal fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
     <div class="relative max-w-xl mx-auto top-20">
         <span class="close cursor-pointer absolute right-0 top-0 transform translate-x-1/2 -translate-y-1/2 text-red-500 text-4xl" onclick="closeModal('modal4')">&times;</span>
-        <img class="rounded-lg shadow-xl" id="img04" src="{{ produkt.image4.url }}">
+        <img class="rounded-lg shadow-xl" id="img04" src="{{ produkt.image4.url }}" alt="{{ produkt.namn }} bild 4">
     </div>
 </div>
 {% endif %}

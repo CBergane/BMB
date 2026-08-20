@@ -2,7 +2,7 @@
     <a href="{% url 'produkt' produkt.slug %}">
         <img src="{{ produkt.get_thumbnail }}" 
             class="w-full rounded-xl shadow-lg" 
-            alt="">
+            alt="{{ produkt.namn }}">
     </a>
     <div class="pt-3 flex-grow flex flex-col justify-between">
         <a href="{% url 'produkt' produkt.slug %}" class="flex-shrink-0">{{ produkt.namn }} {% if produkt.discount_percentage > 0 %}<strong>REA</strong>{% endif %}</a>
