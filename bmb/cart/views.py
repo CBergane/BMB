@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -80,7 +82,10 @@ def clear_cart(request):
 @login_required
 def checkout(request):
     pub_key = settings.STRIPE_API_KEY_PUBLISHABLE
-    return render(request, 'cart/checkout.html', {'pub_key': pub_key})
+    return render(request, 'cart/checkout.html', {
+        'pub_key': pub_key,
+        'swish_submission_key': uuid4(),
+    })
 
 def hx_menu_cart(request):
     return render(request, 'cart/partials/menu_cart.html')

@@ -27,6 +27,7 @@ class Order(models.Model):
     city = models.CharField(max_length=255)
     phone = models.CharField(max_length=255)
     payment_intent = models.CharField(max_length=255, blank=True, null=True)
+    submission_key = models.UUIDField(blank=True, null=True, unique=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     paid = models.BooleanField(default=False)

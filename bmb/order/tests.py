@@ -1,12 +1,15 @@
 import json
+import uuid
+from datetime import timedelta
 from decimal import Decimal
 from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 
 from order.models import Order, OrderInventoryError, OrderItem
 from products.models import Category, Produkt
@@ -25,6 +28,11 @@ class SwishOrderHardeningTests(TestCase):
             last_name='Testsson',
         )
         self.category = Category.objects.create(namn='Tyger')
+        self.other_user = User.objects.create_user(
+            username='annan-kund',
+            email='annan@example.com',
+            password='hemligt123',
+        )
         self.product = Produkt.objects.create(
             category=self.category,
             namn='Bomullstyg',
@@ -50,6 +58,7 @@ class SwishOrderHardeningTests(TestCase):
             'address': 'Testgatan 1',
             'zipcode': '12345',
             'city': 'Stockholm',
+            'submission_key': str(uuid.uuid4()),
         }
         payload.update(overrides)
         return payload
@@ -74,9 +83,9 @@ class SwishOrderHardeningTests(TestCase):
         session[settings.CART_SESSION_ID] = cart
         session.save()
 
-    def _create_unpaid_order(self, *items):
+    def _create_unpaid_order(self, *items, user=None, submission_key=None, paid=False):
         order = Order.objects.create(
-            user=self.user,
+            user=user or self.user,
             first_name='Anna',
             last_name='Andersson',
             email='anna@example.com',
@@ -85,7 +94,8 @@ class SwishOrderHardeningTests(TestCase):
             zipcode='12345',
             city='Stockholm',
             paid_amount=0,
-            paid=False,
+            paid=paid,
+            submission_key=submission_key,
         )
 
         total_price = 0
@@ -155,11 +165,12 @@ class SwishOrderHardeningTests(TestCase):
         self.client.force_login(self.user)
         self._set_cart({'product': self.product, 'quantity': 2})
 
-        response = self.client.post(
-            self.url,
-            data=json.dumps(self._payload()),
-            content_type='application/json',
-        )
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(
+                self.url,
+                data=json.dumps(self._payload()),
+                content_type='application/json',
+            )
 
         self.assertEqual(response.status_code, 200)
         self.product.refresh_from_db()
@@ -168,6 +179,130 @@ class SwishOrderHardeningTests(TestCase):
         self.assertFalse(order.paid)
         self.assertEqual(self.product.inventory, 5)
         self.assertEqual(send_mail_mock.call_count, 2)
+
+    @patch('order.views.send_mail')
+    def test_same_submission_key_reuses_order_without_duplicate_rows_or_email(self, send_mail_mock):
+        self.client.force_login(self.user)
+        submission_key = str(uuid.uuid4())
+        payload = self._payload(submission_key=submission_key)
+        self._set_cart({'product': self.product, 'quantity': 2})
+
+        with self.captureOnCommitCallbacks(execute=True):
+            first_response = self.client.post(
+                self.url,
+                data=json.dumps(payload),
+                content_type='application/json',
+            )
+        second_response = self.client.post(
+            self.url,
+            data=json.dumps(payload),
+            content_type='application/json',
+        )
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+        self.assertEqual(first_response.json()['order_id'], second_response.json()['order_id'])
+        self.assertEqual(Order.objects.count(), 1)
+        self.assertEqual(OrderItem.objects.count(), 1)
+        self.assertEqual(send_mail_mock.call_count, 2)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.inventory, 5)
+
+    @patch('order.views.send_mail')
+    def test_new_submission_key_creates_new_pending_order_within_limit(self, send_mail_mock):
+        self.client.force_login(self.user)
+
+        self._set_cart({'product': self.product, 'quantity': 1})
+        with self.captureOnCommitCallbacks(execute=True):
+            first_response = self.client.post(
+                self.url,
+                data=json.dumps(self._payload()),
+                content_type='application/json',
+            )
+
+        self._set_cart({'product': self.product, 'quantity': 1})
+        with self.captureOnCommitCallbacks(execute=True):
+            second_response = self.client.post(
+                self.url,
+                data=json.dumps(self._payload()),
+                content_type='application/json',
+            )
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+        self.assertNotEqual(first_response.json()['order_id'], second_response.json()['order_id'])
+        self.assertEqual(Order.objects.count(), 2)
+        self.assertEqual(send_mail_mock.call_count, 4)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.inventory, 5)
+
+    @override_settings(SWISH_ORDER_PENDING_LIMIT=3, SWISH_ORDER_PENDING_WINDOW_SECONDS=15 * 60)
+    def test_fourth_pending_order_is_rate_limited(self):
+        for _ in range(3):
+            self._create_unpaid_order((self.product, 1), submission_key=uuid.uuid4())
+
+        self.client.force_login(self.user)
+        self._set_cart({'product': self.product, 'quantity': 1})
+        response = self.client.post(
+            self.url,
+            data=json.dumps(self._payload()),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 429)
+        self.assertIn('För många nya obetalda Swish-ordrar', response.json()['error'])
+        self.assertGreater(int(response['Retry-After']), 0)
+        self.assertEqual(Order.objects.count(), 3)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.inventory, 5)
+
+    @override_settings(SWISH_ORDER_PENDING_LIMIT=3, SWISH_ORDER_PENDING_WINDOW_SECONDS=15 * 60)
+    @patch('order.views.send_mail')
+    def test_paid_and_old_orders_do_not_count_toward_rate_limit(self, send_mail_mock):
+        self._create_unpaid_order((self.product, 1), submission_key=uuid.uuid4())
+        self._create_unpaid_order((self.product, 1), submission_key=uuid.uuid4())
+        self._create_unpaid_order((self.product, 1), submission_key=uuid.uuid4(), paid=True)
+        old_order = self._create_unpaid_order((self.product, 1), submission_key=uuid.uuid4())
+        Order.objects.filter(pk=old_order.pk).update(created_at=timezone.now() - timedelta(minutes=16))
+
+        self.client.force_login(self.user)
+        self._set_cart({'product': self.product, 'quantity': 1})
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(
+                self.url,
+                data=json.dumps(self._payload()),
+                content_type='application/json',
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Order.objects.count(), 5)
+        self.assertEqual(send_mail_mock.call_count, 2)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.inventory, 5)
+
+    @patch('order.views.send_mail')
+    def test_submission_key_owned_by_another_user_is_denied(self, send_mail_mock):
+        submission_key = uuid.uuid4()
+        self._create_unpaid_order(
+            (self.product, 1),
+            user=self.other_user,
+            submission_key=submission_key,
+        )
+        self.client.force_login(self.user)
+        self._set_cart({'product': self.product, 'quantity': 1})
+
+        response = self.client.post(
+            self.url,
+            data=json.dumps(self._payload(submission_key=str(submission_key))),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.json()['error'], 'Ogiltig ordernyckel.')
+        self.assertEqual(Order.objects.count(), 1)
+        self.assertEqual(send_mail_mock.call_count, 0)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.inventory, 5)
 
     def test_marking_paid_decreases_inventory_exactly_once(self):
         order = self._create_unpaid_order((self.product, 2))

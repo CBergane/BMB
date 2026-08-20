@@ -153,6 +153,7 @@
             'address': document.querySelector('input[name=address]').value,
             'zipcode': document.querySelector('input[name=zipcode]').value,
             'city': document.querySelector('input[name=city]').value,
+            'submission_key': '{{ swish_submission_key|escapejs }}',
         };
 
         let errors = validateForm(data);
@@ -170,13 +171,19 @@
                 body: JSON.stringify(data)
             })
             .then(function(response) {
-                return response.json();
+                return response.json().then(function(data) {
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Kunde inte skapa ordern.');
+                    }
+                    return data;
+                });
             })
             .then(function(order) {
                 window.location.href = "/cart/success/";
             })
             .catch(function(error) {
                 console.log('Errors', error);
+                el.textContent = error.message;
             });
         }
 
