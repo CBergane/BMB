@@ -1,106 +1,244 @@
 import json
-import stripe
-import logging
 
+import stripe
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
+from django.core.validators import validate_email
 from django.db import transaction
 from django.http import JsonResponse
-from django.core.mail import send_mail
-
 
 from cart.cart import Cart
+from products.models import Color, Produkt
 
-from .models import Order, OrderItem
-from products.models import Produkt
+from .models import Order, OrderInventoryError, OrderItem
+
+
+REQUIRED_CUSTOMER_FIELDS = {
+    'first_name': 'Förnamn',
+    'last_name': 'Efternamn',
+    'email': 'E-postadress',
+    'phone': 'Telefonnummer',
+    'address': 'Adress',
+    'zipcode': 'Postnummer',
+    'city': 'Stad',
+}
+
+
+def _json_error(message, status=400, field_errors=None):
+    payload = {'error': message}
+
+    if field_errors:
+        payload['field_errors'] = field_errors
+
+    return JsonResponse(payload, status=status)
+
+
+def _parse_customer_data(request):
+    if not request.body:
+        return None, _json_error('Begäran saknar JSON-data.', status=400)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return None, _json_error('Ogiltig JSON i begäran.', status=400)
+
+    if not isinstance(data, dict):
+        return None, _json_error('JSON-datan måste vara ett objekt.', status=400)
+
+    cleaned_data = {}
+    field_errors = {}
+
+    for field_name, label in REQUIRED_CUSTOMER_FIELDS.items():
+        value = data.get(field_name, '')
+
+        if value is None:
+            value = ''
+        elif not isinstance(value, str):
+            value = str(value)
+
+        value = value.strip()
+        cleaned_data[field_name] = value
+
+        if not value:
+            field_errors[field_name] = f'{label} är obligatoriskt.'
+
+    if field_errors:
+        return None, _json_error('Obligatoriska kunduppgifter saknas.', status=400, field_errors=field_errors)
+
+    try:
+        validate_email(cleaned_data['email'])
+    except ValidationError:
+        return None, _json_error(
+            'Ogiltig e-postadress.',
+            status=400,
+            field_errors={'email': 'Ange en giltig e-postadress.'},
+        )
+
+    return cleaned_data, None
+
+
+def _build_validated_cart_lines(cart):
+    if not cart.cart or len(cart) == 0:
+        return None, _json_error('Kundvagnen är tom.', status=400)
+
+    lines = []
+    products = {}
+    requested_quantities = {}
+
+    for raw_item in cart.cart.values():
+        produkt_id = raw_item.get('produkt_id')
+        quantity = raw_item.get('quantity')
+
+        try:
+            produkt_id = int(produkt_id)
+            quantity = int(quantity)
+        except (TypeError, ValueError):
+            return None, _json_error('Kundvagnen innehåller ogiltiga artiklar.', status=400)
+
+        if quantity <= 0:
+            return None, _json_error('Kundvagnen innehåller ogiltiga antal.', status=400)
+
+        produkt = products.get(produkt_id)
+        if produkt is None:
+            produkt = Produkt.objects.filter(pk=produkt_id).first()
+
+            if produkt is None:
+                return None, _json_error('En produkt i kundvagnen finns inte längre.', status=400)
+
+            products[produkt_id] = produkt
+
+        color = None
+        color_id = raw_item.get('color_id')
+        if color_id not in (None, '', 'None'):
+            try:
+                color_id = int(color_id)
+            except (TypeError, ValueError):
+                return None, _json_error('Kundvagnen innehåller en ogiltig färgvariant.', status=400)
+
+            color = Color.objects.filter(pk=color_id).first()
+            if color is None:
+                return None, _json_error('Kundvagnen innehåller en ogiltig färgvariant.', status=400)
+
+        requested_quantities[produkt_id] = requested_quantities.get(produkt_id, 0) + quantity
+
+        lines.append({
+            'produkt': produkt,
+            'quantity': quantity,
+            'color': color,
+            'custom_text': raw_item.get('custom_text') or '',
+            'line_total': int(produkt.pris * quantity),
+        })
+
+    for produkt_id, requested_quantity in requested_quantities.items():
+        produkt = products[produkt_id]
+
+        if not produkt.is_active:
+            return None, _json_error(f"Produkten '{produkt.namn}' är inte aktiv.", status=409)
+
+        if produkt.inventory < requested_quantity:
+            return None, _json_error(f"Otillräckligt lager för '{produkt.namn}'.", status=409)
+
+    total_price = sum(line['line_total'] for line in lines)
+
+    return {
+        'lines': lines,
+        'total_price': total_price,
+    }, None
+
 
 def start_order(request):
-    with transaction.atomic():
-        cart = Cart(request)
-        data = json.loads(request.body)
-        total_price = 0
-        items = []
+    data, error_response = _parse_customer_data(request)
+    if error_response:
+        return error_response
 
-        for item in cart:
-            produkt = item['produkt']
-            quantity = int(item['quantity'])
+    cart = Cart(request)
+    cart_data, error_response = _build_validated_cart_lines(cart)
+    if error_response:
+        return error_response
 
-            # Validate that enough inventory is available
-            if produkt.inventory < quantity:
-                return JsonResponse({'error': f"Only {produkt.inventory} {produkt.namn} available in stock."}, status=400)
-
-            total_price += produkt.pris * quantity
-
-            items.append({
-                'price_data': {
-                    'currency': 'sek',
-                    'product_data': {
-                        'name': produkt.namn
-                    },
-                    'unit_amount': int(produkt.pris * 100)
+    stripe_items = []
+    for line in cart_data['lines']:
+        produkt = line['produkt']
+        stripe_items.append({
+            'price_data': {
+                'currency': 'sek',
+                'product_data': {
+                    'name': produkt.namn
                 },
-                'quantity': item['quantity']
-            })
+                'unit_amount': int(produkt.pris * 100)
+            },
+            'quantity': line['quantity']
+        })
 
+    stripe.api_key = settings.STRIPE_API_KEY_HIDDEN
 
-        stripe.api_key = settings.STRIPE_API_KEY_HIDDEN
+    session = stripe.checkout.Session.create(
+        payment_method_types=['card'],
+        line_items=stripe_items,
+        mode='payment',
+        success_url='https://8000-cbergane-bmb-hwfowlqnoyb.ws-eu103.gitpod.io/cart/success/',
+        cancel_url='https://8000-cbergane-bmb-hwfowlqnoyb.ws-eu103.gitpod.io/cart/'
+    )
+    payment_intent = session.payment_intent
 
-        session = stripe.checkout.Session.create(
-            payment_method_types = ['card'],
-            line_items = items,
-            mode = 'payment',
-            success_url = 'https://8000-cbergane-bmb-hwfowlqnoyb.ws-eu103.gitpod.io/cart/success/',
-            cancel_url = 'https://8000-cbergane-bmb-hwfowlqnoyb.ws-eu103.gitpod.io/cart/'
-        )
-        payment_intent = session.payment_intent
-
-        order = Order.objects.create(
-            user=request.user, 
-            first_name=data['first_name'], 
-            last_name=data['last_name'], 
-            email=data['email'], 
-            phone=data['phone'], 
-            address=data['address'], 
-            zipcode=data['zipcode'], 
-            city=data['city'],
-            payment_intent=payment_intent,
-            paid_amount=total_price,
-            paid=True
+    try:
+        with transaction.atomic():
+            order = Order.objects.create(
+                user=request.user if request.user.is_authenticated else None,
+                first_name=data['first_name'],
+                last_name=data['last_name'],
+                email=data['email'],
+                phone=data['phone'],
+                address=data['address'],
+                zipcode=data['zipcode'],
+                city=data['city'],
+                payment_intent=payment_intent,
+                paid_amount=cart_data['total_price'],
+                paid=False,
             )
 
-        for item in cart:
-            produkt = Produkt.objects.filter(id=item['produkt'].id).select_for_update().first()
-            quantity = int(item['quantity'])
-            price = produkt.pris * quantity
-            item = OrderItem.objects.create(order=order, produkt=produkt, price=price, quantity=quantity)
+            for line in cart_data['lines']:
+                OrderItem.objects.create(
+                    order=order,
+                    produkt=line['produkt'],
+                    color=line['color'],
+                    custom_text=line['custom_text'] or None,
+                    price=line['line_total'],
+                    quantity=line['quantity'],
+                )
 
-            # Decrement the inventory for the purchased product
-            produkt.inventory -= quantity
-            produkt.save()
-
-            # Check if inventory reaches 0 and deactivate the product if needed
-            if produkt.inventory <= 0:
-                produkt.is_active = False
-                produkt.save()
-
-        cart.clear()
+            order.mark_as_paid()
+            cart.clear()
+    except OrderInventoryError as exc:
+        return _json_error(str(exc), status=409)
 
     return JsonResponse({'session': session, 'order': payment_intent})
 
 
 def start_swish_order(request):
-    if request.method != "POST":
-        return JsonResponse({'error': 'Invalid request method'}, status=400)
-    try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Invalid or missing data'}, status=400)
+    if request.method != 'POST':
+        return _json_error('Endast POST är tillåtet.', status=405)
+
+    if not request.user.is_authenticated:
+        return _json_error('Du måste vara inloggad för att skapa en Swish-order.', status=401)
+
+    if not request.user.is_active:
+        return _json_error('Ditt konto måste vara aktivt för att skapa en Swish-order.', status=403)
+
+    data, error_response = _parse_customer_data(request)
+    if error_response:
+        return error_response
+
+    cart = Cart(request)
+    cart_data, error_response = _build_validated_cart_lines(cart)
+    if error_response:
+        return error_response
+
+    shipping_cost = 79
+    grand_total = cart_data['total_price'] + shipping_cost
 
     with transaction.atomic():
-        cart = Cart(request)
-        total_price = 0
-        shipping_cost = 79
-
-        # Skapa ordern först
         order = Order.objects.create(
             user=request.user,
             first_name=data['first_name'],
@@ -110,80 +248,57 @@ def start_swish_order(request):
             address=data['address'],
             zipcode=data['zipcode'],
             city=data['city'],
-            paid_amount=0,  # Sätt till 0 tillfälligt
-            paid=False
+            paid_amount=grand_total,
+            paid=False,
         )
 
-        # Sedan skapa OrderItem för varje artikel i kundvagnen
-        for item in cart:
-            produkt = Produkt.objects.filter(id=item['produkt_id']).select_for_update().first()
-            quantity = int(item['quantity'])
-            color = item.get('color')  # Hämta Color-objektet direkt
-            custom_text = item.get('custom_text')
-            price = produkt.pris * quantity
-            total_price += price  # Uppdatera totalpriset
-
+        for line in cart_data['lines']:
             OrderItem.objects.create(
                 order=order,
-                produkt=produkt,
-                color=color,  # Använd Color-objektet här
-                custom_text=custom_text,
-                price=price,
-                quantity=quantity
+                produkt=line['produkt'],
+                color=line['color'],
+                custom_text=line['custom_text'] or None,
+                price=line['line_total'],
+                quantity=line['quantity']
             )
-
-            # Minskning av lager och eventuell avaktivering av produkten
-            produkt.inventory -= quantity
-            produkt.save()
-            if produkt.inventory <= 0:
-                produkt.is_active = False
-                produkt.save()
-
-        # Uppdatera det totala priset för ordern
-        order.paid_amount = total_price + shipping_cost
-        order.save()
 
         cart.clear()
 
-        # Creating a string with order details
-        order_details = f"Order ID: {order.id}\n"
-        order_details += f"Namn: {order.first_name} {order.last_name}\n"
-        order_details += f"Email: {order.email}\n"
-        order_details += f"Telefon: {order.phone}\n"
-        order_details += f"Address: {order.address}, {order.zipcode}, {order.city}\n"
-        order_details += "Beställning:\n"
-        for item in order.items.all():
-            order_details += f"\tProdukt: {item.produkt.namn}, Färg: {item.color.name if item.color else 'N/A'}, Anpassad text: {item.custom_text if item.custom_text else 'N/A'}, Mängd: {item.quantity}, Pris: {item.price}\n"
-        order_details += f"Totalt: {order.paid_amount + shipping_cost}"
+    order_details = f"Order ID: {order.id}\n"
+    order_details += f"Namn: {order.first_name} {order.last_name}\n"
+    order_details += f"Email: {order.email}\n"
+    order_details += f"Telefon: {order.phone}\n"
+    order_details += f"Address: {order.address}, {order.zipcode}, {order.city}\n"
+    order_details += "Beställning:\n"
+    for item in order.items.all():
+        order_details += f"\tProdukt: {item.produkt.namn}, Färg: {item.color.name if item.color else 'N/A'}, Anpassad text: {item.custom_text if item.custom_text else 'N/A'}, Mängd: {item.quantity}, Pris: {item.price}\n"
+    order_details += f"Totalt: {order.paid_amount}"
 
+    send_mail(
+        subject=f"Order {order.id} bekräftelse",
+        message=order_details,
+        from_email='bramycketbattre.best@gmail.com',
+        recipient_list=['bmb@bramycketbattre.com'],
+        fail_silently=False,
+    )
 
-        # Email order details to yourself
-        send_mail(
-            subject=f"Order {order.id} bekräftelse",
-            message=order_details,
-            from_email='bramycketbattre.best@gmail.com',  # E-postadressen som meddelandet ska skickas från
-            recipient_list=['bmb@bramycketbattre.com'],  # Mottagarens e-postadress
-            fail_silently=False,
-        )
+    instructions = """
+        Var vänlig betala din order via Swish på följande sätt:
+        1. Öppna din Swish app.
+        2. Betala till numer: 0766492532.
+        3. Summan du skall betala: {} SEK.
+        4. Bekräfta att du vill göra din betalning.
+        5. Du kommer få ett meddelande att betalningen har skett.
 
-        instructions = """
-            Var vänlig betala din order via Swish på följande sätt:
-            1. Öppna din Swish app.
-            2. Betala till numer: 0766492532.
-            3. Summan du skall betala: {} SEK.
-            4. Bekräfta att du vill göra din betalning.
-            5. Du kommer få ett meddelande att betalningen har skett.
+        Har du några frågor så kontakta oss på bmb@bramycketbattre.com.
+        """.format(order.paid_amount)
 
-            Har du några frågor så kontakta oss på bmb@bramycketbattre.com.
-            """.format(total_price + shipping_cost)
-
-        # Email payment instructions to the customer
-        send_mail(
-            'Betalnings instruktioner',
-            instructions,
-            settings.EMAIL_HOST_USER,
-            [data['email']],
-            fail_silently=False,
-        )
+    send_mail(
+        'Betalnings instruktioner',
+        instructions,
+        settings.EMAIL_HOST_USER,
+        [data['email']],
+        fail_silently=False,
+    )
 
     return JsonResponse({'order_id': order.id})

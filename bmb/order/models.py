@@ -1,8 +1,13 @@
-from itertools import product
 from django.db import models
+from django.db import transaction
 from django.contrib.auth.models import User
 
 from products.models import Produkt, Color
+
+
+class OrderInventoryError(Exception):
+    pass
+
 
 class Order(models.Model):
     ORDERED = 'ordered'
@@ -35,6 +40,58 @@ class Order(models.Model):
     def get_total_price(self):
         total = sum(item.get_total_price() for item in self.items.all())
         return total
+
+    def mark_as_paid(self):
+        with transaction.atomic():
+            order = (
+                Order.objects
+                .select_for_update()
+                .get(pk=self.pk)
+            )
+
+            if order.paid:
+                self.paid = True
+                return False
+
+            items = list(
+                order.items
+                .select_for_update()
+                .select_related('produkt')
+            )
+
+            if not items:
+                raise OrderInventoryError("Ordern saknar orderrader.")
+
+            required_quantities = {}
+            for item in items:
+                if item.quantity is None or item.quantity <= 0:
+                    raise OrderInventoryError("Ogiltigt antal på en orderrad.")
+
+                required_quantities[item.produkt_id] = required_quantities.get(item.produkt_id, 0) + item.quantity
+
+            locked_products = {}
+            for produkt_id, required_quantity in required_quantities.items():
+                produkt = Produkt.objects.select_for_update().get(pk=produkt_id)
+
+                if not produkt.is_active:
+                    raise OrderInventoryError(f"Produkten '{produkt.namn}' är inte aktiv.")
+
+                if produkt.inventory < required_quantity:
+                    raise OrderInventoryError(f"Otillräckligt lager för '{produkt.namn}'.")
+
+                locked_products[produkt_id] = produkt
+
+            for produkt_id, required_quantity in required_quantities.items():
+                produkt = locked_products[produkt_id]
+                produkt.inventory -= required_quantity
+                produkt.is_active = produkt.inventory > 0
+                produkt.save(update_fields=['inventory', 'is_active'])
+
+            order.paid = True
+            order.save(update_fields=['paid'])
+
+            self.paid = True
+            return True
 
 
 class OrderItem(models.Model):
