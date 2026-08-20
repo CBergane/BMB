@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Bra Mycket Bättre erbjuder tyger, stuvbitar och sytillbehör för genomtänkta projekt hemma och i ateljén.">
+    {% block meta %}{% endblock %}
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
     </style>
@@ -16,9 +17,9 @@
     <a href="#main-content" class="skip-link">Hoppa till innehållet</a>
 
     <header class="border-b border-gray-200 bg-white shadow-sm">
-        <div class="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4 xl:px-0">
-            <div class="flex items-center gap-4 lg:gap-8">
-                <a href="{% url 'frontpage' %}" class="inline-flex items-center gap-3" aria-label="Bra Mycket Bättre, till startsidan">
+        <div class="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 py-4 xl:px-0">
+            <div class="flex min-w-0 flex-1 items-center gap-4">
+                <a href="{% url 'frontpage' %}" class="inline-flex shrink-0 items-center gap-3" aria-label="Bra Mycket Bättre, till startsidan">
                     <img src="{% static 'media/BMB.png' %}" class="h-14 w-14 rounded-full object-cover" alt="Bra Mycket Bättre logotyp">
                     <span class="hidden sm:block">
                         <span class="block text-xs font-semibold uppercase tracking-widest text-gray-500">Bra Mycket Bättre</span>
@@ -38,7 +39,7 @@
                         </button>
                     </div>
 
-                    <ul class="flex flex-col gap-2 text-gray-700 lg:flex-row lg:items-center lg:gap-1" aria-label="Huvudnavigering">
+                    <ul class="flex flex-col gap-2 text-gray-700 lg:flex-row lg:flex-nowrap lg:items-center lg:gap-1" aria-label="Huvudnavigering">
                         <li>
                             <a href="{% url 'shop' %}" class="nav-link {% if request.resolver_match.url_name == 'shop' %}active{% endif %}" {% if request.resolver_match.url_name == 'shop' %}aria-current="page"{% endif %}>Butik</a>
                         </li>
@@ -52,37 +53,56 @@
                             <a href="{% url 'stubbies' %}" class="nav-link {% if request.resolver_match.url_name == 'stubbies' %}active{% endif %}" {% if request.resolver_match.url_name == 'stubbies' %}aria-current="page"{% endif %}>Stuvbitar</a>
                         </li>
                         <li class="pt-2 lg:pt-0">
-                            <a href="{% url 'bmb_exclusive_products' %}" class="{% if request.resolver_match.url_name == 'bmb_exclusive_products' %}button-brand{% else %}inline-flex items-center rounded-full bg-gray-900 px-5 py-3 text-sm font-semibold text-white hover:bg-gray-800{% endif %}" {% if request.resolver_match.url_name == 'bmb_exclusive_products' %}aria-current="page"{% endif %}>
+                            <a href="{% url 'bmb_exclusive_products' %}" class="whitespace-nowrap {% if request.resolver_match.url_name == 'bmb_exclusive_products' %}button-brand{% else %}inline-flex items-center rounded-full bg-gray-900 px-5 py-3 text-sm font-semibold text-white hover:bg-gray-800{% endif %}" {% if request.resolver_match.url_name == 'bmb_exclusive_products' %}aria-current="page"{% endif %}>
                                 BMB Exclusive
                             </a>
                         </li>
-                        {% if request.user.is_authenticated %}
-                            <li>
-                                <a href="{% url 'logout' %}" class="nav-link {% if request.resolver_match.url_name == 'logout' %}active{% endif %}" {% if request.resolver_match.url_name == 'logout' %}aria-current="page"{% endif %}>Logga ut</a>
-                            </li>
-                        {% else %}
-                            <li>
-                                <a href="{% url 'signup' %}" class="nav-link {% if request.resolver_match.url_name == 'signup' %}active{% endif %}" {% if request.resolver_match.url_name == 'signup' %}aria-current="page"{% endif %}>Skapa konto</a>
-                            </li>
-                        {% endif %}
                         <li>
-                            <button type="button" class="nav-link w-full justify-start text-left lg:w-auto" onclick="openModalContact(event)" aria-label="Öppna kontaktformulär">
+                            <button type="button" class="nav-link w-full justify-start whitespace-nowrap text-left lg:w-auto" onclick="openModalContact(event)" aria-label="Öppna kontaktformulär">
                                 Kontakta oss
                             </button>
                         </li>
                     </ul>
+
+                    <nav class="border-t border-gray-200 pt-5 lg:hidden" aria-label="Konto och ägarfunktioner">
+                        <p class="mb-2 text-xs font-semibold uppercase tracking-widest text-gray-500">Konto</p>
+                        <div class="flex flex-col gap-1">
+                            {% if request.user.is_authenticated %}
+                                <a href="{% url 'myaccount' %}" class="nav-link {% if request.resolver_match.url_name == 'myaccount' %}active{% endif %}" {% if request.resolver_match.url_name == 'myaccount' %}aria-current="page"{% endif %}>Mitt konto</a>
+                                {% if request.user.is_active and request.user.is_superuser %}
+                                    <a href="{% url 'owner_dashboard:dashboard' %}" class="nav-link {% if request.resolver_match.namespace == 'owner_dashboard' %}active{% endif %}" {% if request.resolver_match.namespace == 'owner_dashboard' %}aria-current="page"{% endif %}>Ägarpanel</a>
+                                {% endif %}
+                                <a href="{% url 'logout' %}" class="nav-link">Logga ut</a>
+                            {% else %}
+                                <a href="{% url 'login' %}" class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}" {% if request.resolver_match.url_name == 'login' %}aria-current="page"{% endif %}>Logga in</a>
+                                <a href="{% url 'signup' %}" class="nav-link {% if request.resolver_match.url_name == 'signup' %}active{% endif %}" {% if request.resolver_match.url_name == 'signup' %}aria-current="page"{% endif %}>Skapa konto</a>
+                            {% endif %}
+                        </div>
+                    </nav>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 lg:gap-3">
-                <div class="group relative">
-                    <a href="{% url 'myaccount' %}" class="icon-button" aria-label="{% if request.user.is_authenticated %}Gå till mitt konto{% else %}Logga in eller skapa konto{% endif %}">
+            <div class="flex shrink-0 items-center gap-2 lg:gap-3">
+                <details class="account-menu relative">
+                    <summary class="account-menu-summary icon-button" aria-label="Öppna användarmeny">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                    </a>
-                    <span class="icon-tooltip">Konto</span>
-                </div>
+                    </summary>
+                    <nav class="account-menu-panel" aria-label="Användarmeny">
+                        <p class="account-menu-heading">{% if request.user.is_authenticated %}Ditt konto{% else %}Välkommen{% endif %}</p>
+                        {% if request.user.is_authenticated %}
+                            <a href="{% url 'myaccount' %}" class="account-menu-link {% if request.resolver_match.url_name == 'myaccount' %}active{% endif %}" {% if request.resolver_match.url_name == 'myaccount' %}aria-current="page"{% endif %}>Mitt konto</a>
+                            {% if request.user.is_active and request.user.is_superuser %}
+                                <a href="{% url 'owner_dashboard:dashboard' %}" class="account-menu-link {% if request.resolver_match.namespace == 'owner_dashboard' %}active{% endif %}" {% if request.resolver_match.namespace == 'owner_dashboard' %}aria-current="page"{% endif %}>Ägarpanel</a>
+                            {% endif %}
+                            <a href="{% url 'logout' %}" class="account-menu-link account-menu-link-logout">Logga ut</a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="account-menu-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}" {% if request.resolver_match.url_name == 'login' %}aria-current="page"{% endif %}>Logga in</a>
+                            <a href="{% url 'signup' %}" class="account-menu-link {% if request.resolver_match.url_name == 'signup' %}active{% endif %}" {% if request.resolver_match.url_name == 'signup' %}aria-current="page"{% endif %}>Skapa konto</a>
+                        {% endif %}
+                    </nav>
+                </details>
 
                 <div
                     hx-get="{% url 'hx_menu_cart' %}"

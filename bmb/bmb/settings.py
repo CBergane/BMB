@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'products',
     'cart',
     'order',
+    'owner_dashboard',
     'cloudinary',
     'cloudinary_storage'
 ]
