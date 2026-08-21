@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import resolve_url
+from django.utils.cache import patch_cache_control
 from django.views.decorators.cache import never_cache
 
 
@@ -25,6 +26,13 @@ def owner_required(view_func):
 
         response = view_func(request, *args, **kwargs)
         response['X-Robots-Tag'] = 'noindex, nofollow'
+        patch_cache_control(
+            response,
+            private=True,
+            no_cache=True,
+            no_store=True,
+            must_revalidate=True,
+        )
         return response
 
     return never_cache(protected_view)

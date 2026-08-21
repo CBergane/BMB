@@ -109,13 +109,13 @@
             <p class="eyebrow">Nästa fas</p>
             <h2 id="management-title" class="section-heading mt-3 text-3xl text-gray-900">Hantering</h2>
             <p class="mt-4 text-sm leading-7 text-gray-600">
-                Produkt- och orderhantering kopplas in här i en senare fas. Den här panelen ändrar ingen data.
+                Produkter kan hanteras i den separata, skyddade produktöversikten. Orderhantering kopplas in i en senare fas.
             </p>
             <div class="mt-6 space-y-3">
-                <button type="button" class="flex w-full cursor-not-allowed items-center justify-between rounded-2xl border border-gray-200 bg-white px-4 py-4 text-left text-sm font-semibold text-gray-500" disabled aria-disabled="true">
+                <a href="{% url 'owner_dashboard:product_list' %}" class="flex w-full items-center justify-between rounded-2xl border border-gray-200 bg-white px-4 py-4 text-left text-sm font-semibold text-gray-900 hover:border-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900">
                     Hantera produkter
-                    <span aria-hidden="true">Kommer snart</span>
-                </button>
+                    <span aria-hidden="true">Öppna</span>
+                </a>
                 <button type="button" class="flex w-full cursor-not-allowed items-center justify-between rounded-2xl border border-gray-200 bg-white px-4 py-4 text-left text-sm font-semibold text-gray-500" disabled aria-disabled="true">
                     Hantera ordrar
                     <span aria-hidden="true">Kommer snart</span>

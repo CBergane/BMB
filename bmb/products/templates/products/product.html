@@ -5,6 +5,12 @@
 
 {% block content%}
 
+{% if owner_preview %}
+<div class="mx-auto mt-6 max-w-6xl rounded-2xl border-2 border-gray-900 bg-gray-100 px-6 py-4 text-sm font-semibold text-gray-900" role="status">
+    Förhandsgranskning – inte publik. Köp och kundvagn är avstängda.
+</div>
+{% endif %}
+
 <div class="max-w-6xl mx-auto flex flex-wrap py-6 px-6 xl:px-0">
     <div class="max-w-6xl mx-auto flex flex-wrap py-6 px-6 xl:px-0">
         <div class="images w-full mb-6 lg:mb-0 lg:w-3/5">
@@ -91,7 +97,11 @@
         </div>
         
 
-        {% if produkt.is_active %}
+        {% if owner_preview %}
+            <div class="mt-6 rounded-xl border border-gray-200 bg-gray-100 px-5 py-4 text-sm font-semibold text-gray-600" aria-disabled="true">
+                Köp avstängt i förhandsgranskning.
+            </div>
+        {% elif produkt.is_active %}
             {% if produkt.is_fabric %}
             <!-- Fabric products form -->
             <form class="mt-6" action="{% url 'add_to_cart' produkt.id %}" method="post" hx-post="{% url 'add_to_cart' produkt.id %}" hx-target="#menu-cart-btn" hx-swap="outerHTML">
@@ -139,7 +149,7 @@
     </div>
 
     <div class="w-full">
-        {% if request.user.is_authenticated %}
+        {% if request.user.is_authenticated and not owner_preview %}
         <h2 class="text-xl mt-6">Omdömen!</h2>
 
             <form action="." method="post" class="mt-6 mb-6 p-6 bg-gray-100 rounded-xl">

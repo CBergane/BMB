@@ -1,0 +1,124 @@
+{% extends 'owner_dashboard/base_owner.html' %}
+{% load price_filters %}
+
+{% block title %}Produkter | Ägarpanel{% endblock %}
+
+{% block owner_content %}
+<div class="mt-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+        <p class="eyebrow">Sortiment</p>
+        <h1 class="section-heading mt-3 text-4xl text-gray-900 sm:text-5xl">Produkter</h1>
+        <p class="mt-3 max-w-2xl text-sm leading-7 text-gray-600">
+            Sök, filtrera och hantera publiceringsläget utan att påverka orderhistoriken.
+        </p>
+    </div>
+    <a href="{% url 'owner_dashboard:product_create' %}" class="button-brand justify-center whitespace-nowrap">Ny produkt</a>
+</div>
+
+<form method="get" class="mt-8 rounded-3xl border border-gray-200 bg-gray-100 p-5" aria-label="Filtrera produkter">
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <div>
+            <label for="{{ filter_form.q.id_for_label }}" class="text-sm font-semibold text-gray-900">{{ filter_form.q.label }}</label>
+            {{ filter_form.q }}
+        </div>
+        <div>
+            <label for="{{ filter_form.status.id_for_label }}" class="text-sm font-semibold text-gray-900">{{ filter_form.status.label }}</label>
+            {{ filter_form.status }}
+        </div>
+        <div>
+            <label for="{{ filter_form.active.id_for_label }}" class="text-sm font-semibold text-gray-900">{{ filter_form.active.label }}</label>
+            {{ filter_form.active }}
+        </div>
+        <div>
+            <label for="{{ filter_form.category.id_for_label }}" class="text-sm font-semibold text-gray-900">{{ filter_form.category.label }}</label>
+            {{ filter_form.category }}
+        </div>
+        <div class="flex items-end">
+            <label for="{{ filter_form.low_stock.id_for_label }}" class="flex min-h-[3rem] items-center gap-3 rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-900">
+                {{ filter_form.low_stock }}
+                {{ filter_form.low_stock.label }}
+            </label>
+        </div>
+    </div>
+    <div class="mt-4 flex flex-col gap-3 sm:flex-row">
+        <button type="submit" class="button-brand justify-center">Filtrera</button>
+        <a href="{% url 'owner_dashboard:product_list' %}" class="button-secondary justify-center">Rensa filter</a>
+    </div>
+</form>
+
+<section class="mt-8 overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm" aria-labelledby="product-results-title">
+    <div class="flex items-center justify-between gap-4 border-b border-gray-200 px-5 py-4 sm:px-6">
+        <h2 id="product-results-title" class="text-lg font-semibold text-gray-900">Produktresultat</h2>
+        <span class="text-sm text-gray-600">{{ page_obj.paginator.count }} produkter</span>
+    </div>
+
+    {% if page_obj.object_list %}
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[62rem] text-left text-sm">
+                <thead class="bg-gray-100 text-xs uppercase tracking-wider text-gray-600">
+                    <tr>
+                        <th scope="col" class="px-5 py-4 font-semibold">Produkt</th>
+                        <th scope="col" class="px-5 py-4 font-semibold">Kategori</th>
+                        <th scope="col" class="px-5 py-4 font-semibold">Pris</th>
+                        <th scope="col" class="px-5 py-4 font-semibold">Lager</th>
+                        <th scope="col" class="px-5 py-4 font-semibold">Status</th>
+                        <th scope="col" class="px-5 py-4 font-semibold">Försäljning</th>
+                        <th scope="col" class="px-5 py-4 font-semibold"><span class="sr-only">Åtgärder</span></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 text-gray-700">
+                    {% for product in page_obj %}
+                        <tr>
+                            <td class="px-5 py-4">
+                                <div class="flex items-center gap-4">
+                                    {% if product.image %}
+                                        <img src="{{ product.get_thumbnail }}" alt="Miniatyrbild för {{ product.namn }}" class="h-14 w-14 rounded-xl object-cover">
+                                    {% elif product.image_url %}
+                                        <img src="{{ product.image_url }}" alt="Miniatyrbild för {{ product.namn }}" class="h-14 w-14 rounded-xl object-cover">
+                                    {% else %}
+                                        <span class="flex h-14 w-14 items-center justify-center rounded-xl bg-gray-100 text-[0.65rem] font-semibold uppercase tracking-wider text-gray-500">Ingen bild</span>
+                                    {% endif %}
+                                    <div>
+                                        <p class="font-semibold text-gray-900">{{ product.namn }}</p>
+                                        <p class="mt-1 text-xs text-gray-500">{{ product.slug }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-5 py-4">{{ product.category.namn }}</td>
+                            <td class="px-5 py-4 whitespace-nowrap">{{ product.pris|sek }}</td>
+                            <td class="px-5 py-4 font-semibold text-gray-900">{{ product.inventory }} {{ product.get_unit_display }}</td>
+                            <td class="px-5 py-4"><span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-900">{{ product.get_publication_status_display }}</span></td>
+                            <td class="px-5 py-4">
+                                {% if product.is_active %}<span class="font-semibold text-gray-900">Aktiv</span>{% else %}<span class="font-semibold text-gray-600">Inaktiv</span>{% endif %}
+                            </td>
+                            <td class="px-5 py-4">
+                                <div class="flex justify-end gap-2">
+                                    <a href="{% url 'owner_dashboard:product_edit' product.id %}" class="rounded-full border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900">Redigera</a>
+                                    <a href="{% url 'owner_dashboard:product_preview' product.id %}" class="rounded-full bg-gray-900 px-3 py-2 text-xs font-semibold text-white hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900">Förhandsgranska</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="px-6 py-14 text-center">
+            <h2 class="text-xl font-semibold text-gray-900">Inga produkter matchar</h2>
+            <p class="mt-2 text-sm text-gray-600">Justera sökningen eller rensa filtren.</p>
+        </div>
+    {% endif %}
+</section>
+
+{% if page_obj.paginator.num_pages > 1 %}
+    <nav class="mt-6 flex items-center justify-between gap-4" aria-label="Produktpaginering">
+        {% if page_obj.has_previous %}
+            <a href="?{% if filter_query %}{{ filter_query }}&amp;{% endif %}page={{ page_obj.previous_page_number }}" class="button-secondary">Föregående</a>
+        {% else %}<span></span>{% endif %}
+        <span class="text-sm font-semibold text-gray-700">Sida {{ page_obj.number }} av {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?{% if filter_query %}{{ filter_query }}&amp;{% endif %}page={{ page_obj.next_page_number }}" class="button-secondary">Nästa</a>
+        {% else %}<span></span>{% endif %}
+    </nav>
+{% endif %}
+{% endblock %}

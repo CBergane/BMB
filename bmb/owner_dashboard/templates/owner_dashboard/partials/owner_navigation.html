@@ -1,0 +1,12 @@
+<nav class="flex flex-wrap items-center gap-2 border-b border-gray-200 pb-5" aria-label="Ägarpanelens navigation">
+    <a
+        href="{% url 'owner_dashboard:dashboard' %}"
+        class="rounded-full px-4 py-2 text-sm font-semibold transition {% if request.resolver_match.url_name == 'dashboard' %}bg-gray-900 text-white{% else %}text-gray-700 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900{% endif %}"
+        {% if request.resolver_match.url_name == 'dashboard' %}aria-current="page"{% endif %}
+    >Översikt</a>
+    <a
+        href="{% url 'owner_dashboard:product_list' %}"
+        class="rounded-full px-4 py-2 text-sm font-semibold transition {% if request.resolver_match.url_name != 'dashboard' %}bg-gray-900 text-white{% else %}text-gray-700 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900{% endif %}"
+        {% if request.resolver_match.url_name != 'dashboard' %}aria-current="page"{% endif %}
+    >Produkter</a>
+</nav>
