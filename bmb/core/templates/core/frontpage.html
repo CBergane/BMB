@@ -1,80 +1,244 @@
 {% extends 'core/base.html' %}
-{% load static %}
+{% load static price_filters %}
 
 {% block title %}Välkommen{% endblock %}
 
-{% block content%}
-<header class="px-6 py-10 lg:py-20 bg-gray-900">
-    <div class="max-w-3xl mx-auto text-center">
-        <p class="mb-2 text-3xl lg:text-5xl green-color-text font-bold">Välkommen till<br>Bra Mycket Bättre!</p>
+{% block content %}
+<section class="border-b border-gray-200 bg-white">
+    <div class="mx-auto grid max-w-6xl gap-10 px-6 py-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-16 xl:px-0">
+        <div class="space-y-6">
+            <p class="eyebrow">Nordisk tygbutik</p>
+            <h1 class="section-heading max-w-3xl text-4xl text-gray-900 sm:text-5xl lg:text-6xl">
+                Tyger och sytillbehör för genomtänkta projekt.
+            </h1>
+            <p class="max-w-2xl text-base leading-8 text-gray-700 sm:text-lg">
+                Bra Mycket Bättre samlar tyger, stuvbitar och utvalda detaljer för hem och sömnad, med snabb leverans och en personlig känsla i varje beställning.
+            </p>
 
-        <p class="mb-10 green-color-text font-bold">Vi har tyger och sytillbehör till dina nya projekt, och en del annat till hemmet.</p>
+            <div class="flex flex-col gap-3 sm:flex-row">
+                <a href="{% url 'shop' %}" class="button-brand justify-center sm:justify-start">Till butiken</a>
+                <button type="button" class="button-secondary justify-center sm:justify-start" onclick="openModalContact(event)">
+                    Fråga oss om tygval
+                </button>
+            </div>
 
-        <a href="{% url 'shop' %}" class="inline-block px-8 py-4 rounded-xl bg-gray-200 uppercase text-lime-600 hover:bg-gray-300">Till Butiken</a>
-    </div>
-</header>
-
-<div class="info-box max-w-6xl mx-auto py-4 mb-4 px-6 xl:px-0">
-    <div class="flex items-center flex-wrap text-center">
-        <p>
-        <svg class="w-6 h-6 green-color-text dark:green-color-text" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-        </svg>
-            Vi har börjat ta in GOTS-certifierade tyger.<br>
-            Global Organic Textile Standard (GOTS) är en internationell miljömärkning för kläder och textil. 
-            Syftet med märkningen är att hjälpa konsumenten välja produkter som är bra ur ett helhetsperspektiv 
-            med hänsyn till både miljö och socialt ansvar. GOTS tar hänsyn till odling, plockning, beredning och 
-            tillverkning av själva plagget.<br>
-            För mer information om GOTS produkter klicka <a href="#" onclick="openModal(); return false;" class="text-link">här.</a></p>
-    </div>
-</div>
-
-<!-- Meddelande sektion -->
-<div class="meddelanden">
-    {% for meddelande in meddelanden %}
-        <div class="meddelande info-box max-w-6xl mx-auto py-4 mb-4 px-6 xl:px-0 text-center">
-            <strong>{{ meddelande.text }}</strong><br>
-            Aktiv från: {{ meddelande.start_date|date:"Y-m-d" }} till {{ meddelande.end_date|date:"Y-m-d" }}
+            <div class="grid gap-3 sm:grid-cols-3">
+                <article class="hero-stat">
+                    <p class="text-sm font-semibold text-gray-900">Familjeföretag</p>
+                    <p class="mt-2 text-sm text-gray-600">Personlig service sedan 2016.</p>
+                </article>
+                <article class="hero-stat">
+                    <p class="text-sm font-semibold text-gray-900">Snabba leveranser</p>
+                    <p class="mt-2 text-sm text-gray-600">Redo för nästa sömnadsprojekt.</p>
+                </article>
+                <article class="hero-stat">
+                    <p class="text-sm font-semibold text-gray-900">Utvalt sortiment</p>
+                    <p class="mt-2 text-sm text-gray-600">Tyger och tillbehör med tydlig kvalitet.</p>
+                </article>
+            </div>
         </div>
-    {% endfor %}
-</div>
 
+        <div class="hero-mosaic" aria-label="Utvalda tygbilder från Bra Mycket Bättre">
+            <div class="hero-mosaic-card hero-mosaic-primary">
+                <img src="{% static 'media/thumbnail_IMG_9313.png' %}" alt="Utvalt tyg med tydligt mönster från BMB:s sortiment">
+            </div>
+            <div class="hero-mosaic-secondary">
+                <div class="hero-mosaic-card">
+                    <img src="{% static 'media/thumbnail_IMG_9314.png' %}" alt="Detalj av tyg ur butikens aktuella sortiment">
+                </div>
+                <div class="hero-mosaic-card">
+                    <img src="{% static 'media/thumbnail_IMG_9315.png' %}" alt="Närbild på tyg för sömnadsprojekt och hemtextil">
+                </div>
+            </div>
+            <div class="hero-mosaic-strip">
+                <div class="hero-mosaic-card">
+                    <img src="{% static 'media/thumbnail_IMG_9316.png' %}" alt="Textildetalj i ljusa och gröna toner">
+                </div>
+                <div class="hero-mosaic-card">
+                    <img src="{% static 'media/thumbnail_IMG_9317.png' %}" alt="Mönstrat tyg från Bra Mycket Bättre">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-<article class="gallery my-16 overflow-hidden">
-    <img src="../../../static/media/thumbnail_IMG_9313.png" alt="" />
-    <img src="../../../static/media/thumbnail_IMG_9314.png" alt="" />
-    <img src="../../../static/media/thumbnail_IMG_9315.png" alt="" />
-    <img src="../../../static/media/thumbnail_IMG_9316.png" alt="" />
-    <img src="../../../static/media/thumbnail_IMG_9317.png" alt="" />
-    <img src="../../../static/media/thumbnail_IMG_9318.png" alt="" />
-    <img src="../../../static/media/thumbnail_IMG_9319.png" alt="" />
-    <img src="../../../static/media/thumbnail_IMG_9320.png" alt="" />
-</article>
+{% if meddelanden %}
+    <section class="mx-auto max-w-6xl px-6 pt-6 xl:px-0">
+        <div class="space-y-3">
+            {% for meddelande in meddelanden %}
+                <article class="announcement-card">
+                    <p class="eyebrow">Aktuellt</p>
+                    <p class="mt-3 text-base font-semibold text-gray-900">{{ meddelande.text }}</p>
+                    <p class="mt-2 text-sm text-gray-600">
+                        Aktiv från {{ meddelande.start_date|date:"Y-m-d" }} till {{ meddelande.end_date|date:"Y-m-d" }}
+                    </p>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
 
-<!-- Modalen -->
-<div id="myModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">
-            <svg class="fill-current h-6 w-6 text-gray-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <title>Stäng</title>
-                <path d="M14.707 14.707a1 1 0 01-1.414 0L10 11.414l-3.293 3.293a1 1 0 11-1.414-1.414L8.586 10 5.293 6.707a1 1 0 111.414-1.414L10 8.586l3.293-3.293a1 1 0 111.414 1.414L11.414 10l3.293 3.293a1 1 0 010 1.414z"></path>
-            </svg>
-        </span>
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/xhQiGhnbDqw" frameborder="0" allowfullscreen></iframe>
+<section class="mx-auto max-w-6xl px-6 py-8 xl:px-0">
+    <div class="info-box compact-info-box flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex items-start gap-4">
+            <div class="mt-1 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gray-900 text-white">
+                <svg class="h-5 w-5 green-color-text" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="eyebrow">GOTS</p>
+                <h2 class="section-heading mt-2 text-3xl text-gray-900">Fler certifierade val i sortimentet</h2>
+                <p class="mt-3 max-w-3xl text-sm leading-7 text-gray-700">
+                    Vi tar löpande in GOTS-certifierade tyger för dig som vill välja textilier med hänsyn till både miljö och socialt ansvar i hela kedjan.
+                </p>
+            </div>
+        </div>
+        <div class="flex-shrink-0">
+            <button type="button" onclick="openModal()" class="button-secondary justify-center">
+                Mer om GOTS
+            </button>
+        </div>
+    </div>
+</section>
+
+<section class="mx-auto max-w-6xl px-6 py-10 xl:px-0">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <p class="eyebrow">Handla efter behov</p>
+            <h2 class="section-heading mt-2 text-3xl text-gray-900">Snabba vägar in i butiken</h2>
+        </div>
+        <p class="max-w-2xl text-sm leading-7 text-gray-600">
+            Välj det som passar ditt nästa projekt bäst, från nyheter och stuvbitar till exklusiva favoriter.
+        </p>
+    </div>
+
+    <div class="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <article class="quick-link-card">
+            <p class="eyebrow">Nyheter</p>
+            <h3 class="text-xl font-semibold text-gray-900">Senaste tillskotten</h3>
+            <p class="text-sm leading-7 text-gray-600">Se vad som nyligen kommit in och hitta nytt till kommande projekt.</p>
+            <a href="{% url 'news' %}" class="footer-link font-semibold">Visa nyheter</a>
+        </article>
+
+        <article class="quick-link-card">
+            <p class="eyebrow">Stuvbitar</p>
+            <h3 class="text-xl font-semibold text-gray-900">Smarta fynd</h3>
+            <p class="text-sm leading-7 text-gray-600">Perfekt när du vill prova nytt, komplettera eller sy småskaligt.</p>
+            <a href="{% url 'stubbies' %}" class="footer-link font-semibold">Utforska stuvbitar</a>
+        </article>
+
+        <article class="quick-link-card">
+            <p class="eyebrow">Rea</p>
+            <h3 class="text-xl font-semibold text-gray-900">Prisvärda val</h3>
+            <p class="text-sm leading-7 text-gray-600">Upptäck produkter med nedsatt pris utan att kompromissa med känslan.</p>
+            <a href="{% url 'discounted_products' %}" class="footer-link font-semibold">Se reavaror</a>
+        </article>
+
+        <article class="quick-link-card">
+            <p class="eyebrow">BMB Exclusive</p>
+            <h3 class="text-xl font-semibold text-gray-900">Noggrant utvalt</h3>
+            <p class="text-sm leading-7 text-gray-600">Produkter som bara finns hos BMB, utvalda för en tydlig egen karaktär.</p>
+            <a href="{% url 'bmb_exclusive_products' %}" class="footer-link font-semibold">Se exklusivt sortiment</a>
+        </article>
+    </div>
+</section>
+
+{% if produkter %}
+    <section class="mx-auto max-w-6xl px-6 py-10 xl:px-0">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <p class="eyebrow">Utvalt</p>
+                <h2 class="section-heading mt-2 text-3xl text-gray-900">Några favoriter från butiken</h2>
+            </div>
+            <a href="{% url 'shop' %}" class="footer-link text-sm font-semibold">Se hela sortimentet</a>
+        </div>
+
+        <div class="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            {% for produkt in produkter|slice:":4" %}
+                <article class="product-teaser">
+                    <a href="{% url 'produkt' produkt.slug %}" class="product-teaser-media">
+                        <img src="{{ produkt.get_thumbnail }}" alt="{{ produkt.namn }}">
+                    </a>
+                    <div class="mt-4 flex h-full flex-col">
+                        <div class="flex items-start justify-between gap-3">
+                            <h3 class="text-lg font-semibold text-gray-900">{{ produkt.namn }}</h3>
+                            {% if produkt.discount_percentage > 0 %}
+                                <span class="accent-chip">REA</span>
+                            {% endif %}
+                        </div>
+                        <p class="mt-3 text-sm leading-7 text-gray-600">
+                            {% if produkt.discount_percentage > 0 %}
+                                {{ produkt.get_discounted_price|sek }} / {{ produkt.get_unit_display }}
+                            {% else %}
+                                {{ produkt.pris|sek }} / {{ produkt.get_unit_display }}
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'produkt' produkt.slug %}" class="mt-4 footer-link text-sm font-semibold">Se alternativ och köp</a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
+
+<div id="myModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="gotsModalTitle">
+    <div class="modal-content modal-video-shell">
+        <div class="flex items-start justify-between gap-4">
+            <div>
+                <p class="eyebrow">GOTS</p>
+                <h2 id="gotsModalTitle" class="section-heading mt-2 text-2xl text-gray-900">Mer om Global Organic Textile Standard</h2>
+            </div>
+            <button type="button" class="modal-close" onclick="closeModal()" aria-label="Stäng GOTS-information">
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414Z" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+        </div>
+        <div class="mt-5 overflow-hidden rounded-2xl bg-black">
+            <iframe title="Information om GOTS-certifiering" width="560" height="315" src="https://www.youtube.com/embed/xhQiGhnbDqw" frameborder="0" allowfullscreen></iframe>
+        </div>
     </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
 <script>
+    const gotsModal = document.getElementById('myModal');
+
     function openModal() {
-        document.getElementById("myModal").style.display = "block";
+        if (!gotsModal) {
+            return;
+        }
+
+        gotsModal.style.display = 'block';
+        gotsModal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
     }
-    
+
     function closeModal() {
-        var iframe = document.querySelector('#myModal iframe');
-        var iframeSrc = iframe.src;
-        iframe.src = iframeSrc;
-        document.getElementById("myModal").style.display = "none";
+        if (!gotsModal) {
+            return;
+        }
+
+        const iframe = gotsModal.querySelector('iframe');
+
+        if (iframe) {
+            const iframeSrc = iframe.src;
+            iframe.src = iframeSrc;
+        }
+
+        gotsModal.style.display = 'none';
+        gotsModal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('modal-open');
+    }
+
+    if (gotsModal) {
+        gotsModal.addEventListener('click', function(event) {
+            if (event.target === gotsModal) {
+                closeModal();
+            }
+        });
     }
 </script>
-
-{% endblock%}
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'owner_dashboard/base_owner.html' %}
+{% load price_filters %}
+
+{% block title %}Ordrar | Ägarpanel{% endblock %}
+
+{% block owner_content %}
+<div class="mt-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+        <p class="eyebrow">Orderläge</p>
+        <h1 class="section-heading mt-3 text-4xl text-gray-900 sm:text-5xl">Ordrar</h1>
+        <p class="mt-3 max-w-2xl text-sm leading-7 text-gray-600">Sök och följ orderstatus. Betalning och status ändras endast via säkra POST-åtgärder.</p>
+    </div>
+</div>
+
+<form method="get" class="mt-8 rounded-3xl border border-gray-200 bg-gray-100 p-5" aria-label="Filtrera ordrar">
+    <div class="grid gap-4 md:grid-cols-3">
+        <div>
+            <label for="{{ filter_form.q.id_for_label }}" class="text-sm font-semibold text-gray-900">{{ filter_form.q.label }}</label>
+            {{ filter_form.q }}
+        </div>
+        <div>
+            <label for="{{ filter_form.paid.id_for_label }}" class="text-sm font-semibold text-gray-900">{{ filter_form.paid.label }}</label>
+            {{ filter_form.paid }}
+        </div>
+        <div>
+            <label for="{{ filter_form.status.id_for_label }}" class="text-sm font-semibold text-gray-900">{{ filter_form.status.label }}</label>
+            {{ filter_form.status }}
+        </div>
+    </div>
+    <div class="mt-4 flex flex-col gap-3 sm:flex-row">
+        <button type="submit" class="button-brand justify-center">Filtrera</button>
+        <a href="{% url 'owner_dashboard:order_list' %}" class="button-secondary justify-center">Rensa filter</a>
+    </div>
+</form>
+
+<section class="mt-8 overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm" aria-labelledby="order-results-title">
+    <div class="flex items-center justify-between gap-4 border-b border-gray-200 px-5 py-4 sm:px-6">
+        <h2 id="order-results-title" class="text-lg font-semibold text-gray-900">Orderresultat</h2>
+        <span class="text-sm text-gray-600">{{ page_obj.paginator.count }} ordrar</span>
+    </div>
+    {% if page_obj.object_list %}
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[62rem] text-left text-sm">
+                <thead class="bg-gray-100 text-xs uppercase tracking-wider text-gray-600">
+                    <tr>
+                        <th scope="col" class="px-5 py-4 font-semibold">Order</th>
+                        <th scope="col" class="px-5 py-4 font-semibold">Kund</th>
+                        <th scope="col" class="px-5 py-4 font-semibold">Datum</th>
+                        <th scope="col" class="px-5 py-4 font-semibold">Totalsumma</th>
+                        <th scope="col" class="px-5 py-4 font-semibold">Betalning</th>
+                        <th scope="col" class="px-5 py-4 font-semibold">Status</th>
+                        <th scope="col" class="px-5 py-4 font-semibold"><span class="sr-only">Åtgärd</span></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 text-gray-700">
+                    {% for order in page_obj %}
+                        <tr>
+                            <td class="px-5 py-4 font-semibold text-gray-900">#{{ order.id }}</td>
+                            <td class="px-5 py-4">
+                                <p class="font-semibold text-gray-900">{{ order.first_name }} {{ order.last_name }}</p>
+                                <p class="mt-1 text-xs text-gray-500">{{ order.email }}</p>
+                            </td>
+                            <td class="px-5 py-4 whitespace-nowrap">{{ order.created_at|date:"Y-m-d H:i" }}</td>
+                            <td class="px-5 py-4 whitespace-nowrap">{{ order.get_total_price|sek }}</td>
+                            <td class="px-5 py-4">
+                                {% if order.paid %}<span class="font-semibold text-gray-900">Betald</span>{% else %}<span class="font-semibold text-gray-700">Obetald</span>{% endif %}
+                            </td>
+                            <td class="px-5 py-4 whitespace-nowrap">{{ order.get_status_display }}</td>
+                            <td class="px-5 py-4 text-right">
+                                <a href="{% url 'owner_dashboard:order_detail' order.id %}" class="button-secondary whitespace-nowrap">Visa order</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="px-6 py-14 text-center text-sm text-gray-600">Inga ordrar matchar filtren.</p>
+    {% endif %}
+</section>
+
+{% if page_obj.paginator.num_pages > 1 %}
+    <nav class="mt-6 flex items-center justify-between gap-4" aria-label="Orderpaginering">
+        {% if page_obj.has_previous %}<a href="?{% if filter_query %}{{ filter_query }}&amp;{% endif %}page={{ page_obj.previous_page_number }}" class="button-secondary">Föregående</a>{% else %}<span></span>{% endif %}
+        <span class="text-sm font-semibold text-gray-700">Sida {{ page_obj.number }} av {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a href="?{% if filter_query %}{{ filter_query }}&amp;{% endif %}page={{ page_obj.next_page_number }}" class="button-secondary">Nästa</a>{% else %}<span></span>{% endif %}
+    </nav>
+{% endif %}
+{% endblock %}

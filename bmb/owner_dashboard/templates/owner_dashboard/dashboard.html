@@ -1,0 +1,127 @@
+{% extends 'core/base.html' %}
+{% load price_filters %}
+
+{% block title %}Ägarpanel{% endblock %}
+
+{% block meta %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block content %}
+<section class="mx-auto w-full max-w-6xl px-6 py-10 xl:px-0 lg:py-14" aria-labelledby="owner-dashboard-title">
+    <div class="flex flex-col gap-5 border-b border-gray-200 pb-8 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <p class="eyebrow">Överblick</p>
+            <h1 id="owner-dashboard-title" class="section-heading mt-3 text-4xl text-gray-900 sm:text-5xl">Ägarpanel</h1>
+            <p class="mt-4 max-w-2xl text-sm leading-7 text-gray-600 sm:text-base">
+                En samlad, skrivskyddad överblick över butikens produkter och ordrar.
+            </p>
+        </div>
+        <span class="inline-flex w-fit items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-widest text-gray-700">
+            <span class="green-bg h-2 w-2 rounded-full" aria-hidden="true"></span>
+            Endast läsning
+        </span>
+    </div>
+
+    <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5" aria-label="Butiksstatistik">
+        <article class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">Produkter totalt</p>
+            <p class="mt-4 text-4xl font-semibold text-gray-900">{{ product_totals.total }}</p>
+        </article>
+        <article class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">Aktiva produkter</p>
+            <p class="mt-4 text-4xl font-semibold text-gray-900">{{ product_totals.active }}</p>
+        </article>
+        <article class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">Lågt lager</p>
+            <p class="mt-4 text-4xl font-semibold text-gray-900">{{ product_totals.low_stock }}</p>
+            <p class="mt-2 text-xs text-gray-500">5 eller färre i lager</p>
+        </article>
+        <article class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">Publicerade</p>
+            <p class="mt-4 text-4xl font-semibold text-gray-900">{{ product_totals.published }}</p>
+        </article>
+        <article class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">Utkast</p>
+            <p class="mt-4 text-4xl font-semibold text-gray-900">{{ product_totals.draft }}</p>
+        </article>
+        <article class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">Arkiverade</p>
+            <p class="mt-4 text-4xl font-semibold text-gray-900">{{ product_totals.archived }}</p>
+        </article>
+        <article class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">Ordrar totalt</p>
+            <p class="mt-4 text-4xl font-semibold text-gray-900">{{ order_totals.total }}</p>
+        </article>
+        <article class="rounded-3xl border border-gray-200 bg-gray-900 p-6 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-widest text-gray-300">Obetalda ordrar</p>
+            <p class="mt-4 text-4xl font-semibold text-white">{{ order_totals.unpaid }}</p>
+        </article>
+    </div>
+
+    <div class="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1.65fr)_minmax(17rem,0.75fr)]">
+        <section class="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm" aria-labelledby="latest-orders-title">
+            <div class="flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-5">
+                <div>
+                    <p class="eyebrow">Orderläge</p>
+                    <h2 id="latest-orders-title" class="mt-2 text-xl font-semibold text-gray-900">Senaste ordrarna</h2>
+                </div>
+                <span class="text-xs font-medium text-gray-500">Senaste 8</span>
+            </div>
+
+            {% if latest_orders %}
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[42rem] text-left text-sm">
+                        <thead class="bg-gray-100 text-xs uppercase tracking-wider text-gray-600">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 font-semibold">Order</th>
+                                <th scope="col" class="px-6 py-4 font-semibold">Kund</th>
+                                <th scope="col" class="px-6 py-4 font-semibold">Datum</th>
+                                <th scope="col" class="px-6 py-4 font-semibold">Belopp</th>
+                                <th scope="col" class="px-6 py-4 font-semibold">Betalning</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 text-gray-700">
+                            {% for order in latest_orders %}
+                                <tr>
+                                    <td class="px-6 py-4 font-semibold text-gray-900">#{{ order.id }}</td>
+                                    <td class="px-6 py-4">{{ order.first_name }} {{ order.last_name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ order.created_at|date:"Y-m-d H:i" }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ order.paid_amount|sek }}</td>
+                                    <td class="px-6 py-4">
+                                        {% if order.paid %}
+                                            <span class="font-semibold text-gray-900">Betald</span>
+                                        {% else %}
+                                            <span class="font-semibold text-gray-900">Obetald</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="px-6 py-10 text-sm text-gray-600">Det finns inga ordrar ännu.</p>
+            {% endif %}
+        </section>
+
+        <aside class="rounded-3xl border border-gray-200 bg-gray-100 p-6 sm:p-8" aria-labelledby="management-title">
+            <p class="eyebrow">Nästa fas</p>
+            <h2 id="management-title" class="section-heading mt-3 text-3xl text-gray-900">Hantering</h2>
+            <p class="mt-4 text-sm leading-7 text-gray-600">
+                Produkter kan hanteras i den separata, skyddade produktöversikten. Orderhantering kopplas in i en senare fas.
+            </p>
+            <div class="mt-6 space-y-3">
+                <a href="{% url 'owner_dashboard:product_list' %}" class="flex w-full items-center justify-between rounded-2xl border border-gray-200 bg-white px-4 py-4 text-left text-sm font-semibold text-gray-900 hover:border-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900">
+                    Hantera produkter
+                    <span aria-hidden="true">Öppna</span>
+                </a>
+                <a href="{% url 'owner_dashboard:order_list' %}" class="flex w-full items-center justify-between rounded-2xl border border-gray-200 bg-white px-4 py-4 text-left text-sm font-semibold text-gray-900 hover:border-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900">
+                    Hantera ordrar
+                    <span aria-hidden="true">Öppna</span>
+                </a>
+            </div>
+        </aside>
+    </div>
+</section>
+{% endblock %}

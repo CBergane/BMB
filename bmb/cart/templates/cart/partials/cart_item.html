@@ -1,3 +1,5 @@
+{% load price_filters %}
+
 {% if item %}
 <div class="product mb-6 flex pr-6" id="cart-item-{{ item.cart_key }}">
     {% if item.slug %}
@@ -13,7 +15,7 @@
     <div class="w-3/4 pl-6">
         <div class="flex justify-between">
             <span>{{ item.produkt_namn }}</span>
-            <span class="mb-6 pt-1 text-gray-400">{{ item.total_price }} kr</span>
+            <span class="mb-6 pt-1 text-gray-400">{{ item.total_price|sek }}</span>
         </div>
         <hr>
         {% include 'cart/partials/cart_quantity.html' %}
