@@ -38,6 +38,18 @@
             <p class="mt-2 text-xs text-gray-500">5 eller färre i lager</p>
         </article>
         <article class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">Publicerade</p>
+            <p class="mt-4 text-4xl font-semibold text-gray-900">{{ product_totals.published }}</p>
+        </article>
+        <article class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">Utkast</p>
+            <p class="mt-4 text-4xl font-semibold text-gray-900">{{ product_totals.draft }}</p>
+        </article>
+        <article class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">Arkiverade</p>
+            <p class="mt-4 text-4xl font-semibold text-gray-900">{{ product_totals.archived }}</p>
+        </article>
+        <article class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
             <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">Ordrar totalt</p>
             <p class="mt-4 text-4xl font-semibold text-gray-900">{{ order_totals.total }}</p>
         </article>

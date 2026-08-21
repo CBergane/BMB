@@ -39,6 +39,7 @@ class SwishOrderHardeningTests(TestCase):
             inventory=5,
             pris=Decimal('100.00'),
             is_active=True,
+            publication_status=Produkt.PublicationStatus.PUBLISHED,
         )
         self.second_product = Produkt.objects.create(
             category=self.category,
@@ -46,6 +47,7 @@ class SwishOrderHardeningTests(TestCase):
             inventory=3,
             pris=Decimal('150.00'),
             is_active=True,
+            publication_status=Produkt.PublicationStatus.PUBLISHED,
         )
         self.url = reverse('start_swish_order')
 
@@ -159,6 +161,34 @@ class SwishOrderHardeningTests(TestCase):
         self.assertEqual(response.status_code, 409)
         self.assertIn('Otillräckligt lager', response.json()['error'])
         self.assertEqual(Order.objects.count(), 0)
+
+    @patch('order.views.send_mail')
+    def test_unpublished_product_in_saved_cart_cannot_create_order(self, send_mail_mock):
+        self.client.force_login(self.user)
+
+        for status in (
+            Produkt.PublicationStatus.DRAFT,
+            Produkt.PublicationStatus.ARCHIVED,
+        ):
+            with self.subTest(status=status):
+                self.product.publication_status = status
+                self.product.save(update_fields=['publication_status'])
+                self._set_cart({'product': self.product, 'quantity': 2})
+
+                response = self.client.post(
+                    self.url,
+                    data=json.dumps(self._payload()),
+                    content_type='application/json',
+                )
+
+                self.assertEqual(response.status_code, 409)
+                self.assertIn('inte längre publicerad eller tillgänglig', response.json()['error'])
+                self.assertEqual(Order.objects.count(), 0)
+                self.assertEqual(OrderItem.objects.count(), 0)
+                self.product.refresh_from_db()
+                self.assertEqual(self.product.inventory, 5)
+
+        self.assertEqual(send_mail_mock.call_count, 0)
 
     @patch('order.views.send_mail')
     def test_unpaid_order_does_not_change_inventory(self, send_mail_mock):
@@ -376,6 +406,7 @@ class OrderAdminPaymentFlowTests(TestCase):
             inventory=8,
             pris=Decimal('120.00'),
             is_active=True,
+            publication_status=Produkt.PublicationStatus.PUBLISHED,
         )
 
     def _create_unpaid_order(self, quantity=2):

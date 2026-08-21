@@ -13,6 +13,9 @@ def dashboard(request):
         total=Count('pk'),
         active=Count('pk', filter=Q(is_active=True)),
         low_stock=Count('pk', filter=Q(inventory__lte=5)),
+        published=Count('pk', filter=Q(publication_status=Produkt.PublicationStatus.PUBLISHED)),
+        draft=Count('pk', filter=Q(publication_status=Produkt.PublicationStatus.DRAFT)),
+        archived=Count('pk', filter=Q(publication_status=Produkt.PublicationStatus.ARCHIVED)),
     )
     order_totals = Order.objects.aggregate(
         total=Count('pk'),

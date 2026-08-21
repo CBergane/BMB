@@ -49,6 +49,7 @@ class PublicStorefrontSmokeTests(TestCase):
             length=Decimal("12.00"),
             inventory=10,
             is_active=True,
+            publication_status=Produkt.PublicationStatus.PUBLISHED,
             pris=Decimal("149.00"),
             discount_percentage=10,
             beskrivning="Mjuk bomull som passar flera typer av projekt.",

@@ -120,10 +120,13 @@ def _build_validated_cart_lines(cart):
 
         produkt = products.get(produkt_id)
         if produkt is None:
-            produkt = Produkt.objects.filter(pk=produkt_id).first()
+            produkt = Produkt.objects.public().filter(pk=produkt_id).first()
 
             if produkt is None:
-                return None, _json_error('En produkt i kundvagnen finns inte längre.', status=400)
+                return None, _json_error(
+                    'En produkt i kundvagnen är inte längre publicerad eller tillgänglig.',
+                    status=409,
+                )
 
             products[produkt_id] = produkt
 
@@ -151,9 +154,6 @@ def _build_validated_cart_lines(cart):
 
     for produkt_id, requested_quantity in requested_quantities.items():
         produkt = products[produkt_id]
-
-        if not produkt.is_active:
-            return None, _json_error(f"Produkten '{produkt.namn}' är inte aktiv.", status=409)
 
         if produkt.inventory < requested_quantity:
             return None, _json_error(f"Otillräckligt lager för '{produkt.namn}'.", status=409)

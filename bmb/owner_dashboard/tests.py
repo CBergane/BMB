@@ -114,6 +114,7 @@ class OwnerDashboardStatisticsTests(TestCase):
             namn='Aktiv produkt',
             inventory=12,
             is_active=True,
+            publication_status=Produkt.PublicationStatus.PUBLISHED,
             pris=Decimal('100.00'),
         )
         Produkt.objects.create(
@@ -121,6 +122,7 @@ class OwnerDashboardStatisticsTests(TestCase):
             namn='Lågt lager',
             inventory=5,
             is_active=True,
+            publication_status=Produkt.PublicationStatus.DRAFT,
             pris=Decimal('120.00'),
         )
         Produkt.objects.create(
@@ -128,6 +130,7 @@ class OwnerDashboardStatisticsTests(TestCase):
             namn='Slut i lager',
             inventory=0,
             is_active=False,
+            publication_status=Produkt.PublicationStatus.ARCHIVED,
             pris=Decimal('140.00'),
         )
 
@@ -160,6 +163,9 @@ class OwnerDashboardStatisticsTests(TestCase):
             'total': 3,
             'active': 2,
             'low_stock': 2,
+            'published': 1,
+            'draft': 1,
+            'archived': 1,
         })
         self.assertEqual(response.context['order_totals'], {
             'total': 3,

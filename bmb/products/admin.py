@@ -56,8 +56,8 @@ class ProductVariantInline(admin.TabularInline):
 
 
 class ProduktAdmin(admin.ModelAdmin):
-    list_display = ('namn', 'category', 'is_fabric', 'slug', 'is_stubbie', 'is_bmb_exclusive', 'is_active', 'pris', 'skapad', 'number_of_images')
-    list_filter = ('category', 'is_fabric', 'is_stubbie', 'is_active')
+    list_display = ('namn', 'category', 'publication_status', 'is_fabric', 'slug', 'is_stubbie', 'is_bmb_exclusive', 'is_active', 'pris', 'skapad', 'number_of_images')
+    list_filter = ('publication_status', 'category', 'is_fabric', 'is_stubbie', 'is_active')
     search_fields = ('namn', 'beskrivning', 'blandning', 'kvalitet', 'färg', 'motiv')
     filter_horizontal = ('wash_instructions',)
     inlines = [ProductVariantInline]
