@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load static %}
+{% load static price_filters %}
 
 {% block title %}Välkommen{% endblock %}
 
@@ -169,9 +169,9 @@
                         </div>
                         <p class="mt-3 text-sm leading-7 text-gray-600">
                             {% if produkt.discount_percentage > 0 %}
-                                {{ produkt.get_discounted_price }} kr / {{ produkt.get_unit_display }}
+                                {{ produkt.get_discounted_price|sek }} / {{ produkt.get_unit_display }}
                             {% else %}
-                                {{ produkt.pris }} kr / {{ produkt.get_unit_display }}
+                                {{ produkt.pris|sek }} / {{ produkt.get_unit_display }}
                             {% endif %}
                         </p>
                         <a href="{% url 'produkt' produkt.slug %}" class="mt-4 footer-link text-sm font-semibold">Se alternativ och köp</a>

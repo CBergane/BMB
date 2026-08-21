@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load price_filters %}
 
 {% block title %}{{produkt.namn}}{% endblock %}
 
@@ -29,12 +30,12 @@
         <h1 class="text-2xl">{{produkt.namn}}</h1>
         {% if produkt.discount_percentage > 0 %}
         <p class="pt-1 text-gray-400">
-            <del><strong>{{ produkt.pris }} kr / {{ produkt.get_unit_display }}</strong></del> <br>
-            <strong>{{ produkt.get_discounted_price }} kr / <strong>{{ produkt.get_unit_display }}</strong>
+            <del><strong>{{ produkt.pris|sek }} / {{ produkt.get_unit_display }}</strong></del> <br>
+            <strong>{{ produkt.get_discounted_price|sek }} / <strong>{{ produkt.get_unit_display }}</strong>
         </p>
         <p>{{ produkt.get_discount_info }}</p>
         {% else %}
-        <strong><p class="pt-1 text-gray-400">{{ produkt.pris}} kr / {{ produkt.get_unit_display }}</strong></p>
+        <strong><p class="pt-1 text-gray-400">{{ produkt.pris|sek }} / {{ produkt.get_unit_display }}</strong></p>
         {% endif %}
         
 

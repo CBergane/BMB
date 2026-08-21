@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load price_filters %}
 
 {% block title %}Ägarpanel{% endblock %}
 
@@ -74,7 +75,7 @@
                                     <td class="px-6 py-4 font-semibold text-gray-900">#{{ order.id }}</td>
                                     <td class="px-6 py-4">{{ order.first_name }} {{ order.last_name }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ order.created_at|date:"Y-m-d H:i" }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ order.paid_amount|default:0 }} kr</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ order.paid_amount|sek }}</td>
                                     <td class="px-6 py-4">
                                         {% if order.paid %}
                                             <span class="font-semibold text-gray-900">Betald</span>

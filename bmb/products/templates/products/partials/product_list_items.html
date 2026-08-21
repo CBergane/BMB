@@ -1,3 +1,5 @@
+{% load price_filters %}
+
 <article class="product-card">
     <a href="{% url 'produkt' produkt.slug %}" class="product-card-media">
         <img
@@ -37,15 +39,15 @@
             <div class="product-card-pricing">
                 <p class="product-card-price">
                     {% if produkt.discount_percentage > 0 %}
-                        <span class="product-card-price-current">{{ produkt.get_discounted_price }} kr</span>
+                        <span class="product-card-price-current">{{ produkt.get_discounted_price|sek }}</span>
                     {% else %}
-                        <span class="product-card-price-current">{{ produkt.pris }} kr</span>
+                        <span class="product-card-price-current">{{ produkt.pris|sek }}</span>
                     {% endif %}
                     <span class="product-card-unit">/ {{ produkt.get_unit_display }}</span>
                 </p>
 
                 {% if produkt.discount_percentage > 0 %}
-                    <p class="product-card-compare">Ordinarie {{ produkt.pris }} kr</p>
+                    <p class="product-card-compare">Ordinarie {{ produkt.pris|sek }}</p>
                 {% endif %}
             </div>
 

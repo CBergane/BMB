@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load price_filters %}
 
 {% block title %}Min Profil{% endblock %}
 
@@ -33,7 +34,7 @@
                     <div class="w-3/4 pl-6">
                         <div class="flex justify-between">
                             <a href="{% url 'produkt' item.produkt.slug %}" class="text-lg">{{ item.produkt.namn }}</a>
-                            <p class="mb-6 pt-1 text-gray-400">{{ item.get_total_price }} kr</p>
+                            <p class="mb-6 pt-1 text-gray-400">{{ item.get_total_price|sek }}</p>
                         </div>
 
                         <hr>
@@ -48,7 +49,7 @@
             </div>
             <div class="">
                 <p class="text-lg">Datum: {{ order.created_at|date:"Y-m-d"  }}</p>
-                <p class="text-lg">Total summa: {{ order.get_total_price }} kr</p>
+                <p class="text-lg">Total summa: {{ order.get_total_price|sek }}</p>
             </div>
         </div>
     {% endfor %}

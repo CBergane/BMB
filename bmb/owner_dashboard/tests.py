@@ -167,3 +167,4 @@ class OwnerDashboardStatisticsTests(TestCase):
         })
         self.assertContains(response, 'Senaste ordrarna')
         self.assertContains(response, 'Senaste Kund')
+        self.assertContains(response, '299,00 kr')
