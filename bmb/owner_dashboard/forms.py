@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import inlineformset_factory
 
+from order.models import Order
 from products.models import Category, ProductVariant, Produkt
 
 
@@ -46,6 +47,25 @@ class OwnerProductFilterForm(forms.Form):
                 field.widget.attrs['class'] = CHECKBOX_CLASS
             else:
                 field.widget.attrs['class'] = INPUT_CLASS
+
+
+class OwnerOrderFilterForm(forms.Form):
+    q = forms.CharField(required=False, label='Sök')
+    paid = forms.ChoiceField(
+        required=False,
+        label='Betalning',
+        choices=(('', 'Alla'), ('yes', 'Betald'), ('no', 'Obetald')),
+    )
+    status = forms.ChoiceField(
+        required=False,
+        label='Orderstatus',
+        choices=(('', 'Alla statusar'), *Order.Status.choices),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = INPUT_CLASS
 
 
 class OwnerProductForm(forms.ModelForm):

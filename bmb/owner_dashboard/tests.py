@@ -1,12 +1,20 @@
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 from django.test import Client, TestCase
 from django.urls import reverse
+from django.utils.crypto import get_random_string
 
 from django.db.models.deletion import ProtectedError
 
-from order.models import Order, OrderItem
+from order.models import (
+    Order,
+    OrderInventoryError,
+    OrderItem,
+    OrderStatusHistory,
+    OrderStatusTransitionError,
+)
 from products.models import Category, Produkt
 
 
@@ -461,3 +469,318 @@ class OwnerProductManagementTests(TestCase):
             with self.subTest(url=url):
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, 403)
+
+
+class OwnerOrderManagementTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.password = get_random_string(32)
+        cls.superuser = User.objects.create(
+            username='order-owner',
+            email='order-owner@example.com',
+            password=make_password(cls.password),
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+        cls.customer = User.objects.create_user(
+            username='order-customer',
+            email='order-customer@example.com',
+            password=get_random_string(32),
+        )
+        cls.other_customer = User.objects.create_user(
+            username='other-order-customer',
+            email='other-order-customer@example.com',
+            password=get_random_string(32),
+        )
+        cls.staff_user = User.objects.create_user(
+            username='order-staff',
+            password=get_random_string(32),
+            is_staff=True,
+        )
+        cls.category = Category.objects.create(namn='Orderkategori')
+        cls.product = Produkt.objects.create(
+            category=cls.category,
+            namn='Orderprodukt',
+            inventory=10,
+            pris=Decimal('100.00'),
+            is_active=True,
+            publication_status=Produkt.PublicationStatus.PUBLISHED,
+        )
+        cls.short_product = Produkt.objects.create(
+            category=cls.category,
+            namn='Lagerbegränsad orderprodukt',
+            inventory=1,
+            pris=Decimal('125.00'),
+            is_active=True,
+            publication_status=Produkt.PublicationStatus.PUBLISHED,
+        )
+        cls.unpaid_order = cls._create_order(
+            cls.customer,
+            first_name='Obetald',
+            email='unpaid@example.com',
+        )
+        OrderItem.objects.create(
+            order=cls.unpaid_order,
+            produkt=cls.product,
+            price=100,
+            quantity=2,
+        )
+        cls.detail_order = cls._create_order(
+            cls.customer,
+            first_name='Detalj',
+            email='detail@example.com',
+            status=Order.Status.PACKING,
+            paid=True,
+        )
+        OrderItem.objects.create(
+            order=cls.detail_order,
+            produkt=cls.product,
+            price=100,
+            quantity=1,
+        )
+        cls.other_order = cls._create_order(
+            cls.other_customer,
+            first_name='Annan kund',
+            email='other@example.com',
+        )
+        cls.list_orders = []
+        for label in 'abcdefghijklmnopqrstu':
+            cls.list_orders.append(cls._create_order(
+                cls.customer,
+                first_name=f'Lista {label}',
+                email=f'list-{label}@example.com',
+            ))
+
+    @classmethod
+    def _create_order(cls, user, first_name, email, status=Order.Status.RECEIVED, paid=False):
+        return Order.objects.create(
+            user=user,
+            first_name=first_name,
+            last_name='Testkund',
+            email=email,
+            phone='0700000000',
+            address='Ordergatan 1',
+            zipcode='12345',
+            city='Stockholm',
+            status=status,
+            paid=paid,
+            paid_amount=100,
+        )
+
+    def setUp(self):
+        self.client.force_login(self.superuser)
+
+    def test_owner_order_views_require_active_superuser(self):
+        urls = (
+            reverse('owner_dashboard:order_list'),
+            reverse('owner_dashboard:order_detail', args=[self.unpaid_order.pk]),
+            reverse('owner_dashboard:order_mark_paid', args=[self.unpaid_order.pk]),
+            reverse('owner_dashboard:order_change_status', args=[self.unpaid_order.pk, 'archived']),
+        )
+        anonymous_client = Client()
+        for url in urls:
+            with self.subTest(url=url):
+                response = anonymous_client.get(url)
+                self.assertEqual(response.status_code, 302)
+
+        for user in (self.customer, self.staff_user):
+            self.client.force_login(user)
+            for url in urls:
+                with self.subTest(user=user.username, url=url):
+                    self.assertEqual(self.client.get(url).status_code, 403)
+
+        self.client.force_login(self.superuser)
+        self.assertEqual(self.client.get(reverse('owner_dashboard:order_list')).status_code, 200)
+        self.assertEqual(self.client.get(reverse('owner_dashboard:order_detail', args=[self.unpaid_order.pk])).status_code, 200)
+
+    def _result_ids(self, response):
+        return {order.pk for order in list(response.context['page_obj'].object_list)}
+
+    def test_order_list_searches_by_unique_order_number(self):
+        url = reverse('owner_dashboard:order_list')
+
+        response = self.client.get(url, {'q': str(self.unpaid_order.pk)})
+        self.assertEqual(response.context['page_obj'].paginator.count, 1)
+        self.assertEqual(self._result_ids(response), {self.unpaid_order.pk})
+
+    def test_order_list_searches_customer_name_and_email(self):
+        url = reverse('owner_dashboard:order_list')
+
+        for query, expected_order in (
+            (self.list_orders[0].first_name, self.list_orders[0]),
+            (self.list_orders[1].email, self.list_orders[1]),
+        ):
+            with self.subTest(query=query):
+                response = self.client.get(url, {'q': query})
+                result_orders = list(response.context['page_obj'].object_list)
+
+                self.assertEqual(response.context['page_obj'].paginator.count, 1)
+                self.assertEqual(len(result_orders), 1)
+                self.assertEqual({order.pk for order in result_orders}, {expected_order.pk})
+                self.assertEqual(result_orders[0].user_id, self.customer.pk)
+
+    def test_order_list_filters_paid_and_operational_status(self):
+        url = reverse('owner_dashboard:order_list')
+
+        response = self.client.get(url, {'q': 'Obetald', 'paid': 'no', 'status': 'received'})
+        self.assertEqual(response.context['page_obj'].paginator.count, 1)
+        self.assertEqual(self._result_ids(response), {self.unpaid_order.pk})
+
+        response = self.client.get(url, {'paid': 'yes'})
+        self.assertEqual(self._result_ids(response), {self.detail_order.pk})
+
+        response = self.client.get(url, {'status': 'packing'})
+        self.assertEqual(self._result_ids(response), {self.detail_order.pk})
+
+    def test_order_list_paginates(self):
+        url = reverse('owner_dashboard:order_list')
+
+        response = self.client.get(url, {'page': 2})
+        self.assertEqual(response.context['page_obj'].number, 2)
+        self.assertGreater(response.context['page_obj'].paginator.num_pages, 1)
+
+    def test_order_list_combined_filters_use_and_logic(self):
+        response = self.client.get(
+            reverse('owner_dashboard:order_list'),
+            {'q': 'Obetald', 'paid': 'no', 'status': 'received'},
+        )
+
+        self.assertEqual(response.context['page_obj'].paginator.count, 1)
+        self.assertEqual(self._result_ids(response), {self.unpaid_order.pk})
+
+    def test_order_detail_shows_customer_and_historical_order_lines_without_delete_action(self):
+        response = self.client.get(
+            reverse('owner_dashboard:order_detail', args=[self.detail_order.pk]),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.detail_order.email)
+        self.assertContains(response, self.product.namn)
+        self.assertContains(response, 'Antal: 1')
+        self.assertContains(response, 'Packas')
+        self.assertContains(response, 'Betald')
+        self.assertNotContains(response, 'Radera')
+
+    def test_mark_paid_is_post_only_csrf_protected_and_idempotent(self):
+        url = reverse('owner_dashboard:order_mark_paid', args=[self.unpaid_order.pk])
+        self.assertEqual(self.client.get(url).status_code, 405)
+
+        csrf_client = Client(enforce_csrf_checks=True)
+        csrf_client.force_login(self.superuser)
+        self.assertEqual(csrf_client.post(url).status_code, 403)
+
+        initial_inventory = self.product.inventory
+        first_response = self.client.post(url)
+        self.assertEqual(first_response.status_code, 302)
+        self.product.refresh_from_db()
+        self.unpaid_order.refresh_from_db()
+        self.assertTrue(self.unpaid_order.paid)
+        self.assertEqual(self.product.inventory, initial_inventory - 2)
+
+        second_response = self.client.post(url)
+        self.assertEqual(second_response.status_code, 302)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.inventory, initial_inventory - 2)
+
+    def test_mark_paid_rolls_back_when_inventory_is_insufficient(self):
+        order = self._create_order(self.customer, 'För lite lager', 'short@example.com')
+        OrderItem.objects.create(order=order, produkt=self.short_product, price=125, quantity=2)
+        url = reverse('owner_dashboard:order_mark_paid', args=[order.pk])
+
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, 302)
+        order.refresh_from_db()
+        self.short_product.refresh_from_db()
+        self.assertFalse(order.paid)
+        self.assertEqual(self.short_product.inventory, 1)
+        self.assertEqual(OrderItem.objects.filter(order=order).count(), 1)
+
+    def test_allowed_status_transitions_create_one_history_row(self):
+        order = self._create_order(self.customer, 'Statuskedja', 'status-chain@example.com', paid=True)
+        for status in (
+            Order.Status.PROCESSING,
+            Order.Status.PACKING,
+            Order.Status.SHIPPED,
+            Order.Status.COMPLETED,
+            Order.Status.ARCHIVED,
+        ):
+            order.transition_status(status, changed_by=self.superuser)
+
+        self.assertEqual(
+            OrderStatusHistory.objects.filter(order=order).count(),
+            5,
+        )
+        self.assertEqual(order.status, Order.Status.ARCHIVED)
+        self.assertEqual(
+            OrderStatusHistory.objects.filter(order=order).first().new_status,
+            Order.Status.ARCHIVED,
+        )
+
+    def test_unpaid_received_order_can_be_cancelled_or_archived(self):
+        cancelled = self._create_order(self.customer, 'Avbryt', 'cancel@example.com')
+        archived = self._create_order(self.customer, 'Arkivera', 'archive@example.com')
+
+        cancelled.transition_status(Order.Status.CANCELLED, changed_by=self.superuser)
+        archived.transition_status(Order.Status.ARCHIVED, changed_by=self.superuser)
+
+        self.assertEqual(cancelled.status, Order.Status.CANCELLED)
+        self.assertEqual(archived.status, Order.Status.ARCHIVED)
+        self.assertEqual(OrderStatusHistory.objects.filter(order=cancelled).count(), 1)
+        self.assertEqual(OrderStatusHistory.objects.filter(order=archived).count(), 1)
+
+    def test_forbidden_status_transitions_do_not_change_order_or_history(self):
+        cases = (
+            (Order.Status.RECEIVED, False, Order.Status.PROCESSING),
+            (Order.Status.RECEIVED, True, Order.Status.CANCELLED),
+            (Order.Status.PROCESSING, False, Order.Status.PACKING),
+            (Order.Status.SHIPPED, True, Order.Status.ARCHIVED),
+            (Order.Status.ARCHIVED, True, Order.Status.COMPLETED),
+        )
+        for status, paid, target in cases:
+            with self.subTest(status=status, paid=paid, target=target):
+                order = self._create_order(
+                    self.customer,
+                    'Otillåten',
+                    f'forbidden-{status}-{target}@example.com',
+                    status=status,
+                    paid=paid,
+                )
+                with self.assertRaises(OrderStatusTransitionError):
+                    order.transition_status(target, changed_by=self.superuser)
+                order.refresh_from_db()
+                self.assertEqual(order.status, status)
+                self.assertEqual(OrderStatusHistory.objects.filter(order=order).count(), 0)
+
+    def test_status_action_creates_history_with_owner_and_customer_sees_update(self):
+        order = self._create_order(self.customer, 'Kundstatus', 'customer-status@example.com', paid=True)
+        url = reverse('owner_dashboard:order_change_status', args=[order.pk, 'processing'])
+
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, 302)
+        history = OrderStatusHistory.objects.get(order=order)
+        self.assertEqual(history.changed_by, self.superuser)
+        self.client.force_login(self.customer)
+        customer_response = self.client.get(reverse('myaccount_order_detail', args=[order.pk]))
+        self.assertContains(customer_response, 'Behandlas')
+
+    def test_status_action_rejects_invalid_transition_without_history(self):
+        url = reverse('owner_dashboard:order_change_status', args=[self.unpaid_order.pk, 'processing'])
+
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(OrderStatusHistory.objects.filter(order=self.unpaid_order).count(), 0)
+        self.unpaid_order.refresh_from_db()
+        self.assertEqual(self.unpaid_order.status, Order.Status.RECEIVED)
+
+    def test_other_customer_cannot_view_order_detail(self):
+        self.client.force_login(self.other_customer)
+
+        response = self.client.get(
+            reverse('myaccount_order_detail', args=[self.detail_order.pk]),
+        )
+
+        self.assertEqual(response.status_code, 404)

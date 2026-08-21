@@ -5,7 +5,7 @@ from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from order.models import Order
+from order.models import Order, OrderInventoryError, OrderStatusTransitionError
 from products.models import Produkt
 
 from .access import owner_required
@@ -13,10 +13,12 @@ from .forms import (
     OwnerProductFilterForm,
     OwnerProductForm,
     OwnerProductVariantFormSet,
+    OwnerOrderFilterForm,
 )
 
 
 PRODUCTS_PER_PAGE = 20
+ORDERS_PER_PAGE = 20
 
 
 @owner_required
@@ -41,6 +43,94 @@ def dashboard(request):
         'latest_orders': Order.objects.select_related('user')[:8],
     }
     return render(request, 'owner_dashboard/dashboard.html', context)
+
+
+def _owner_order_queryset():
+    return (
+        Order.objects
+        .select_related('user')
+        .prefetch_related('items__produkt', 'items__color')
+        .order_by('-created_at', '-pk')
+    )
+
+
+@owner_required
+@require_GET
+def order_list(request):
+    orders = Order.objects.select_related('user').order_by('-created_at', '-pk')
+    filter_form = OwnerOrderFilterForm(request.GET)
+
+    if filter_form.is_valid():
+        query = filter_form.cleaned_data['q'].strip()
+        paid = filter_form.cleaned_data['paid']
+        status = filter_form.cleaned_data['status']
+
+        if query:
+            search = Q(first_name__icontains=query) | Q(
+                last_name__icontains=query
+            ) | Q(email__icontains=query)
+            if query.isdigit():
+                search |= Q(pk=int(query))
+            orders = orders.filter(search)
+        if paid:
+            orders = orders.filter(paid=(paid == 'yes'))
+        if status:
+            orders = orders.filter(status=status)
+
+    paginator = Paginator(orders, ORDERS_PER_PAGE)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    query_params = request.GET.copy()
+    query_params.pop('page', None)
+
+    return render(request, 'owner_dashboard/order_list.html', {
+        'filter_form': filter_form,
+        'page_obj': page_obj,
+        'filter_query': query_params.urlencode(),
+    })
+
+
+@owner_required
+@require_GET
+def order_detail(request, order_id):
+    order = get_object_or_404(_owner_order_queryset(), pk=order_id)
+    history = order.status_history.select_related('changed_by').all()
+    return render(request, 'owner_dashboard/order_detail.html', {
+        'order': order,
+        'status_history': history,
+    })
+
+
+@owner_required
+@require_POST
+def order_mark_paid(request, order_id):
+    order = get_object_or_404(Order, pk=order_id)
+
+    try:
+        changed = order.mark_as_paid()
+    except OrderInventoryError as exc:
+        messages.error(request, f'Betalningen kunde inte registreras: {exc}')
+    else:
+        if changed:
+            messages.success(request, f'Order #{order.pk} markerades som betald.')
+        else:
+            messages.info(request, f'Order #{order.pk} är redan betald.')
+
+    return redirect('owner_dashboard:order_detail', order_id=order.pk)
+
+
+@owner_required
+@require_POST
+def order_change_status(request, order_id, new_status):
+    order = get_object_or_404(Order, pk=order_id)
+
+    try:
+        order.transition_status(new_status, changed_by=request.user)
+    except OrderStatusTransitionError as exc:
+        messages.error(request, str(exc))
+    else:
+        messages.success(request, f'Order #{order.pk} uppdaterades till {order.get_status_display()}.')
+
+    return redirect('owner_dashboard:order_detail', order_id=order.pk)
 
 
 @owner_required
