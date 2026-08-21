@@ -7,7 +7,9 @@ from unittest.mock import patch
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
-from django.test import TestCase, override_settings
+from django.db import connection
+from django.db.migrations.executor import MigrationExecutor
+from django.test import TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -529,3 +531,93 @@ class OrderAdminPaymentFlowTests(TestCase):
 
         messages = [message.message for message in get_messages(response.wsgi_request)]
         self.assertTrue(any('Lageruppdateringen kunde inte genomföras' in message for message in messages))
+
+
+class OperationalStatusMigrationTests(TransactionTestCase):
+    migrate_from = [('order', '0006_order_submission_key')]
+    migrate_to = [('order', '0007_order_operational_status')]
+    migrate_latest = [('order', '0008_protect_orderitem_product')]
+
+    def setUp(self):
+        super().setUp()
+        executor = MigrationExecutor(connection)
+        executor.migrate(self.migrate_from)
+        old_apps = executor.loader.project_state(self.migrate_from).apps
+
+        User = old_apps.get_model('auth', 'User')
+        Order = old_apps.get_model('order', 'Order')
+        user = User.objects.create(username='status-migration-user')
+        self.order_data = {
+            'user_id': user.pk,
+            'first_name': 'Migration',
+            'last_name': 'Test',
+            'email': 'migration@example.com',
+            'address': 'Testgatan 1',
+            'zipcode': '12345',
+            'city': 'Teststad',
+            'phone': '0700000000',
+        }
+        self.ordered_order_id = Order.objects.create(
+            status='ordered', **self.order_data
+        ).pk
+        self.shipped_order_id = Order.objects.create(
+            status='shipped', **self.order_data
+        ).pk
+
+        executor = MigrationExecutor(connection)
+        executor.migrate(self.migrate_to)
+        self.migrated_apps = executor.loader.project_state(self.migrate_to).apps
+
+    def tearDown(self):
+        MigrationExecutor(connection).migrate(self.migrate_latest)
+        super().tearDown()
+
+    def test_forward_preserves_shipped_and_maps_only_ordered_to_received(self):
+        Order = self.migrated_apps.get_model('order', 'Order')
+
+        self.assertEqual(
+            Order.objects.get(pk=self.ordered_order_id).status,
+            'received',
+        )
+        self.assertEqual(
+            Order.objects.get(pk=self.shipped_order_id).status,
+            'shipped',
+        )
+
+    def test_reverse_maps_each_operational_status_to_legacy_status(self):
+        Order = self.migrated_apps.get_model('order', 'Order')
+        status_order_ids = {}
+        for status in (
+            'received',
+            'processing',
+            'packing',
+            'shipped',
+            'completed',
+            'cancelled',
+            'archived',
+        ):
+            status_order_ids[status] = Order.objects.create(
+                status=status,
+                **self.order_data,
+            ).pk
+
+        executor = MigrationExecutor(connection)
+        executor.migrate(self.migrate_from)
+        old_apps = executor.loader.project_state(self.migrate_from).apps
+        LegacyOrder = old_apps.get_model('order', 'Order')
+        expected_statuses = {
+            'received': 'ordered',
+            'processing': 'ordered',
+            'packing': 'ordered',
+            'shipped': 'shipped',
+            'completed': 'shipped',
+            'cancelled': 'ordered',
+            'archived': 'ordered',
+        }
+
+        for status, expected in expected_statuses.items():
+            with self.subTest(status=status):
+                self.assertEqual(
+                    LegacyOrder.objects.get(pk=status_order_ids[status]).status,
+                    expected,
+                )

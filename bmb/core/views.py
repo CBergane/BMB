@@ -1,7 +1,7 @@
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.db.models import Q
+from django.shortcuts import get_object_or_404, render, redirect
+from django.db.models import Prefetch, Q
 from django.utils import timezone
 from datetime import timedelta
 from django.core.mail import send_mail
@@ -10,7 +10,9 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 
 from django.db.models import Count
+from order.models import Order, OrderItem
 from products.models import Produkt, Category
+from .access import active_account_required
 from .models import Meddelande
 
 from .forms import SignUpForm
@@ -136,9 +138,33 @@ def signup(request):
     return render(request, 'core/signup.html', {'form': form})
 
 
-@login_required
+def _account_order_queryset():
+    return (
+        Order.objects
+        .prefetch_related(
+            Prefetch(
+                'items',
+                queryset=OrderItem.objects.select_related('produkt', 'color'),
+            )
+        )
+        .order_by('-created_at')
+    )
+
+
+@active_account_required
 def myaccount(request):
-    return render(request, 'core/myaccount.html', )
+    orders = _account_order_queryset().filter(user=request.user)
+    return render(request, 'core/myaccount.html', {'orders': orders})
+
+
+@active_account_required
+def myaccount_order_detail(request, order_id):
+    order = get_object_or_404(
+        _account_order_queryset(),
+        pk=order_id,
+        user=request.user,
+    )
+    return render(request, 'core/myaccount_order_detail.html', {'order': order})
 
 @login_required
 def edit_myaccount(request):

@@ -10,13 +10,14 @@ class OrderInventoryError(Exception):
 
 
 class Order(models.Model):
-    ORDERED = 'ordered'
-    SHIPPED = 'shipped'
-
-    STATUS_CHOICES = (
-        (ORDERED, 'Beställd'),
-        (SHIPPED, 'Skickad')
-    )
+    class Status(models.TextChoices):
+        RECEIVED = 'received', 'Mottagen'
+        PROCESSING = 'processing', 'Behandlas'
+        PACKING = 'packing', 'Packas'
+        SHIPPED = 'shipped', 'Skickad'
+        COMPLETED = 'completed', 'Slutförd'
+        CANCELLED = 'cancelled', 'Avbruten'
+        ARCHIVED = 'archived', 'Arkiverad'
 
     user = models.ForeignKey(User, related_name='orders', blank=True, null=True, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=255)
@@ -33,7 +34,7 @@ class Order(models.Model):
     paid = models.BooleanField(default=False)
     paid_amount = models.IntegerField(blank=True, null=True)
 
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=ORDERED)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.RECEIVED)
 
     class Meta:
         ordering = ('-created_at', )
@@ -97,7 +98,7 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
-    produkt = models.ForeignKey(Produkt, related_name='items', on_delete=models.CASCADE)
+    produkt = models.ForeignKey(Produkt, related_name='items', on_delete=models.PROTECT)
     color = models.ForeignKey(Color, blank=True, null=True, on_delete=models.SET_NULL)
     custom_text = models.CharField(max_length=255, blank=True, null=True)
     price = models.IntegerField()
