@@ -11,6 +11,22 @@ import cloudinary.api
 load_dotenv()
 
 
+def _env_bool(name, default=False):
+    return os.environ.get(name, str(default)).strip().lower() in (
+        "true",
+        "1",
+        "yes",
+    )
+
+
+def _env_csv(name):
+    return [
+        value.strip()
+        for value in os.environ.get(name, "").split(",")
+        if value.strip()
+    ]
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,7 +38,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", "False").lower() in ("true", "1", "yes")
+DEBUG = _env_bool("DEBUG")
 
 
 ALLOWED_HOSTS = ['8000-cbergane-bmb-yy245hqlxih.ws-eu116.gitpod.io', 'localhost', 'bmb-annelie-e3fc68fd7d04.herokuapp.com', '127.0.0.1', 'www.bramycketbattre.com', 'bramycketbattre.com' ]
@@ -129,11 +145,7 @@ DATABASE_URL = (
     or os.environ.get("HEROKU_POSTGRESQL_MAUVE_URL")
 )
 
-DATABASE_SSL = os.environ.get("DATABASE_SSL", "True").lower() in (
-    "true",
-    "1",
-    "yes",
-)
+DATABASE_SSL = _env_bool("DATABASE_SSL", True)
 
 DATABASES = {
     "default": dj_database_url.parse(
@@ -202,7 +214,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_COOKIE_SECURE = not DEBUG
+CSRF_TRUSTED_ORIGINS = _env_csv("CSRF_TRUSTED_ORIGINS")
+SECURE_SSL_REDIRECT = _env_bool("SECURE_SSL_REDIRECT")
+SESSION_COOKIE_SECURE = _env_bool("SESSION_COOKIE_SECURE")
+CSRF_COOKIE_SECURE = _env_bool("CSRF_COOKIE_SECURE")
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
