@@ -6,7 +6,8 @@
 
 
 <div class="max-w-6xl mx-auto flex flex-wrap items-start py-6 px-6 xl:px-0">
-    <div class="filters w-full lg:w-1/4">
+    <div class="shop-layout w-full">
+    <div class="filters shop-sidebar">
         <!-- ... Sökformulär ... -->
 
         <!-- Kategorimeny -->
@@ -36,12 +37,15 @@
     </div>
 
     <!-- Produktvisning -->
-    <div class="products w-full lg:w-3/4 -mt-4 flex flex-wrap">
+    <div class="shop-results">
+        <div class="product-grid product-grid--shop products">
         {% for produkt in products %}
             {% include 'products/partials/product_list_items.html' %}
         {% empty %}
-            <p>Välj produkt i menyn till vänster.</p>
+            <p class="product-grid-empty">Välj en underkategori i menyn till vänster för att se produkter.</p>
         {% endfor %}
+        </div>
+    </div>
     </div>
 </div>
 <script>

@@ -8,7 +8,16 @@ from django.core.files import File
 from autoslug import AutoSlugField
 from PIL import Image
 from io import BytesIO
-from ckeditor.fields import RichTextField
+from django_ckeditor_5.fields import CKEditor5Field
+
+
+class ProductQuerySet(models.QuerySet):
+    def public(self):
+        return self.filter(
+            publication_status=self.model.PublicationStatus.PUBLISHED,
+            is_active=True,
+        )
+
 
 class Category(models.Model):
     namn = models.CharField(max_length=255)
@@ -47,6 +56,11 @@ class Color(models.Model):
 
 class Produkt(models.Model):
 
+    class PublicationStatus(models.TextChoices):
+        DRAFT = 'draft', 'Utkast'
+        PUBLISHED = 'published', 'Publicerad'
+        ARCHIVED = 'archived', 'Arkiverad'
+
     UNIT_CHOICES = [
         ('dm', 'Decimeter'),
         ('st', 'St'),
@@ -76,7 +90,11 @@ class Produkt(models.Model):
     kvalitet = models.CharField(max_length=255, blank=True, null=True)
     färg = models.CharField(max_length=255, blank=True, null=True)
     motiv = models.CharField(max_length=255, blank=True, null=True)
-    beskrivning = RichTextField(blank=True, null=True)
+    beskrivning = CKEditor5Field(
+        blank=True,
+        null=True,
+        config_name="default",
+    )
     wash_instructions = models.ManyToManyField(WashInstruction, blank=True)
     inventory = models.IntegerField(default=0, help_text="Mängd kvar i lager, st eller decimeter")
     is_active = models.BooleanField(default=True, help_text="Är denna produkt i lager?")
@@ -89,6 +107,13 @@ class Produkt(models.Model):
     image4 = CloudinaryField('image4', blank=True, null=True, help_text="Valfri: Lägg till en andra bild av produkten.")
     thumbnail = CloudinaryField('image', blank=True, null=True)
     image_url = models.CharField(max_length=500, blank=True, null=True)
+    publication_status = models.CharField(
+        max_length=10,
+        choices=PublicationStatus.choices,
+        default=PublicationStatus.DRAFT,
+    )
+
+    objects = ProductQuerySet.as_manager()
 
     class Meta:
         verbose_name_plural = 'Produkter'

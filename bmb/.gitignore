@@ -1,2 +1,8 @@
 .env
-db.sqlite
+*.sqlite3
+*.dump
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.venv/

@@ -11,6 +11,22 @@ import cloudinary.api
 load_dotenv()
 
 
+def _env_bool(name, default=False):
+    return os.environ.get(name, str(default)).strip().lower() in (
+        "true",
+        "1",
+        "yes",
+    )
+
+
+def _env_csv(name):
+    return [
+        value.strip()
+        for value in os.environ.get(name, "").split(",")
+        if value.strip()
+    ]
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,7 +38,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = _env_bool("DEBUG")
 
 
 ALLOWED_HOSTS = ['8000-cbergane-bmb-yy245hqlxih.ws-eu116.gitpod.io', 'localhost', 'bmb-annelie-e3fc68fd7d04.herokuapp.com', '127.0.0.1', 'www.bramycketbattre.com', 'bramycketbattre.com' ]
@@ -37,6 +53,8 @@ SESSION_COOKIE_AGE = 86400
 CART_SESSION_ID = os.environ.get('CART_SESSION')
 STRIPE_API_KEY_PUBLISHABLE = os.environ.get('STRIPE_API_KEY')
 STRIPE_API_KEY_HIDDEN = os.environ.get('STRIPE_API_KEY_HIDDEN')
+SWISH_ORDER_PENDING_LIMIT = int(os.environ.get('SWISH_ORDER_PENDING_LIMIT', 3))
+SWISH_ORDER_PENDING_WINDOW_SECONDS = int(os.environ.get('SWISH_ORDER_PENDING_WINDOW_SECONDS', 15 * 60))
 
 # Application definition
 
@@ -47,14 +65,36 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'ckeditor',
+    'django_ckeditor_5',
     'core',
     'products',
     'cart',
     'order',
+    'owner_dashboard',
     'cloudinary',
     'cloudinary_storage'
 ]
+
+CKEDITOR_5_CONFIGS = {
+    "default": {
+        "toolbar": {
+            "items": [
+                "heading",
+                "|",
+                "bold",
+                "italic",
+                "link",
+                "bulletedList",
+                "numberedList",
+                "blockQuote",
+                "|",
+                "undo",
+                "redo",
+            ],
+        },
+        "language": "sv",
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -100,11 +140,18 @@ WSGI_APPLICATION = 'bmb.wsgi.application'
 #}
 
 
+DATABASE_URL = (
+    os.environ.get("DATABASE_URL")
+    or os.environ.get("HEROKU_POSTGRESQL_MAUVE_URL")
+)
+
+DATABASE_SSL = _env_bool("DATABASE_SSL", True)
+
 DATABASES = {
-    'default': dj_database_url.parse(
-        os.environ.get("HEROKU_POSTGRESQL_MAUVE_URL"), 
-        conn_max_age=300, 
-        ssl_require=True
+    "default": dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=300,
+        ssl_require=DATABASE_SSL,
     )
 }
 
@@ -147,10 +194,17 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-#STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+CKEDITOR_5_FILE_UPLOAD_PERMISSION = "staff"
+CKEDITOR_5_MAX_FILE_SIZE = 5
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -160,7 +214,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = _env_csv("CSRF_TRUSTED_ORIGINS")
+SECURE_SSL_REDIRECT = _env_bool("SECURE_SSL_REDIRECT")
+SESSION_COOKIE_SECURE = _env_bool("SESSION_COOKIE_SECURE")
+CSRF_COOKIE_SECURE = _env_bool("CSRF_COOKIE_SECURE")
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

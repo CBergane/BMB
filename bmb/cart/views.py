@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -11,8 +13,12 @@ from django.urls import reverse
 from django.contrib import messages
 from products.models import Produkt, Color
 
+
+UNAVAILABLE_CART_MESSAGE = 'En eller flera produkter i kundvagnen är inte längre publicerade eller tillgängliga.'
+
+
 def add_to_cart(request, produkt_id):
-    produkt = get_object_or_404(Produkt, pk=produkt_id)
+    produkt = get_object_or_404(Produkt.objects.public(), pk=produkt_id)
 
     if request.method == 'POST':
         quantity = int(request.POST.get('quantity', 1))
@@ -35,7 +41,11 @@ def add_to_cart(request, produkt_id):
 
 
 def cart(request):
-    return render(request, 'cart/cart.html')
+    shopping_cart = Cart(request)
+    return render(request, 'cart/cart.html', {
+        'cart': shopping_cart,
+        'cart_error': UNAVAILABLE_CART_MESSAGE if shopping_cart.has_unavailable_products() else None,
+    })
 
 def success(request):
     return render(request, 'cart/success.html')
@@ -80,10 +90,20 @@ def clear_cart(request):
 @login_required
 def checkout(request):
     pub_key = settings.STRIPE_API_KEY_PUBLISHABLE
-    return render(request, 'cart/checkout.html', {'pub_key': pub_key})
+    shopping_cart = Cart(request)
+    return render(request, 'cart/checkout.html', {
+        'pub_key': pub_key,
+        'swish_submission_key': uuid4(),
+        'cart': shopping_cart,
+        'cart_error': UNAVAILABLE_CART_MESSAGE if shopping_cart.has_unavailable_products() else None,
+    })
 
 def hx_menu_cart(request):
     return render(request, 'cart/partials/menu_cart.html')
 
 def hx_cart_total(request):
-    return render(request, 'cart/partials/cart_total.html')
+    shopping_cart = Cart(request)
+    return render(request, 'cart/partials/cart_total.html', {
+        'cart': shopping_cart,
+        'cart_error': UNAVAILABLE_CART_MESSAGE if shopping_cart.has_unavailable_products() else None,
+    })

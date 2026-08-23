@@ -1,11 +1,14 @@
 {% extends 'core/base.html' %}
-{% load extra_filters %}
+{% load extra_filters price_filters %}
 
 {% block title %}Kassa{% endblock %}
 
 {% block content%}
 
 <div class="max-w-6xl mx-auto flex flex-wrap items-start py-6 px-6 xl:px-0">    
+    {% if cart_error %}
+        <div class="mb-6 w-full rounded-xl border border-gray-300 bg-gray-100 p-4 text-sm font-semibold text-gray-900" role="alert">{{ cart_error }}</div>
+    {% endif %}
     <div class="products w-full lg:w-3/5">       
         <h1 class="mb-5 text-3xl">Kassan</h1>
 
@@ -59,23 +62,23 @@
         
             <div class="mb-6 flex justify-between">
                 <span class="font-semibold">Delsumma (inkl. moms)</span>
-                <span>{{ cart.get_total_cost }} kr</span>
+                <span>{{ cart.get_total_cost|sek }}</span>
             </div>
             
             <div class="mb-6 flex justify-between">
                 <span class="font-semibold">Fraktkostnad</span>
-                <span>79 kr</span>
+                <span>{{ 79|sek }}</span>
             </div>
             
             <div class="mb-6 flex justify-between">
                 <span class="font-semibold">Moms (20%)</span>
-                <span>{{ cart.get_total_cost|multiply:0.20|floatformat:2 }} kr</span>
+                <span>{{ cart.get_total_cost|multiply:0.20|sek }}</span>
             </div>
         
             {% with total_cost=cart.get_total_cost|add:79 %}
                 <div class="mb-6 flex justify-between">
                     <span class="font-semibold">Totalt inklusive moms och frakt</span>
-                    <span>{{ total_cost|floatformat:2 }} kr</span>
+                    <span>{{ total_cost|sek }}</span>
                 </div>
             {% endwith %}
         
@@ -153,6 +156,7 @@
             'address': document.querySelector('input[name=address]').value,
             'zipcode': document.querySelector('input[name=zipcode]').value,
             'city': document.querySelector('input[name=city]').value,
+            'submission_key': '{{ swish_submission_key|escapejs }}',
         };
 
         let errors = validateForm(data);
@@ -170,13 +174,19 @@
                 body: JSON.stringify(data)
             })
             .then(function(response) {
-                return response.json();
+                return response.json().then(function(data) {
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Kunde inte skapa ordern.');
+                    }
+                    return data;
+                });
             })
             .then(function(order) {
                 window.location.href = "/cart/success/";
             })
             .catch(function(error) {
                 console.log('Errors', error);
+                el.textContent = error.message;
             });
         }
 

@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Produkt, Review
 
 def produkt(request, slug):
-    produkt = get_object_or_404(Produkt, slug=slug)
+    produkt = get_object_or_404(Produkt.objects.public(), slug=slug)
 
     # Kontrollera om någon variant tillåter anpassad text
     show_custom_text_field = produkt.variants.filter(allow_custom_text=True).exists()
