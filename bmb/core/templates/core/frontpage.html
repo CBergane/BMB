@@ -95,7 +95,15 @@
             </div>
         </div>
         <div class="flex-shrink-0">
-            <button type="button" onclick="openModal()" class="button-secondary justify-center">
+            <button
+                id="gotsModalTrigger"
+                type="button"
+                class="button-secondary justify-center"
+                aria-haspopup="dialog"
+                aria-controls="myModal"
+                aria-expanded="false"
+                onclick="openModal(this)"
+            >
                 Mer om GOTS
             </button>
         </div>
@@ -183,7 +191,7 @@
 {% endif %}
 
 <div id="myModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="gotsModalTitle">
-    <div class="modal-content modal-video-shell">
+    <div class="modal-content modal-video-shell" tabindex="-1">
         <div class="flex items-start justify-between gap-4">
             <div>
                 <p class="eyebrow">GOTS</p>
@@ -196,7 +204,17 @@
             </button>
         </div>
         <div class="mt-5 overflow-hidden rounded-2xl bg-black">
-            <iframe title="Information om GOTS-certifiering" width="560" height="315" src="https://www.youtube.com/embed/xhQiGhnbDqw" frameborder="0" allowfullscreen></iframe>
+            <iframe
+                title="Information om GOTS-certifiering"
+                width="560"
+                height="315"
+                src="https://www.youtube-nocookie.com/embed/xhQiGhnbDqw"
+                style="width: 100%; height: auto; min-height: 0; aspect-ratio: 16 / 9;"
+                loading="lazy"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+            ></iframe>
         </div>
     </div>
 </div>
@@ -205,19 +223,25 @@
 {% block scripts %}
 <script>
     const gotsModal = document.getElementById('myModal');
+    const gotsModalDialog = gotsModal ? gotsModal.querySelector('.modal-content') : null;
+    const gotsModalTrigger = document.getElementById('gotsModalTrigger');
+    let gotsModalReturnFocus = null;
 
-    function openModal() {
+    function openModal(trigger) {
         if (!gotsModal) {
             return;
         }
 
+        gotsModalReturnFocus = trigger || document.activeElement;
         gotsModal.style.display = 'block';
         gotsModal.setAttribute('aria-hidden', 'false');
+        gotsModalTrigger?.setAttribute('aria-expanded', 'true');
         document.body.classList.add('modal-open');
+        gotsModalDialog?.focus();
     }
 
     function closeModal() {
-        if (!gotsModal) {
+        if (!gotsModal || gotsModal.getAttribute('aria-hidden') === 'true') {
             return;
         }
 
@@ -230,12 +254,23 @@
 
         gotsModal.style.display = 'none';
         gotsModal.setAttribute('aria-hidden', 'true');
+        gotsModalTrigger?.setAttribute('aria-expanded', 'false');
         document.body.classList.remove('modal-open');
+
+        if (gotsModalReturnFocus && typeof gotsModalReturnFocus.focus === 'function') {
+            gotsModalReturnFocus.focus();
+        }
     }
 
     if (gotsModal) {
         gotsModal.addEventListener('click', function(event) {
             if (event.target === gotsModal) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && gotsModal.getAttribute('aria-hidden') === 'false') {
                 closeModal();
             }
         });
