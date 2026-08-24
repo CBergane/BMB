@@ -95,7 +95,7 @@
             </div>
         </div>
         <div class="flex-shrink-0">
-            <button type="button" onclick="openModal()" class="button-secondary justify-center">
+            <button type="button" onclick="openModal(this)" class="button-secondary justify-center" aria-haspopup="dialog" aria-controls="myModal" aria-expanded="false">
                 Mer om GOTS
             </button>
         </div>
@@ -195,8 +195,17 @@
                 </svg>
             </button>
         </div>
-        <div class="mt-5 overflow-hidden rounded-2xl bg-black">
-            <iframe title="Information om GOTS-certifiering" width="560" height="315" src="https://www.youtube.com/embed/xhQiGhnbDqw" frameborder="0" allowfullscreen></iframe>
+        <div class="mt-5 overflow-hidden rounded-2xl bg-black" style="aspect-ratio: 16 / 9;">
+            <iframe
+                class="h-full w-full"
+                title="Information om GOTS-certifiering"
+                src="https://www.youtube-nocookie.com/embed/xhQiGhnbDqw"
+                loading="lazy"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+                style="min-height: 0;"
+            ></iframe>
         </div>
     </div>
 </div>
@@ -205,15 +214,26 @@
 {% block scripts %}
 <script>
     const gotsModal = document.getElementById('myModal');
+    const gotsModalClose = gotsModal ? gotsModal.querySelector('.modal-close') : null;
+    let gotsModalTrigger = null;
 
-    function openModal() {
+    function openModal(trigger) {
         if (!gotsModal) {
             return;
         }
 
+        gotsModalTrigger = trigger || document.activeElement;
         gotsModal.style.display = 'block';
         gotsModal.setAttribute('aria-hidden', 'false');
         document.body.classList.add('modal-open');
+
+        if (gotsModalTrigger) {
+            gotsModalTrigger.setAttribute('aria-expanded', 'true');
+        }
+
+        if (gotsModalClose) {
+            gotsModalClose.focus();
+        }
     }
 
     function closeModal() {
@@ -231,6 +251,11 @@
         gotsModal.style.display = 'none';
         gotsModal.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('modal-open');
+
+        if (gotsModalTrigger) {
+            gotsModalTrigger.setAttribute('aria-expanded', 'false');
+            gotsModalTrigger.focus();
+        }
     }
 
     if (gotsModal) {
@@ -240,5 +265,15 @@
             }
         });
     }
+
+    document.addEventListener('keydown', function(event) {
+        if (
+            event.key === 'Escape'
+            && gotsModal
+            && gotsModal.getAttribute('aria-hidden') === 'false'
+        ) {
+            closeModal();
+        }
+    });
 </script>
 {% endblock %}
