@@ -3,7 +3,8 @@ from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.db.models.deletion import ProtectedError
-from django.test import SimpleTestCase, TestCase
+from django.template.loader import render_to_string
+from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -31,6 +32,33 @@ class SekPriceFilterTests(SimpleTestCase):
 
     def test_sek_uses_round_half_up(self):
         self.assertEqual(sek(Decimal('9.835')), '9,84 kr')
+
+
+@override_settings(
+    STORAGES={
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+)
+class GotsEmbedTests(SimpleTestCase):
+    def test_video_uses_privacy_enhanced_embed(self):
+        rendered_template = render_to_string(
+            "core/frontpage.html",
+            {"meddelanden": [], "produkter": []},
+        )
+
+        self.assertIn(
+            'src="https://www.youtube-nocookie.com/embed/xhQiGhnbDqw"',
+            rendered_template,
+        )
+        self.assertIn(
+            'referrerpolicy="strict-origin-when-cross-origin"',
+            rendered_template,
+        )
 
 
 class PublicStorefrontSmokeTests(TestCase):
