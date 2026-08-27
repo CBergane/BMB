@@ -1,8 +1,13 @@
+from datetime import timedelta
 from decimal import Decimal
+from urllib.parse import urlencode
 
 from django.conf import settings
+from django.template.defaultfilters import urlencode as template_urlencode
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
+from django.utils.html import escape
 
 from products.models import Category, Produkt
 
@@ -136,3 +141,232 @@ class ProductPublicationLifecycleTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'inte längre publicerade eller tillgängliga')
         self.assertNotContains(response, self.draft_product.namn)
+
+
+class ProductNavigationTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.parent_category = Category.objects.create(namn='Tyger')
+        cls.category = Category.objects.create(
+            namn='Bambujersey',
+            parent=cls.parent_category,
+        )
+        cls.other_category = Category.objects.create(namn='Tillbehör')
+
+        cls.newest = cls._create_product('Navigering nyast')
+        cls.newer = cls._create_product('Navigering nyare')
+        cls.current = cls._create_product('Bambujersey Beige')
+        cls.older = cls._create_product('Navigering äldre')
+        cls.oldest = cls._create_product('Navigering äldst')
+        cls.tail = cls._create_product('Navigering sist')
+
+        cls.draft = cls._create_product(
+            'Dolt navigeringsutkast',
+            publication_status=Produkt.PublicationStatus.DRAFT,
+        )
+        cls.archived = cls._create_product(
+            'Dold arkiverad navigation',
+            publication_status=Produkt.PublicationStatus.ARCHIVED,
+        )
+        cls.inactive = cls._create_product(
+            'Dold inaktiv navigation',
+            is_active=False,
+        )
+        cls.other_category_product = cls._create_product(
+            'Annan kategoris produkt',
+            category=cls.other_category,
+        )
+
+        base_time = timezone.now()
+        ordered_products = (
+            cls.newest,
+            cls.newer,
+            cls.current,
+            cls.older,
+            cls.oldest,
+            cls.tail,
+        )
+        for position, product in enumerate(ordered_products):
+            Produkt.objects.filter(pk=product.pk).update(
+                skapad=base_time - timedelta(minutes=position),
+            )
+
+        hidden_times = (
+            (cls.inactive, timedelta(seconds=30)),
+            (cls.draft, timedelta(minutes=1, seconds=30)),
+            (cls.archived, timedelta(minutes=2, seconds=30)),
+        )
+        for product, offset in hidden_times:
+            Produkt.objects.filter(pk=product.pk).update(
+                skapad=base_time - offset,
+            )
+
+    @classmethod
+    def _create_product(
+        cls,
+        name,
+        *,
+        category=None,
+        publication_status=Produkt.PublicationStatus.PUBLISHED,
+        is_active=True,
+    ):
+        return Produkt.objects.create(
+            category=category or cls.category,
+            namn=name,
+            inventory=10,
+            is_active=is_active,
+            pris=Decimal('149.00'),
+            publication_status=publication_status,
+        )
+
+    def _detail_url(self, product=None):
+        product = product or self.current
+        return reverse('produkt', kwargs={'slug': product.slug})
+
+    def _category_fallback(self):
+        return (
+            f"{reverse('shop')}?"
+            f"{urlencode({'category': self.category.slug})}"
+        )
+
+    def test_breadcrumbs_show_parent_category_and_category(self):
+        response = self.client.get(self._detail_url())
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'aria-label="Brödsmulor"')
+        self.assertContains(
+            response,
+            f'href="{reverse("shop")}?category={self.parent_category.slug}"',
+        )
+        self.assertContains(
+            response,
+            f'href="{reverse("shop")}?category={self.category.slug}"',
+        )
+        self.assertContains(response, 'aria-current="page">Bambujersey Beige')
+
+    def test_product_card_carries_full_internal_list_context(self):
+        list_query = {
+            'category': self.category.slug,
+            'query': 'Navigering',
+            'page': '2',
+        }
+        response = self.client.get(reverse('shop'), list_query)
+        list_context = (
+            f"{reverse('shop')}?{urlencode(list_query)}"
+            f"#product-{self.newer.pk}"
+        )
+        expected_href = (
+            f"{self._detail_url(self.newer)}?return_to="
+            f"{template_urlencode(list_context)}"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f'id="product-{self.newer.pk}"')
+        self.assertContains(response, f'href="{expected_href}"')
+
+    def test_internal_return_link_preserves_filters_page_and_anchor(self):
+        return_to = (
+            f"{reverse('shop')}?category={self.category.slug}"
+            f"&query=beige&page=3#product-{self.current.pk}"
+        )
+        response = self.client.get(
+            self._detail_url(),
+            {'return_to': return_to},
+        )
+
+        self.assertEqual(response.context['return_to'], return_to)
+        self.assertEqual(response.context['return_label'], self.category.namn)
+        self.assertContains(response, f'href="{escape(return_to)}"')
+        self.assertContains(response, 'Tillbaka till Bambujersey')
+
+    def test_named_public_lists_are_allowed_return_contexts(self):
+        list_contexts = (
+            ('discounted_products', 'REA'),
+            ('news', 'Nyheter'),
+            ('stubbies', 'Stuvbitar'),
+            ('bmb_exclusive_products', 'BMB Exclusive'),
+        )
+
+        for url_name, expected_label in list_contexts:
+            return_to = (
+                f"{reverse(url_name)}?page=2"
+                f"#product-{self.current.pk}"
+            )
+            with self.subTest(url_name=url_name):
+                response = self.client.get(
+                    self._detail_url(),
+                    {'return_to': return_to},
+                )
+
+                self.assertEqual(response.context['return_to'], return_to)
+                self.assertEqual(
+                    response.context['return_label'],
+                    expected_label,
+                )
+
+    def test_external_and_unapproved_return_addresses_use_safe_fallback(self):
+        fallback = self._category_fallback()
+        unsafe_values = (
+            'https://evil.example/phishing',
+            '//evil.example/phishing',
+            '/admin/?next=/shop/',
+        )
+
+        for return_to in unsafe_values:
+            with self.subTest(return_to=return_to):
+                response = self.client.get(
+                    self._detail_url(),
+                    {'return_to': return_to},
+                )
+
+                self.assertEqual(response.context['return_to'], fallback)
+                self.assertNotContains(response, return_to)
+
+    def test_direct_open_uses_category_fallback_or_shop(self):
+        response = self.client.get(self._detail_url())
+
+        self.assertEqual(response.context['return_to'], self._category_fallback())
+        self.assertEqual(response.context['return_label'], self.category.namn)
+
+        Category.objects.filter(pk=self.category.pk).update(slug='')
+        response_without_category_slug = self.client.get(self._detail_url())
+
+        self.assertEqual(
+            response_without_category_slug.context['return_to'],
+            reverse('shop'),
+        )
+        self.assertEqual(
+            response_without_category_slug.context['return_label'],
+            'Butik',
+        )
+
+    def test_previous_and_next_are_public_active_category_neighbors(self):
+        response = self.client.get(self._detail_url())
+
+        self.assertEqual(response.context['previous_product'], self.newer)
+        self.assertEqual(response.context['next_product'], self.older)
+        self.assertNotContains(response, self.draft.namn)
+        self.assertNotContains(response, self.archived.namn)
+        self.assertNotContains(response, self.inactive.namn)
+        self.assertNotContains(response, self.other_category_product.namn)
+
+    def test_previous_and_next_navigation_is_not_circular(self):
+        first_response = self.client.get(self._detail_url(self.newest))
+        last_response = self.client.get(self._detail_url(self.tail))
+
+        self.assertIsNone(first_response.context['previous_product'])
+        self.assertIsNone(last_response.context['next_product'])
+
+    def test_related_products_exclude_current_hidden_and_other_categories(self):
+        response = self.client.get(self._detail_url())
+        related_products = list(response.context['related_products'])
+
+        self.assertEqual(
+            related_products,
+            [self.newest, self.newer, self.older, self.oldest],
+        )
+        self.assertNotIn(self.current, related_products)
+        self.assertNotIn(self.draft, related_products)
+        self.assertNotIn(self.archived, related_products)
+        self.assertNotIn(self.inactive, related_products)
+        self.assertNotIn(self.other_category_product, related_products)
