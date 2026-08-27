@@ -11,6 +11,30 @@
 </div>
 {% endif %}
 
+{% if not owner_preview %}
+<nav class="mx-auto max-w-6xl px-6 pt-6 text-sm text-gray-600 xl:px-0" aria-label="Brödsmulor">
+    <ol class="flex flex-wrap items-center gap-x-2 gap-y-2">
+        <li><a href="{% url 'shop' %}" class="font-semibold text-gray-700 hover:text-gray-900">Butik</a></li>
+        <li aria-hidden="true">→</li>
+        {% if produkt.category.parent %}
+            <li>
+                <a href="{% url 'shop' %}?category={{ produkt.category.parent.slug|urlencode }}" class="font-semibold text-gray-700 hover:text-gray-900">
+                    {{ produkt.category.parent.namn }}
+                </a>
+            </li>
+            <li aria-hidden="true">→</li>
+        {% endif %}
+        <li>
+            <a href="{% url 'shop' %}?category={{ produkt.category.slug|urlencode }}" class="font-semibold text-gray-700 hover:text-gray-900">
+                {{ produkt.category.namn }}
+            </a>
+        </li>
+        <li aria-hidden="true">→</li>
+        <li class="min-w-0 break-words font-medium text-gray-900" aria-current="page">{{ produkt.namn }}</li>
+    </ol>
+</nav>
+{% endif %}
+
 <div class="max-w-6xl mx-auto flex flex-wrap py-6 px-6 xl:px-0">
     <div class="max-w-6xl mx-auto flex flex-wrap py-6 px-6 xl:px-0">
         <div class="images w-full mb-6 lg:mb-0 lg:w-3/5">
@@ -33,6 +57,12 @@
     
 
     <div class="information w-full lg:w-2/5 lg:p-6">
+        {% if return_to %}
+            <a href="{{ return_to }}" class="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-gray-900">
+                <span aria-hidden="true">←</span>
+                Tillbaka till {{ return_label }}
+            </a>
+        {% endif %}
         <h1 class="text-2xl">{{produkt.namn}}</h1>
         {% if produkt.discount_percentage > 0 %}
         <p class="pt-1 text-gray-400">
@@ -146,6 +176,25 @@
     {% else %}
         <span class="mt-6 inline-block px-8 py-4 rounded-xl text-gray-400">Slut i lager</span>
     {% endif %}
+
+        {% if previous_product or next_product %}
+            <nav class="mt-8 grid grid-cols-1 gap-3 border-t border-gray-200 pt-6 sm:grid-cols-2" aria-label="Föregående och nästa produkt i {{ produkt.category.namn }}">
+                {% if previous_product %}
+                    <a href="{% url 'produkt' previous_product.slug %}?return_to={{ return_to|urlencode }}" class="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-left shadow-sm hover:border-gray-400">
+                        <span class="block text-xs font-semibold uppercase tracking-widest text-gray-500">← Föregående produkt</span>
+                        <span class="mt-1 block font-semibold text-gray-900">{{ previous_product.namn }}</span>
+                    </a>
+                {% else %}
+                    <span class="hidden sm:block" aria-hidden="true"></span>
+                {% endif %}
+                {% if next_product %}
+                    <a href="{% url 'produkt' next_product.slug %}?return_to={{ return_to|urlencode }}" class="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-left shadow-sm hover:border-gray-400 sm:text-right">
+                        <span class="block text-xs font-semibold uppercase tracking-widest text-gray-500">Nästa produkt →</span>
+                        <span class="mt-1 block font-semibold text-gray-900">{{ next_product.namn }}</span>
+                    </a>
+                {% endif %}
+            </nav>
+        {% endif %}
     </div>
 
     <div class="w-full">
@@ -186,6 +235,20 @@
         {% endfor %}
     </div>
 </div>
+
+{% if related_products %}
+<section class="mx-auto w-full max-w-6xl px-6 pb-12 pt-4 xl:px-0" aria-labelledby="related-products-title">
+    <div class="mb-6">
+        <p class="eyebrow">Fortsätt handla</p>
+        <h2 id="related-products-title" class="section-heading mt-2 text-3xl text-gray-900">Fler i {{ produkt.category.namn }}</h2>
+    </div>
+    <div class="product-grid products">
+        {% for related_product in related_products %}
+            {% include 'products/partials/product_list_items.html' with produkt=related_product return_to=return_to %}
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
 
 <!-- Modal for first image -->
 <div id="modal1" class="modal fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">

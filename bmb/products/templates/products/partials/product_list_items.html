@@ -1,7 +1,8 @@
 {% load price_filters %}
+{% url 'produkt' produkt.slug as product_url %}
 
-<article class="product-card">
-    <a href="{% url 'produkt' produkt.slug %}" class="product-card-media">
+<article id="product-{{ produkt.pk }}" class="product-card">
+    <a href="{{ product_url }}?return_to={% if return_to %}{{ return_to|urlencode }}{% else %}{{ request.get_full_path|urlencode }}%23product-{{ produkt.pk }}{% endif %}" class="product-card-media">
         <img
             src="{{ produkt.get_thumbnail }}"
             class="product-card-image"
@@ -27,7 +28,7 @@
 
         <div class="product-card-copy">
             <h3 class="product-card-title">
-                <a href="{% url 'produkt' produkt.slug %}" class="product-card-title-link">
+                <a href="{{ product_url }}?return_to={% if return_to %}{{ return_to|urlencode }}{% else %}{{ request.get_full_path|urlencode }}%23product-{{ produkt.pk }}{% endif %}" class="product-card-title-link">
                     {{ produkt.namn }}
                 </a>
             </h3>
@@ -63,7 +64,7 @@
         <div class="product-card-actions">
             {% if card_mode == 'stubbie' and produkt.is_active %}
                 <a
-                    href="{% url 'produkt' produkt.slug %}"
+                    href="{{ product_url }}?return_to={% if return_to %}{{ return_to|urlencode }}{% else %}{{ request.get_full_path|urlencode }}%23product-{{ produkt.pk }}{% endif %}"
                     class="product-card-button product-card-button--primary"
                     hx-get="{% url 'add_to_cart' produkt.id %}"
                     hx-target="#menu-cart-btn"
@@ -73,7 +74,7 @@
                     Lägg i kundvagn
                 </a>
             {% elif produkt.is_active %}
-                <a href="{% url 'produkt' produkt.slug %}" class="product-card-button product-card-button--primary">
+                <a href="{{ product_url }}?return_to={% if return_to %}{{ return_to|urlencode }}{% else %}{{ request.get_full_path|urlencode }}%23product-{{ produkt.pk }}{% endif %}" class="product-card-button product-card-button--primary">
                     Se produkt
                 </a>
             {% else %}
@@ -83,7 +84,7 @@
             {% endif %}
 
             {% if card_mode == 'stubbie' %}
-                <a href="{% url 'produkt' produkt.slug %}" class="product-card-link">
+                <a href="{{ product_url }}?return_to={% if return_to %}{{ return_to|urlencode }}{% else %}{{ request.get_full_path|urlencode }}%23product-{{ produkt.pk }}{% endif %}" class="product-card-link">
                     Visa produkt
                 </a>
             {% endif %}
