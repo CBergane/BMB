@@ -1,0 +1,64 @@
+name: Django CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: bmb
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: bmb_ci
+          POSTGRES_USER: bmb_ci
+          POSTGRES_PASSWORD: ci-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bmb_ci -d bmb_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      # Public placeholders for this disposable CI environment only.
+      SECRET_KEY: ci-only-do-not-use-in-production-0123456789-abcdefghijklmnopqrstuvwxyz
+      DATABASE_URL: postgresql://bmb_ci:ci-only-password@127.0.0.1:5432/bmb_ci
+      DATABASE_SSL: "False"
+      DEBUG: "False"
+      CART_SESSION: cart
+      CLOUDINARY_URL: cloudinary://ci-only:ci-only@ci-only
+      EMAIL: ci@example.invalid
+      DEFAULT_FROM_EMAIL: ci@example.invalid
+      CSRF_TRUSTED_ORIGINS: https://localhost
+      SECURE_SSL_REDIRECT: "True"
+      SESSION_COOKIE_SECURE: "True"
+      CSRF_COOKIE_SECURE: "True"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Check Django configuration
+        run: python manage.py check
+      - name: Collect production static files
+        run: python manage.py collectstatic --noinput
+      - name: Check deployment configuration
+        run: python manage.py check --deploy
+      - name: Run PostgreSQL tests
+        env:
+          # The existing test client sends HTTP requests.
+          SECURE_SSL_REDIRECT: "False"
+        run: python manage.py test --noinput
