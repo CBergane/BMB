@@ -3,69 +3,69 @@
 {% block title %}Gå med{% endblock %}
 
 {% block content %}
-<div class="max-w-lg mx-auto flex flex-wrap p-6">
-    <div class="w-full bg-gray-100 p-6 rounded-xl">
-        <h1 class="mb-6 text-2xl">Sign up</h1>
+<div class="max-w-lg mx-auto px-6 page-section">
+    <div class="info-box">
+        <h1 class="section-heading page-heading">Skapa konto</h1>
 
-        <form method="post" action="." class="space-y-3">
+        <form method="post" action="." class="storefront-form space-y-3">
             {% csrf_token %}
 
             <div>
-                <label>Användarnamn</label>
+                <label class="form-label" for="{{ form.username.id_for_label }}">Användarnamn</label>
                 {{ form.username }}
                 {% for error in form.username.errors %}
-                    <div class="text-red-800">{{ error|escape }}</div>
+                    <div class="field-error">{{ error|escape }}</div>
                 {% endfor %}
             </div>
             
             <div>
-                <label>Förnamn</label>
+                <label class="form-label" for="{{ form.first_name.id_for_label }}">Förnamn</label>
                 {{ form.first_name }}
                 {% for error in form.first_name.errors %}
-                    <div class="text-red-800">{{ error|escape }}</div>
+                    <div class="field-error">{{ error|escape }}</div>
                 {% endfor %}
             </div>
 
             <div>
-                <label>Efternamn</label>
+                <label class="form-label" for="{{ form.last_name.id_for_label }}">Efternamn</label>
                 {{ form.last_name }}
                 {% for error in form.last_name.errors %}
-                    <div class="text-red-800">{{ error|escape }}</div>
+                    <div class="field-error">{{ error|escape }}</div>
                 {% endfor %}
             </div>
 
             <div>
-                <label>E-mail</label>
+                <label class="form-label" for="{{ form.email.id_for_label }}">E-mail</label>
                 {{ form.email }}
                 {% for error in form.email.errors %}
-                    <div class="text-red-800">{{ error|escape }}</div>
+                    <div class="field-error">{{ error|escape }}</div>
                 {% endfor %}
             </div>
 
             <div>
-                <label>Lösenord</label>
+                <label class="form-label" for="{{ form.password1.id_for_label }}">Lösenord</label>
                 {{ form.password1 }}
                 {% for error in form.password1.errors %}
-                    <div class="text-red-800">{{ error|escape }}</div>
+                    <div class="field-error">{{ error|escape }}</div>
                 {% endfor %}
             </div>
 
             <div>
-                <label>Upprepa lösenord</label>
+                <label class="form-label" for="{{ form.password2.id_for_label }}">Upprepa lösenord</label>
                 {{ form.password2 }}
                 {% for error in form.password2.errors %}
-                    <div class="text-red-800">{{ error|escape }}</div>
+                    <div class="field-error">{{ error|escape }}</div>
                 {% endfor %}
             </div>
 
             {% for error in form.non_field_errors %}
-                <div class="p-6 bg-red-200 text-red-800 rounded-xl">
+                <div class="alert alert--error" role="alert">
                     <p>{{ error|escape }}</p>
                 </div>
             {% endfor %}
 
             <div>
-                <button class="py-4 px-6 rounded-xl text-white green-bg green-bg-hover">Skicka in</button>
+                <button class="button-brand">Skicka in</button>
             </div>
         </form>
     </div>

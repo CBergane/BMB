@@ -1,10 +1,11 @@
 from datetime import timedelta
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models.deletion import ProtectedError
 from django.template.loader import render_to_string
-from django.test import SimpleTestCase, TestCase, override_settings
+from django.test import Client, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -15,6 +16,77 @@ from products.models import Category, Produkt
 
 
 User = get_user_model()
+
+
+class LogoutTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(username='logout-kund')
+
+    def setUp(self):
+        self.client = Client(enforce_csrf_checks=True)
+        self.client.force_login(self.user)
+
+    def test_post_logs_out_and_redirects_to_configured_url(self):
+        page = self.client.get(reverse('frontpage'))
+
+        response = self.client.post(
+            reverse('logout'),
+            {'csrfmiddlewaretoken': str(page.context['csrf_token'])},
+        )
+
+        self.assertRedirects(response, settings.LOGOUT_REDIRECT_URL)
+        self.assertNotIn('_auth_user_id', self.client.session)
+        page = self.client.get(reverse('frontpage'))
+        self.assertFalse(page.wsgi_request.user.is_authenticated)
+
+    @override_settings(LOGOUT_REDIRECT_URL='/login/')
+    def test_post_respects_logout_redirect_setting(self):
+        page = self.client.get(reverse('frontpage'))
+
+        response = self.client.post(
+            reverse('logout'),
+            {'csrfmiddlewaretoken': str(page.context['csrf_token'])},
+        )
+
+        self.assertRedirects(response, '/login/')
+
+    def test_get_is_not_allowed_and_keeps_user_authenticated(self):
+        response = self.client.get(reverse('logout'))
+
+        self.assertEqual(response.status_code, 405)
+        page = self.client.get(reverse('frontpage'))
+        self.assertTrue(page.wsgi_request.user.is_authenticated)
+
+    def test_post_without_csrf_token_is_rejected(self):
+        self.client.get(reverse('frontpage'))
+
+        response = self.client.post(reverse('logout'))
+
+        self.assertEqual(response.status_code, 403)
+        page = self.client.get(reverse('frontpage'))
+        self.assertTrue(page.wsgi_request.user.is_authenticated)
+
+    def test_desktop_and_mobile_logout_controls_are_csrf_protected_forms(self):
+        response = self.client.get(reverse('frontpage'))
+        logout_url = reverse('logout')
+        csrf_token = response.context['csrf_token']
+
+        for button_classes in (
+            'nav-link w-full text-left',
+            'account-menu-link account-menu-link-logout w-full text-left',
+        ):
+            with self.subTest(button_classes=button_classes):
+                self.assertContains(
+                    response,
+                    f'<form method="post" action="{logout_url}">'
+                    f'<input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">'
+                    f'<button type="submit" class="{button_classes}">Logga ut</button>'
+                    '</form>',
+                    count=1,
+                    html=True,
+                )
+        self.assertNotContains(response, f'href="{logout_url}"')
 
 
 class SekPriceFilterTests(SimpleTestCase):
