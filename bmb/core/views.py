@@ -1,13 +1,15 @@
+from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.db.models import Prefetch, Q
 from django.utils import timezone
 from datetime import timedelta
-from django.core.mail import send_mail
+from django.core.mail import BadHeaderError, EmailMessage
 from django.http import JsonResponse
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.views.decorators.http import require_POST
 
 from django.db.models import Count
 from order.models import Order, OrderItem
@@ -17,40 +19,34 @@ from .models import Meddelande
 
 from .forms import SignUpForm
 
+@require_POST
 def send_contact_email(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        email = request.POST.get('email')
-        message = request.POST.get('message')
+    name = request.POST.get('name', '').strip()
+    email = request.POST.get('email', '').strip()
+    message = request.POST.get('message', '').strip()
 
-        if not all([name, email, message]):
-            return JsonResponse({'status': 'error', 'message': 'Alla fält måste fyllas i.'})
+    if not all([name, email, message]):
+        return JsonResponse({'status': 'error', 'message': 'Alla fält måste fyllas i.'})
 
-        try:
-            validate_email(email)
-        except ValidationError:
-            return JsonResponse({'status': 'error', 'message': 'Ogiltig e-postadress.'})
+    try:
+        validate_email(email)
+    except ValidationError:
+        return JsonResponse({'status': 'error', 'message': 'Ogiltig e-postadress.'})
 
-        if any(char in message for char in ['<', '>', 'script', 'alert']):
-            return JsonResponse({'status': 'error', 'message': 'Ogiltiga tecken i meddelandet.'})
+    email_body = f"Namn: {name}\nE-post: {email}\n\nMeddelande:\n{message}"
 
-        if not name.replace(' ', '').isalpha():
-            return JsonResponse({'status': 'error', 'message': 'Namnet får endast innehålla bokstäver.'})
-
-        email_body = f"Namn: {name}\nE-post: {email}\n\nMeddelande:\n{message}"
-
-        # Skicka e-post
-        send_mail(
+    try:
+        EmailMessage(
             subject=f"Meddelande från {name} via Kontaktformulär",
-            message=email_body,
-            from_email=email,
-            recipient_list=['bmb@bramycketbattre.com'],
-            fail_silently=False,
-        )
+            body=email_body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=['bmb@bramycketbattre.com'],
+            reply_to=[email],
+        ).send(fail_silently=False)
+    except BadHeaderError:
+        return JsonResponse({'status': 'error', 'message': 'Ogiltigt namn.'})
 
-        return JsonResponse({'status': 'success', 'message': 'E-post skickad'})
-    else:
-        return JsonResponse({'status': 'error', 'message': 'Endast POST-metoden är tillåten'})
+    return JsonResponse({'status': 'success', 'message': 'E-post skickad'})
 
 
 def frontpage(request):

@@ -189,6 +189,7 @@
             <div id="emailFeedback" class="hidden mt-5 rounded-2xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-900" aria-live="polite"></div>
 
             <form id="contactForm" action="{% url 'send_email' %}" method="post" class="mt-6 space-y-4">
+                {% csrf_token %}
                 <div>
                     <label class="form-label" for="name">Namn</label>
                     <input type="text" id="name" name="name" class="form-input" autocomplete="name">
@@ -345,8 +346,9 @@
 
                 fetch(this.action, {
                     method: 'POST',
+                    mode: 'same-origin',
                     headers: {
-                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
                         'Accept': 'application/json',
                     },
                     body: formData,
