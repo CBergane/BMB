@@ -17,7 +17,7 @@ from products.models import Produkt, Category
 from .access import active_account_required
 from .models import Meddelande
 
-from .forms import SignUpForm
+from .forms import ProfileForm, SignUpForm
 
 @require_POST
 def send_contact_email(request):
@@ -165,13 +165,11 @@ def myaccount_order_detail(request, order_id):
 @login_required
 def edit_myaccount(request):
     if request.method == 'POST':
-        user = request.user
-        user.first_name = request.POST.get('first_name')
-        user.last_name = request.POST.get('last_name')
-        user.username = request.POST.get('username')
-        user.email = request.POST.get('email')
-        user.save()
+        form = ProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('myaccount')
+    else:
+        form = ProfileForm(instance=request.user)
 
-        return redirect('myaccount')
-    return render(request, 'core/edit_myaccount.html', )
-
+    return render(request, 'core/edit_myaccount.html', {'form': form})
