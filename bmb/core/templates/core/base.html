@@ -72,7 +72,10 @@
                                 {% if request.user.is_active and request.user.is_superuser %}
                                     <a href="{% url 'owner_dashboard:dashboard' %}" class="nav-link {% if request.resolver_match.namespace == 'owner_dashboard' %}active{% endif %}" {% if request.resolver_match.namespace == 'owner_dashboard' %}aria-current="page"{% endif %}>Ägarpanel</a>
                                 {% endif %}
-                                <a href="{% url 'logout' %}" class="nav-link">Logga ut</a>
+                                <form method="post" action="{% url 'logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="nav-link w-full text-left">Logga ut</button>
+                                </form>
                             {% else %}
                                 <a href="{% url 'login' %}" class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}" {% if request.resolver_match.url_name == 'login' %}aria-current="page"{% endif %}>Logga in</a>
                                 <a href="{% url 'signup' %}" class="nav-link {% if request.resolver_match.url_name == 'signup' %}active{% endif %}" {% if request.resolver_match.url_name == 'signup' %}aria-current="page"{% endif %}>Skapa konto</a>
@@ -96,7 +99,10 @@
                             {% if request.user.is_active and request.user.is_superuser %}
                                 <a href="{% url 'owner_dashboard:dashboard' %}" class="account-menu-link {% if request.resolver_match.namespace == 'owner_dashboard' %}active{% endif %}" {% if request.resolver_match.namespace == 'owner_dashboard' %}aria-current="page"{% endif %}>Ägarpanel</a>
                             {% endif %}
-                            <a href="{% url 'logout' %}" class="account-menu-link account-menu-link-logout">Logga ut</a>
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="account-menu-link account-menu-link-logout w-full text-left">Logga ut</button>
+                            </form>
                         {% else %}
                             <a href="{% url 'login' %}" class="account-menu-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}" {% if request.resolver_match.url_name == 'login' %}aria-current="page"{% endif %}>Logga in</a>
                             <a href="{% url 'signup' %}" class="account-menu-link {% if request.resolver_match.url_name == 'signup' %}active{% endif %}" {% if request.resolver_match.url_name == 'signup' %}aria-current="page"{% endif %}>Skapa konto</a>
