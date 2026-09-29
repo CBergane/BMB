@@ -17,11 +17,11 @@
     <a href="#main-content" class="skip-link">Hoppa till innehållet</a>
 
     <header class="border-b border-gray-200 bg-white shadow-sm">
-        <div class="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 py-4 xl:px-0">
+        <div class="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 py-4">
             <div class="flex min-w-0 flex-1 items-center gap-4">
                 <a href="{% url 'frontpage' %}" class="inline-flex shrink-0 items-center gap-3" aria-label="Bra Mycket Bättre, till startsidan">
                     <img src="{% static 'media/BMB.png' %}" class="h-14 w-14 rounded-full object-cover" alt="Bra Mycket Bättre logotyp">
-                    <span class="hidden sm:block">
+                    <span class="hidden sm:block lg:hidden xl:block">
                         <span class="block text-xs font-semibold uppercase tracking-widest text-gray-500">Bra Mycket Bättre</span>
                         <span class="block whitespace-nowrap text-[0.68rem] font-medium uppercase tracking-[0.18em] text-gray-500">TYGER&nbsp;&nbsp;SYTILLBEHÖR</span>
                     </span>
@@ -132,9 +132,9 @@
         {% endblock %}
     </main>
 
-    <footer class="border-t border-gray-200 bg-gray-100">
-        <div class="mx-auto grid max-w-6xl gap-10 px-6 py-10 xl:px-0 lg:grid-cols-[1.4fr_1fr_1fr]">
-            <div class="space-y-4">
+    <footer class="site-footer border-t border-gray-200 bg-gray-100">
+        <div class="mx-auto grid max-w-6xl gap-8 px-6 py-10 xl:px-0 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr]">
+            <div class="space-y-4 sm:col-span-2 lg:col-span-1">
                 <div class="inline-flex items-center gap-3">
                     <img src="{% static 'media/BMB.png' %}" class="h-12 w-12 rounded-full object-cover" alt="Bra Mycket Bättre logotyp">
                     <div>
@@ -149,7 +149,7 @@
 
             <div>
                 <h2 class="mb-4 text-sm font-semibold uppercase tracking-widest text-gray-500">Utforska</h2>
-                <ul class="space-y-3 text-sm text-gray-700">
+                <ul class="space-y-1 text-sm text-gray-700">
                     <li><a href="{% url 'shop' %}" class="footer-link">Butik</a></li>
                     <li><a href="{% url 'news' %}" class="footer-link">Nyheter</a></li>
                     <li><a href="{% url 'discounted_products' %}" class="footer-link">Rea</a></li>
@@ -159,7 +159,7 @@
 
             <div>
                 <h2 class="mb-4 text-sm font-semibold uppercase tracking-widest text-gray-500">Kontakt & socialt</h2>
-                <ul class="space-y-3 text-sm text-gray-700">
+                <ul class="space-y-1 text-sm text-gray-700">
                     <li>
                         <button type="button" class="footer-link footer-link-button" onclick="openModalContact(event)" aria-label="Öppna kontaktformulär">
                             Kontakta oss
@@ -186,7 +186,7 @@
                 Skicka din fråga om tyger, beställningar eller materialval så återkommer vi så snart vi kan.
             </p>
 
-            <div id="emailFeedback" class="hidden mt-5 rounded-2xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-900" aria-live="polite"></div>
+            <div id="emailFeedback" class="alert hidden mt-5" aria-live="polite"></div>
 
             <form id="contactForm" action="{% url 'send_email' %}" method="post" class="mt-6 space-y-4">
                 {% csrf_token %}

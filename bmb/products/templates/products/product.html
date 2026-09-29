@@ -35,20 +35,19 @@
 </nav>
 {% endif %}
 
-<div class="max-w-6xl mx-auto flex flex-wrap py-6 px-6 xl:px-0">
-    <div class="max-w-6xl mx-auto flex flex-wrap py-6 px-6 xl:px-0">
-        <div class="images w-full mb-6 lg:mb-0 lg:w-3/5">
-            <img class="rounded-xl cursor-pointer w-1/2" src="{% if produkt.image %}{{ produkt.get_thumbnail }}{% else %}https://placehold.co/240x240{% endif %}" alt="{{ produkt.namn }}" onclick="openModal('modal1')">
+<div class="page-shell page-section product-detail">
+        <div class="images">
+            <img class="product-main-image" src="{% if produkt.image %}{{ produkt.get_thumbnail }}{% else %}https://placehold.co/240x240{% endif %}" alt="{{ produkt.namn }}" onclick="openModal('modal1')">
             
-            <div class="flex space-x-4 mt-4">
+            <div class="product-thumbnails">
                 {% if produkt.image2 %}
-                    <img class="rounded-xl cursor-pointer w-1/3" src="{{ produkt.get_thumbnail_image2 }}" alt="{{ produkt.namn }} bild 2" onclick="openModal('modal2')">
+                    <img class="rounded-xl cursor-pointer" src="{{ produkt.get_thumbnail_image2 }}" alt="{{ produkt.namn }} bild 2" onclick="openModal('modal2')">
                 {% endif %}
                 {% if produkt.image3 %}
-                    <img class="rounded-xl cursor-pointer w-1/3" src="{{ produkt.get_thumbnail_image3 }}" alt="{{ produkt.namn }} bild 3" onclick="openModal('modal3')">
+                    <img class="rounded-xl cursor-pointer" src="{{ produkt.get_thumbnail_image3 }}" alt="{{ produkt.namn }} bild 3" onclick="openModal('modal3')">
                 {% endif %}
                 {% if produkt.image4 %}
-                    <img class="rounded-xl cursor-pointer w-1/3" src="{{ produkt.get_thumbnail_image4 }}" alt="{{ produkt.namn }} bild 4" onclick="openModal('modal4')">
+                    <img class="rounded-xl cursor-pointer" src="{{ produkt.get_thumbnail_image4 }}" alt="{{ produkt.namn }} bild 4" onclick="openModal('modal4')">
                 {% endif %}
             </div>
         </div>
@@ -56,27 +55,25 @@
 
     
 
-    <div class="information w-full lg:w-2/5 lg:p-6">
+    <div class="information">
         {% if return_to %}
             <a href="{{ return_to }}" class="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-gray-900">
                 <span aria-hidden="true">←</span>
                 Tillbaka till {{ return_label }}
             </a>
         {% endif %}
-        <h1 class="text-2xl">{{produkt.namn}}</h1>
+        <h1 class="section-heading page-heading">{{produkt.namn}}</h1>
         {% if produkt.discount_percentage > 0 %}
-        <p class="pt-1 text-gray-400">
-            <del><strong>{{ produkt.pris|sek }} / {{ produkt.get_unit_display }}</strong></del> <br>
-            <strong>{{ produkt.get_discounted_price|sek }} / <strong>{{ produkt.get_unit_display }}</strong>
-        </p>
-        <p>{{ produkt.get_discount_info }}</p>
+        <p class="product-card-compare">{{ produkt.pris|sek }} / {{ produkt.get_unit_display }}</p>
+        <p class="product-price">{{ produkt.get_discounted_price|sek }} <span class="product-card-unit">/ {{ produkt.get_unit_display }}</span></p>
+        <p class="product-badge product-badge--sale mb-4">{{ produkt.get_discount_info }}</p>
         {% else %}
-        <strong><p class="pt-1 text-gray-400">{{ produkt.pris|sek }} / {{ produkt.get_unit_display }}</strong></p>
+        <p class="product-price">{{ produkt.pris|sek }} <span class="product-card-unit">/ {{ produkt.get_unit_display }}</span></p>
         {% endif %}
         
 
         {% if produkt.get_rating > 0 %}
-            <p class="mt-1 text-gray-400">Omdömme: {{ produkt.get_rating }}/6</p>
+            <p class="mt-1 text-sm text-gray-600">Omdömme: {{ produkt.get_rating }}/6</p>
         {% endif %}
 
         {% if produkt.bredd %}
@@ -114,7 +111,7 @@
     
 
         {% if produkt.beskrivning %}
-            <p class="pt-6 text-gray-700">{{produkt.beskrivning | safe}}</p>
+            <div class="product-description text-gray-700">{{produkt.beskrivning | safe}}</div>
         {% endif %}
 
         <div class="icons-wrapper">
@@ -128,32 +125,32 @@
         
 
         {% if owner_preview %}
-            <div class="mt-6 rounded-xl border border-gray-200 bg-gray-100 px-5 py-4 text-sm font-semibold text-gray-600" aria-disabled="true">
+            <div class="alert mt-6" aria-disabled="true">
                 Köp avstängt i förhandsgranskning.
             </div>
         {% elif produkt.is_active %}
             {% if produkt.is_fabric %}
             <!-- Fabric products form -->
-            <form class="mt-6" action="{% url 'add_to_cart' produkt.id %}" method="post" hx-post="{% url 'add_to_cart' produkt.id %}" hx-target="#menu-cart-btn" hx-swap="outerHTML">
+            <form class="purchase-form" action="{% url 'add_to_cart' produkt.id %}" method="post" hx-post="{% url 'add_to_cart' produkt.id %}" hx-target="#menu-cart-btn" hx-swap="outerHTML">
                 {% csrf_token %}
                 <div class="mb-2">
-                    <label for="quantity">Antal ({{ produkt.get_unit_display }}):</label>
+                    <label class="form-label" for="quantity">Antal ({{ produkt.get_unit_display }}):</label>
                     <!-- Set min and step to 1 for decimeter units -->
-                    <input type="number" id="quantity" name="quantity" value="" min="5" max="{{ produkt.inventory }}" step="1" class="quantity-input bg-gray-100 block w-1/2"/>
+                    <input type="number" id="quantity" name="quantity" value="" min="5" max="{{ produkt.inventory }}" step="1" class="quantity-input form-input"/>
                 </div>
-                <button type="submit" class="btn-green mt-2 inline-block px-8 py-4 rounded-xl text-gray-200">
+                <button type="submit" class="button-brand mt-2">
                     Lägg i kundvagn
                 </button>
             </form>
             {% else %}
             <!-- Non-fabric product form -->
-            <form class="mt-6" action="{% url 'add_to_cart' produkt.id %}" method="post">
+            <form class="purchase-form" action="{% url 'add_to_cart' produkt.id %}" method="post">
                 {% csrf_token %}
     
                 <!-- Färgalternativ -->
                 <div class="mb-2">
-                    <label for="color">Färg:</label>
-                    <select id="color" name="color_id">
+                    <label class="form-label" for="color">Färg:</label>
+                    <select id="color" name="color_id" class="form-input">
                         {% for variant in produkt.variants.all %}
                             <option value="{{ variant.color.id }}">{{ variant.color.name }}</option>
                         {% endfor %}
@@ -163,18 +160,18 @@
                 <!-- Fält för anpassad text om tillåtet -->
                 {% if show_custom_text_field %}
                     <div class="mb-2">
-                        <label for="custom_text">Anpassad Text (valfritt):</label>
-                        <input type="text" id="custom_text" name="custom_text" placeholder="Skriv din text här" class="bg-gray-100 block w-full"/>
+                        <label class="form-label" for="custom_text">Anpassad Text (valfritt):</label>
+                        <input type="text" id="custom_text" name="custom_text" placeholder="Skriv din text här" class="form-input"/>
                     </div>
                 {% endif %}
     
-                <button type="submit" class="btn-green mt-2 inline-block px-8 py-4 rounded-xl text-gray-200">
+                <button type="submit" class="button-brand mt-2">
                     Lägg i kundvagn
                 </button>
             </form>
         {% endif %}
     {% else %}
-        <span class="mt-6 inline-block px-8 py-4 rounded-xl text-gray-400">Slut i lager</span>
+        <span class="alert mt-6 block">Slut i lager</span>
     {% endif %}
 
         {% if previous_product or next_product %}
@@ -197,16 +194,16 @@
         {% endif %}
     </div>
 
-    <div class="w-full">
+    <div class="product-reviews">
         {% if request.user.is_authenticated and not owner_preview %}
-        <h2 class="text-xl mt-6">Omdömen!</h2>
+        <h2 class="section-heading text-2xl mt-6">Omdömen!</h2>
 
-            <form action="." method="post" class="mt-6 mb-6 p-6 bg-gray-100 rounded-xl">
+            <form action="." method="post" class="info-box mt-6 mb-6 space-y-4">
                 {% csrf_token %}
 
                 <div>
-                    <label for="">Omdöme</label><br>
-                    <select name="rating" id="">
+                    <label class="form-label" for="review-rating">Omdöme</label>
+                    <select name="rating" id="review-rating" class="form-input">
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3" selected>3</option>
@@ -216,17 +213,17 @@
                     </select>
                 </div>
                 <div>
-                    <label for="">Kommentar</label><br>
-                    <textarea name="content"></textarea>
+                    <label class="form-label" for="review-content">Kommentar</label>
+                    <textarea name="content" id="review-content" class="form-input" rows="4"></textarea>
                 </div>
                 <div>
-                    <button class="inline-block px-8 py-4 rounded-xl green-bg green-bg-hover">Skicka</button>
+                    <button class="button-brand">Skicka</button>
                 </div>
             </form>
         {% endif %}
 
         {% for review in produkt.reviews.all %}
-            <div class="px-4 py-6 bg-gray-100 rounded-xl mt-6 mb-4">
+            <div class="info-box mt-6 mb-4">
                 <strong>Omdöme:</strong> {{ review.rating }}/6<br>
                 <strong>Datum:</strong> {{ review.created_at|date:"Y-m-d" }}<br>
                 <strong>Kommentar:</strong><br>

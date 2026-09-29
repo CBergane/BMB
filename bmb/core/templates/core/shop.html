@@ -5,13 +5,13 @@
 {% block content %}
 
 
-<div class="max-w-6xl mx-auto flex flex-wrap items-start py-6 px-6 xl:px-0">
+<div class="page-shell page-section">
     <div class="shop-layout w-full">
     <div class="filters shop-sidebar">
         <!-- ... Sökformulär ... -->
 
         <!-- Kategorimeny -->
-        <h3 class="mt-6 mb-3 text-xl uppercase">Kategorier</h3>
+        <h3 class="mb-3 text-lg font-semibold">Kategorier</h3>
         <ul class="space-y-2 font-bold">
             {% for category in categories %}
                 <li>
@@ -42,7 +42,7 @@
         {% for produkt in products %}
             {% include 'products/partials/product_list_items.html' %}
         {% empty %}
-            <p class="product-grid-empty">Välj en underkategori i menyn till vänster för att se produkter.</p>
+            <p class="product-grid-empty">Välj en underkategori i menyn för att se produkter.</p>
         {% endfor %}
         </div>
     </div>

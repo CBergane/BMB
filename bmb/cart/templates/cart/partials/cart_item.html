@@ -1,23 +1,22 @@
 {% load price_filters %}
 
 {% if item %}
-<div class="product mb-6 flex pr-6" id="cart-item-{{ item.cart_key }}">
+<div class="product cart-item" id="cart-item-{{ item.cart_key }}">
     {% if item.slug %}
-    <a href="{% url 'produkt' item.slug %}" class="w-1/4">
-        <img src="{{ item.thumbnail_url }}" class="hover:shadow-lg rounded-xl" alt="{{ item.produkt_namn }}">
+    <a href="{% url 'produkt' item.slug %}" class="min-w-0">
+        <img src="{{ item.thumbnail_url }}" class="rounded-xl" alt="{{ item.produkt_namn }}">
                     
     </a>
     {% else %}
-    <div class="w-1/4">
-        <img src="{{ item.thumbnail_url }}" class="hover:shadow-lg rounded-xl" alt="{{ item.produkt_namn }}">
+    <div class="min-w-0">
+        <img src="{{ item.thumbnail_url }}" class="rounded-xl" alt="{{ item.produkt_namn }}">
     </div>
     {% endif %}
-    <div class="w-3/4 pl-6">
-        <div class="flex justify-between">
+    <div class="min-w-0">
+        <div class="cart-item-heading">
             <span>{{ item.produkt_namn }}</span>
-            <span class="mb-6 pt-1 text-gray-400">{{ item.total_price|sek }}</span>
+            <span class="whitespace-nowrap text-gray-900">{{ item.total_price|sek }}</span>
         </div>
-        <hr>
         {% include 'cart/partials/cart_quantity.html' %}
         <div class="product-options">
             {% if item.color %}
