@@ -18,25 +18,25 @@
                     <div class="form-row mb-4">
                         <div class="min-w-0">
                             <label class="form-label" for="checkout-first_name">Förnamn</label>
-                            <input type="text" name="first_name" id="checkout-first_name" class="form-input" value="{{ request.user.first_name }}">
+                            <input type="text" name="first_name" id="checkout-first_name" class="form-input" value="{{ checkout_data.first_name }}">
                         </div>
                         <div class="min-w-0">
                             <label class="form-label" for="checkout-last_name">Efternamn</label>
-                            <input type="text" name="last_name" id="checkout-last_name" class="form-input" value="{{ request.user.first_name }}">
+                            <input type="text" name="last_name" id="checkout-last_name" class="form-input" value="{{ checkout_data.last_name }}">
                         </div>
                     </div>
                     <div class="mb-4">
                         <label class="form-label" for="checkout-address">Adress</label>
-                        <input type="text" name="address" id="checkout-address" class="form-input">
+                        <input type="text" name="address" id="checkout-address" class="form-input" value="{{ checkout_data.address }}">
                     </div>
                     <div class="form-row mb-4">
                         <div class="min-w-0">
                             <label class="form-label" for="checkout-zipcode">Postnummer</label>
-                            <input type="text" name="zipcode" id="checkout-zipcode" class="form-input">
+                            <input type="text" name="zipcode" id="checkout-zipcode" class="form-input" value="{{ checkout_data.zipcode }}">
                         </div>
                         <div class="min-w-0">
                             <label class="form-label" for="checkout-city">Stad</label>
-                            <input type="text" name="city" id="checkout-city" class="form-input">
+                            <input type="text" name="city" id="checkout-city" class="form-input" value="{{ checkout_data.city }}">
                         </div>
                     </div>
                 </div>
@@ -44,11 +44,11 @@
                     <h2 class="mb-5 text-lg font-semibold">Kontaktuppgifter</h2>
                     <div class="mb-4">
                         <label class="form-label" for="checkout-email">Email</label>
-                        <input type="email" name="email" id="checkout-email" class="form-input" value="{{ request.user.email }}">
+                        <input type="email" name="email" id="checkout-email" class="form-input" value="{{ checkout_data.email }}">
                     </div>
                     <div class="mb-4">
                         <label class="form-label" for="checkout-phone">Telefon</label>
-                        <input type="phone" name="phone" id="checkout-phone" class="form-input">
+                        <input type="phone" name="phone" id="checkout-phone" class="form-input" value="{{ checkout_data.phone }}">
                     </div>
                 </div>
                 <div class="alert alert--error mb-6" id="errors" role="alert"></div>

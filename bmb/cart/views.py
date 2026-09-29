@@ -91,7 +91,13 @@ def clear_cart(request):
 def checkout(request):
     pub_key = settings.STRIPE_API_KEY_PUBLISHABLE
     shopping_cart = Cart(request)
+    checkout_data = request.POST if request.method == 'POST' else {
+        'first_name': request.user.first_name,
+        'last_name': request.user.last_name,
+        'email': request.user.email,
+    }
     return render(request, 'cart/checkout.html', {
+        'checkout_data': checkout_data,
         'pub_key': pub_key,
         'swish_submission_key': uuid4(),
         'cart': shopping_cart,
