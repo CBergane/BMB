@@ -1,0 +1,51 @@
+# Local environment and credentials (keep the documented example).
+.env
+.env.*
+!.env.example
+.aws/
+
+# Python caches and local virtual environments.
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.Python
+
+# Django collectstatic output; bmb/static/ contains source assets.
+/bmb/staticfiles/
+
+# Local databases, database sidecars, and dumps.
+*.sqlite
+*.sqlite3
+*.sqlite-*
+*.sqlite3-*
+*.db
+*.db-*
+*.dump
+*.sql.gz
+*.sql.bz2
+*.sql.xz
+
+# Build and test output.
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.log
+
+# OS and editor leftovers.
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
