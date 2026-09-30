@@ -41,7 +41,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = _env_bool("DEBUG")
 
 
-ALLOWED_HOSTS = ['8000-cbergane-bmb-yy245hqlxih.ws-eu116.gitpod.io', 'localhost', 'bmb-annelie-e3fc68fd7d04.herokuapp.com', '127.0.0.1', 'www.bramycketbattre.com', 'bramycketbattre.com' ]
+ALLOWED_HOSTS = _env_csv("ALLOWED_HOSTS") or ["localhost", "127.0.0.1", "[::1]"]
 
 SITE_ID = 1
 
@@ -181,7 +181,6 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Europe/Stockholm'
-USE_TZ = True
 
 USE_I18N = True
 
@@ -218,6 +217,9 @@ CSRF_TRUSTED_ORIGINS = _env_csv("CSRF_TRUSTED_ORIGINS")
 SECURE_SSL_REDIRECT = _env_bool("SECURE_SSL_REDIRECT")
 SESSION_COOKIE_SECURE = _env_bool("SESSION_COOKIE_SECURE")
 CSRF_COOKIE_SECURE = _env_bool("CSRF_COOKIE_SECURE")
+SECURE_HSTS_SECONDS = int(os.environ.get("SECURE_HSTS_SECONDS", "0"))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = _env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS")
+SECURE_HSTS_PRELOAD = _env_bool("SECURE_HSTS_PRELOAD")
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

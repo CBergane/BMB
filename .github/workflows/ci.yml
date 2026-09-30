@@ -36,14 +36,18 @@ jobs:
       DATABASE_URL: postgresql://bmb_ci:ci-only-password@127.0.0.1:5432/bmb_ci
       DATABASE_SSL: "False"
       DEBUG: "False"
+      ALLOWED_HOSTS: bramycketbattre.com,www.bramycketbattre.com
       CART_SESSION: cart
       CLOUDINARY_URL: cloudinary://ci-only:ci-only@ci-only
       EMAIL: ci@example.invalid
       DEFAULT_FROM_EMAIL: ci@example.invalid
-      CSRF_TRUSTED_ORIGINS: https://localhost
+      CSRF_TRUSTED_ORIGINS: https://bramycketbattre.com,https://www.bramycketbattre.com
       SECURE_SSL_REDIRECT: "True"
       SESSION_COOKIE_SECURE: "True"
       CSRF_COOKIE_SECURE: "True"
+      SECURE_HSTS_SECONDS: "300"
+      SECURE_HSTS_INCLUDE_SUBDOMAINS: "False"
+      SECURE_HSTS_PRELOAD: "False"
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
